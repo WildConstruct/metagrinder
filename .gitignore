@@ -51,6 +51,8 @@ load-tests/*.log
 # Generated assets
 assets/generated/
 asset-gen
+# Generated Metagrinder test outputs
+packages/core/tests/output/
 # Ignore stray Windows device filename artifact
 nul
 .vercel
