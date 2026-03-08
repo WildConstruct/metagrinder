@@ -35,6 +35,8 @@ Protect `main` with:
 - deletions disabled
 - required status check: `metagrinder-tests`
 
+Blocked on 2026-03-08: GitHub returned `403 Upgrade to GitHub Pro or make this repository public to enable this feature` when applying branch protection to the current private repository.
+
 ## CI Baseline
 
 The minimum required workflow is [metagrinder-ci.yml](/mnt/c/Users/Owner/CascadeProjects/prompt-spaghetti-metagrinder-fork/.github/workflows/metagrinder-ci.yml), which runs:
@@ -43,3 +45,5 @@ The minimum required workflow is [metagrinder-ci.yml](/mnt/c/Users/Owner/Cascade
 pnpm install --frozen-lockfile
 pnpm test:metagrinder
 ```
+
+Blocked on 2026-03-08: the workflow is registered, but GitHub Actions runs are returning `startup_failure` with `path: BuildFailed` before job creation. Local `pnpm test:metagrinder` passes, so this currently looks like a GitHub-side repo or org configuration problem rather than a failing test command.
