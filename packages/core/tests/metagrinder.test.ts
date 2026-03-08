@@ -8,11 +8,12 @@ import {
   CanonicalUtdgRecordSchema,
   LumaAdapterContractSchema,
   MetagrinderClassifyArtifactSchema,
-  MetagrinderExtractArtifactSchema,
-  MetagrinderIngestArtifactSchema,
-  MetagrinderReviewArtifactSchema,
-  MetagrinderScoreArtifactSchema,
-  MetagrinderSynthesizeArtifactSchema,
+    MetagrinderExtractArtifactSchema,
+    MetagrinderIngestArtifactSchema,
+    MetagrinderMutationArtifactSchema,
+    MetagrinderReviewArtifactSchema,
+    MetagrinderScoreArtifactSchema,
+    MetagrinderSynthesizeArtifactSchema,
   MetaballManifestSchema,
   ModelConditioningPayloadSchema,
   GraphMatchReportSchema,
@@ -30,13 +31,14 @@ import {
 } from '../types/metagrinder';
 
 const {
-  buildClassifyArtifact,
-  buildConceptClustersPsg,
-  buildExtractArtifact,
-  buildIngestArtifact,
-  buildMultiInputIngestArtifact,
-  buildPromptSynthesisPsg,
-    buildResearchPackageManifest,
+      buildClassifyArtifact,
+      buildConceptClustersPsg,
+      buildExtractArtifact,
+      buildIngestArtifact,
+      buildMutationArtifact,
+      buildMultiInputIngestArtifact,
+      buildPromptSynthesisPsg,
+      buildResearchPackageManifest,
     buildReviewArtifact,
     buildScoreArtifact,
     buildSourceMapPsg,
@@ -160,6 +162,36 @@ describe('metagrinder schemas', () => {
 
     expect(result.promptFragments).toHaveLength(1);
     expect(result.promptFragments[0].family).toBe('lighting');
+  });
+
+  test('parses metagrinder mutation artifact', () => {
+    const result = MetagrinderMutationArtifactSchema.parse({
+      inputId: 'src_001',
+      candidateFragments: [
+        {
+          fragmentId: 'fragment_001',
+          family: 'lighting',
+          text: 'bright marquee glow',
+          conceptIds: ['concept_001'],
+          sourceInputIds: ['src_001'],
+          sourceChunkIds: ['src_001_chunk_001']
+        }
+      ],
+      compatibilityDecisions: [
+        {
+          decisionId: 'decision_001',
+          leftFragmentId: 'fragment_001',
+          rightFragmentId: 'fragment_002',
+          status: 'incompatible',
+          reasons: ['same-family-fragments-cannot-be-recombined'],
+          sharedConceptIds: [],
+          sharedSourceInputIds: ['src_001']
+        }
+      ]
+    });
+
+    expect(result.candidateFragments).toHaveLength(1);
+    expect(result.compatibilityDecisions[0].status).toBe('incompatible');
   });
 
   test('parses metagrinder score artifact', () => {
@@ -698,6 +730,91 @@ describe('metagrinder schemas', () => {
     expect(
       synthesizeArtifact.promptFragments.every(fragment => fragment.sourceChunkIds[0] === 'single-note_chunk_001')
     ).toBe(true);
+  });
+
+  test('builds mutation artifact directly from synthesis output without reshaping', () => {
+    const rawText = readTextFixture('research-input-broadway.txt');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-broadway.txt',
+      rawText,
+      inputId: 'research-input-broadway',
+      title: '1950s New York Broadway audience on a cold evening',
+      createdAt: '2026-03-07T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({
+      ingestArtifact
+    });
+    const synthesizeArtifact = buildSynthesizeArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact
+    });
+
+    expect(mutationArtifact.candidateFragments).toHaveLength(
+      synthesizeArtifact.promptFragments.length
+    );
+    expect(
+      mutationArtifact.candidateFragments.every(fragment => fragment.sourceInputIds.length > 0)
+    ).toBe(true);
+    expect(
+      mutationArtifact.candidateFragments.every(fragment => fragment.sourceChunkIds.length > 0)
+    ).toBe(true);
+    expect(mutationArtifact.compatibilityDecisions.length).toBeGreaterThan(0);
+    expect(
+      mutationArtifact.compatibilityDecisions.every(decision => decision.reasons.length > 0)
+    ).toBe(true);
+  });
+
+  test('marks same-family fragment pairs as incompatible during mutation compatibility evaluation', () => {
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact: {
+        inputId: 'mutation-test',
+        promptFragments: [
+          {
+            fragmentId: 'fragment_001',
+            family: 'lighting',
+            text: 'bright sign glow over wet ground',
+            conceptIds: ['concept_001'],
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_001']
+          },
+          {
+            fragmentId: 'fragment_002',
+            family: 'lighting',
+            text: 'hard flood-lamp reflection on steel deck',
+            conceptIds: ['concept_002'],
+            sourceInputIds: ['src_002'],
+            sourceChunkIds: ['src_002_chunk_001']
+          },
+          {
+            fragmentId: 'fragment_003',
+            family: 'wardrobe',
+            text: 'heavy winter outerwear and gloves',
+            conceptIds: ['concept_003'],
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_002']
+          }
+        ]
+      }
+    });
+
+    const sameFamilyDecision = mutationArtifact.compatibilityDecisions.find(
+      decision =>
+        decision.leftFragmentId === 'fragment_001' &&
+        decision.rightFragmentId === 'fragment_002'
+    );
+    const crossFamilyDecision = mutationArtifact.compatibilityDecisions.find(
+      decision =>
+        decision.leftFragmentId === 'fragment_001' &&
+        decision.rightFragmentId === 'fragment_003'
+    );
+
+    expect(sameFamilyDecision?.status).toBe('incompatible');
+    expect(sameFamilyDecision?.reasons).toContain('same-family-fragments-cannot-be-recombined');
+    expect(crossFamilyDecision?.status).toBe('compatible');
+    expect(crossFamilyDecision?.reasons).toContain('distinct-families');
   });
 
   test('builds score artifact and package outputs from Broadway fixture', () => {

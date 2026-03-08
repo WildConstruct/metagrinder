@@ -212,6 +212,41 @@ const MetagrinderSynthesizeArtifactSchema = z.object({
   promptFragments: z.array(MetagrinderPromptFragmentSchema).default([])
 });
 
+const MetagrinderMutationCompatibilityStatusSchema = z.enum([
+  'compatible',
+  'incompatible'
+]);
+
+const MetagrinderMutationInputFragmentSchema = z.object({
+  fragmentId: z.string(),
+  family: z.enum([
+    'atmosphere',
+    'wardrobe',
+    'crowd-behavior',
+    'lighting'
+  ]),
+  text: z.string(),
+  conceptIds: z.array(z.string()).default([]),
+  sourceInputIds: z.array(z.string()).min(1),
+  sourceChunkIds: z.array(z.string()).min(1)
+});
+
+const MetagrinderMutationCompatibilityDecisionSchema = z.object({
+  decisionId: z.string(),
+  leftFragmentId: z.string(),
+  rightFragmentId: z.string(),
+  status: MetagrinderMutationCompatibilityStatusSchema,
+  reasons: z.array(z.string()).min(1),
+  sharedConceptIds: z.array(z.string()).default([]),
+  sharedSourceInputIds: z.array(z.string()).default([])
+});
+
+const MetagrinderMutationArtifactSchema = z.object({
+  inputId: z.string(),
+  candidateFragments: z.array(MetagrinderMutationInputFragmentSchema).default([]),
+  compatibilityDecisions: z.array(MetagrinderMutationCompatibilityDecisionSchema).default([])
+});
+
 const MetagrinderScoreArtifactSchema = z.object({
   inputId: z.string(),
   corroboratedConceptIds: z.array(z.string()).default([]),
@@ -783,6 +818,10 @@ module.exports = {
   MetagrinderOpenQuestionSchema,
   MetagrinderPromptFragmentSchema,
   MetagrinderReviewArtifactSchema,
+  MetagrinderMutationArtifactSchema,
+  MetagrinderMutationCompatibilityDecisionSchema,
+  MetagrinderMutationCompatibilityStatusSchema,
+  MetagrinderMutationInputFragmentSchema,
   MetagrinderScoreArtifactSchema,
   MetagrinderSourceTypeSchema,
   MetagrinderSynthesizeArtifactSchema,
