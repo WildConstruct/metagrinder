@@ -264,10 +264,37 @@ export const MetagrinderMutationCompatibilityDecisionSchema = z.object({
   sharedSourceInputIds: z.array(z.string()).default([])
 });
 
+export const MetagrinderPromptMutationVariantSchema = z.object({
+  variantId: z.string(),
+  text: z.string(),
+  fragmentIds: z.array(z.string()).min(2),
+  families: z.array(z.enum([
+    'atmosphere',
+    'wardrobe',
+    'crowd-behavior',
+    'lighting'
+  ])).min(2),
+  compatibilityDecisionIds: z.array(z.string()).min(1),
+  conceptIds: z.array(z.string()).default([]),
+  sourceInputIds: z.array(z.string()).min(1),
+  sourceChunkIds: z.array(z.string()).min(1),
+  distinctivenessScore: z.number().min(0).max(1)
+});
+
+export const MetagrinderMutationGenerationSummarySchema = z.object({
+  maxVariants: z.number().int().positive(),
+  compatiblePairCount: z.number().int().nonnegative(),
+  incompatiblePairCount: z.number().int().nonnegative(),
+  generatedVariantCount: z.number().int().nonnegative(),
+  droppedDuplicateCount: z.number().int().nonnegative()
+});
+
 export const MetagrinderMutationArtifactSchema = z.object({
   inputId: z.string(),
   candidateFragments: z.array(MetagrinderMutationInputFragmentSchema).default([]),
-  compatibilityDecisions: z.array(MetagrinderMutationCompatibilityDecisionSchema).default([])
+  compatibilityDecisions: z.array(MetagrinderMutationCompatibilityDecisionSchema).default([]),
+  variants: z.array(MetagrinderPromptMutationVariantSchema).default([]),
+  generationSummary: MetagrinderMutationGenerationSummarySchema
 });
 
 export const MetagrinderScoreArtifactSchema = z.object({
@@ -930,6 +957,12 @@ export type MetagrinderMutationInputFragment = z.infer<
 >;
 export type MetagrinderMutationCompatibilityDecision = z.infer<
   typeof MetagrinderMutationCompatibilityDecisionSchema
+>;
+export type MetagrinderPromptMutationVariant = z.infer<
+  typeof MetagrinderPromptMutationVariantSchema
+>;
+export type MetagrinderMutationGenerationSummary = z.infer<
+  typeof MetagrinderMutationGenerationSummarySchema
 >;
 export type MetagrinderMutationArtifact = z.infer<
   typeof MetagrinderMutationArtifactSchema

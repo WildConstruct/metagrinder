@@ -914,6 +914,29 @@ function evaluateMutationCompatibility(leftFragment, rightFragment) {
   };
 }
 
+const MUTATION_FAMILY_ORDER = ['atmosphere', 'wardrobe', 'crowd-behavior', 'lighting'];
+const MAX_MUTATION_VARIANTS = 12;
+
+function sortFragmentsForMutation(fragments) {
+  return [...fragments].sort((left, right) =>
+    MUTATION_FAMILY_ORDER.indexOf(left.family) - MUTATION_FAMILY_ORDER.indexOf(right.family)
+  );
+}
+
+function mergeMutationLineage(fragments, fieldName) {
+  return mergeUniqueStrings(fragments.flatMap((fragment) => fragment[fieldName]));
+}
+
+function scoreMutationDistinctiveness(fragments) {
+  const conceptCount = mergeMutationLineage(fragments, 'conceptIds').length;
+  const sourceCount = mergeMutationLineage(fragments, 'sourceInputIds').length;
+  const familyCount = mergeUniqueStrings(fragments.map((fragment) => fragment.family)).length;
+  return Math.min(
+    1,
+    Number(((conceptCount * 0.2) + (sourceCount * 0.15) + (familyCount * 0.2)).toFixed(2))
+  );
+}
+
 function buildMutationArtifact({ synthesizeArtifact }) {
   const candidateFragments = synthesizeArtifact.promptFragments.map((fragment) => ({
     fragmentId: fragment.fragmentId,
@@ -925,12 +948,16 @@ function buildMutationArtifact({ synthesizeArtifact }) {
   }));
 
   const compatibilityDecisions = [];
+  const variants = [];
+  const seenVariantTexts = new Set();
+  let droppedDuplicateCount = 0;
+
   for (let leftIndex = 0; leftIndex < candidateFragments.length; leftIndex += 1) {
     for (let rightIndex = leftIndex + 1; rightIndex < candidateFragments.length; rightIndex += 1) {
       const leftFragment = candidateFragments[leftIndex];
       const rightFragment = candidateFragments[rightIndex];
       const compatibility = evaluateMutationCompatibility(leftFragment, rightFragment);
-      compatibilityDecisions.push({
+      const decision = {
         decisionId: `${synthesizeArtifact.inputId}_mutation_check_${String(compatibilityDecisions.length + 1).padStart(3, '0')}`,
         leftFragmentId: leftFragment.fragmentId,
         rightFragmentId: rightFragment.fragmentId,
@@ -938,14 +965,53 @@ function buildMutationArtifact({ synthesizeArtifact }) {
         reasons: compatibility.reasons,
         sharedConceptIds: compatibility.sharedConceptIds,
         sharedSourceInputIds: compatibility.sharedSourceInputIds
+      };
+      compatibilityDecisions.push(decision);
+
+      if (decision.status !== 'compatible' || variants.length >= MAX_MUTATION_VARIANTS) {
+        continue;
+      }
+
+      const orderedFragments = sortFragmentsForMutation([leftFragment, rightFragment]);
+      const variantText = orderedFragments.map((fragment) => fragment.text).join(', ');
+      const normalizedVariantKey = normalizedFragmentText(variantText);
+      if (seenVariantTexts.has(normalizedVariantKey)) {
+        droppedDuplicateCount += 1;
+        continue;
+      }
+
+      seenVariantTexts.add(normalizedVariantKey);
+      variants.push({
+        variantId: `${synthesizeArtifact.inputId}_mutation_variant_${String(variants.length + 1).padStart(3, '0')}`,
+        text: variantText,
+        fragmentIds: orderedFragments.map((fragment) => fragment.fragmentId),
+        families: orderedFragments.map((fragment) => fragment.family),
+        compatibilityDecisionIds: [decision.decisionId],
+        conceptIds: mergeMutationLineage(orderedFragments, 'conceptIds'),
+        sourceInputIds: mergeMutationLineage(orderedFragments, 'sourceInputIds'),
+        sourceChunkIds: mergeMutationLineage(orderedFragments, 'sourceChunkIds'),
+        distinctivenessScore: scoreMutationDistinctiveness(orderedFragments)
       });
     }
   }
 
+  const compatiblePairCount = compatibilityDecisions.filter(
+    (decision) => decision.status === 'compatible'
+  ).length;
+  const incompatiblePairCount = compatibilityDecisions.length - compatiblePairCount;
+
   return MetagrinderMutationArtifactSchema.parse({
     inputId: synthesizeArtifact.inputId,
     candidateFragments,
-    compatibilityDecisions
+    compatibilityDecisions,
+    variants,
+    generationSummary: {
+      maxVariants: MAX_MUTATION_VARIANTS,
+      compatiblePairCount,
+      incompatiblePairCount,
+      generatedVariantCount: variants.length,
+      droppedDuplicateCount
+    }
   });
 }
 

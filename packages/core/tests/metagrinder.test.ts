@@ -187,11 +187,32 @@ describe('metagrinder schemas', () => {
           sharedConceptIds: [],
           sharedSourceInputIds: ['src_001']
         }
-      ]
+      ],
+      variants: [
+        {
+          variantId: 'variant_001',
+          text: 'bright marquee glow, heavy evening overcoats',
+          fragmentIds: ['fragment_001', 'fragment_002'],
+          families: ['lighting', 'wardrobe'],
+          compatibilityDecisionIds: ['decision_002'],
+          conceptIds: ['concept_001', 'concept_002'],
+          sourceInputIds: ['src_001'],
+          sourceChunkIds: ['src_001_chunk_001', 'src_001_chunk_002'],
+          distinctivenessScore: 0.55
+        }
+      ],
+      generationSummary: {
+        maxVariants: 12,
+        compatiblePairCount: 1,
+        incompatiblePairCount: 1,
+        generatedVariantCount: 1,
+        droppedDuplicateCount: 0
+      }
     });
 
     expect(result.candidateFragments).toHaveLength(1);
     expect(result.compatibilityDecisions[0].status).toBe('incompatible');
+    expect(result.variants[0].variantId).toBe('variant_001');
   });
 
   test('parses metagrinder score artifact', () => {
@@ -765,6 +786,12 @@ describe('metagrinder schemas', () => {
     expect(
       mutationArtifact.compatibilityDecisions.every(decision => decision.reasons.length > 0)
     ).toBe(true);
+    expect(mutationArtifact.generationSummary.generatedVariantCount).toBe(
+      mutationArtifact.variants.length
+    );
+    expect(
+      mutationArtifact.variants.every(variant => variant.sourceChunkIds.length > 0)
+    ).toBe(true);
   });
 
   test('marks same-family fragment pairs as incompatible during mutation compatibility evaluation', () => {
@@ -815,6 +842,77 @@ describe('metagrinder schemas', () => {
     expect(sameFamilyDecision?.reasons).toContain('same-family-fragments-cannot-be-recombined');
     expect(crossFamilyDecision?.status).toBe('compatible');
     expect(crossFamilyDecision?.reasons).toContain('distinct-families');
+  });
+
+  test('bounds mutation generation and suppresses duplicate variants deterministically', () => {
+    const promptFragments = [
+      {
+        fragmentId: 'fragment_001',
+        family: 'atmosphere',
+        text: 'humid dawn air around glass panes',
+        conceptIds: ['concept_001'],
+        sourceInputIds: ['src_001'],
+        sourceChunkIds: ['src_001_chunk_001']
+      },
+      {
+        fragmentId: 'fragment_002',
+        family: 'wardrobe',
+        text: 'workers in heavy canvas jackets',
+        conceptIds: ['concept_002'],
+        sourceInputIds: ['src_001'],
+        sourceChunkIds: ['src_001_chunk_002']
+      },
+      {
+        fragmentId: 'fragment_003',
+        family: 'crowd-behavior',
+        text: 'compact groups moving through the wind',
+        conceptIds: ['concept_003'],
+        sourceInputIds: ['src_002'],
+        sourceChunkIds: ['src_002_chunk_001']
+      },
+      {
+        fragmentId: 'fragment_004',
+        family: 'lighting',
+        text: 'hard flood-lamp reflections on steel deck',
+        conceptIds: ['concept_004'],
+        sourceInputIds: ['src_002'],
+        sourceChunkIds: ['src_002_chunk_002']
+      },
+      {
+        fragmentId: 'fragment_005',
+        family: 'lighting',
+        text: 'hard flood-lamp reflections on steel deck',
+        conceptIds: ['concept_005'],
+        sourceInputIds: ['src_003'],
+        sourceChunkIds: ['src_003_chunk_001']
+      },
+      {
+        fragmentId: 'fragment_006',
+        family: 'wardrobe',
+        text: 'workers in heavy canvas jackets',
+        conceptIds: ['concept_006'],
+        sourceInputIds: ['src_003'],
+        sourceChunkIds: ['src_003_chunk_002']
+      }
+    ];
+
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact: {
+        inputId: 'mutation-bounds',
+        promptFragments
+      }
+    });
+
+    expect(mutationArtifact.variants.length).toBeLessThanOrEqual(
+      mutationArtifact.generationSummary.maxVariants
+    );
+    expect(mutationArtifact.generationSummary.droppedDuplicateCount).toBeGreaterThanOrEqual(1);
+    expect(
+      mutationArtifact.variants.every(variant => variant.compatibilityDecisionIds.length > 0)
+    ).toBe(true);
+    expect(
+      mutationArtifact.variants.every(variant => variant.fragmentIds.length === 2)
+    ).toBe(true);
   });
 
   test('builds score artifact and package outputs from Broadway fixture', () => {
