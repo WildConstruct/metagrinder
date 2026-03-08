@@ -1,0 +1,12 @@
+{
+  "witnessRenderId": "witness_demo_002",
+  "packageId": "metaball_demo_001",
+  "cameraId": "cam_alley_master",
+  "sourceFieldId": "wsf_demo_001",
+  "renderPath": "witness-alley-master.png",
+  "depthPath": "witness-alley-master-depth.exr",
+  "normalPath": "witness-alley-master-normal.exr",
+  "semanticOverlayPath": "witness-alley-master-overlay.png",
+  "mode": "projected-texture-preview",
+  "generatedAt": "2026-03-07T13:14:00.000Z"
+}

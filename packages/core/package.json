@@ -1,0 +1,17 @@
+{
+  "name": "@promptscape/core",
+  "version": "0.1.0-alpha",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "validate:metagrinder": "node scripts/validate-metagrinder-fixtures.js",
+    "validate:rainy-alley-prototype": "node scripts/validate-rainy-alley-prototype.js",
+    "validate:rainy-alley-shot-differences": "node scripts/validate-rainy-alley-shot-differences.js",
+    "run:rainy-alley-prototype": "node scripts/run-rainy-alley-prototype.js",
+    "run:metagrinder-mvp": "node scripts/run-metagrinder-mvp.js",
+    "test:metagrinder": "jest --config jest.metagrinder.config.cjs"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  }
+}

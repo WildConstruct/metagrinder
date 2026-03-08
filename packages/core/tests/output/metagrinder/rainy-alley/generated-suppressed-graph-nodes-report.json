@@ -1,0 +1,35 @@
+{
+  "graphId": "pgraph_demo_001",
+  "cameraId": "cam_alley_master",
+  "packetId": "generated_wsf_demo_001_cam_alley_master",
+  "entries": [
+    {
+      "recordId": "region_001",
+      "graphNodeId": "node_surface_001",
+      "semanticLod": "lod1",
+      "bucket": "dominant_surfaces",
+      "selectedText": [
+        "rain-darkened brick wall"
+      ],
+      "suppressionReason": "bucket-budget",
+      "screenCoverageEstimate": 1,
+      "semanticInfluence": 1,
+      "narrativePriority": 0.9,
+      "priorityWeight": 0.9
+    },
+    {
+      "recordId": "region_001",
+      "graphNodeId": "node_surface_002",
+      "semanticLod": "lod1",
+      "bucket": "dominant_surfaces",
+      "selectedText": [
+        "left alley wall plane"
+      ],
+      "suppressionReason": "bucket-budget",
+      "screenCoverageEstimate": 1,
+      "semanticInfluence": 1,
+      "narrativePriority": 0.5,
+      "priorityWeight": 0.4
+    }
+  ]
+}

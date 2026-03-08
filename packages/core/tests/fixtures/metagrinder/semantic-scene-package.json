@@ -1,0 +1,76 @@
+{
+  "packageId": "sspkg_demo_001",
+  "packageType": "semantic-scene-package",
+  "sourceRender": "rainy-alley-render.png",
+  "sourcePrompt": "rainy alley with wet brick wall, leak zone, darkened mortar, wind-driven rain",
+  "analysisMode": "reverse-prompt-analysis",
+  "sceneRegions": [
+    {
+      "regionId": "region_left_wall",
+      "maskRef": "segmentation-left-wall.png",
+      "boundingBox": {
+        "x": 120,
+        "y": 110,
+        "width": 620,
+        "height": 780
+      },
+      "dominantColors": ["#4a342d", "#6a544c", "#2f2f30"],
+      "materialHypotheses": ["brick wall", "dark mortar"],
+      "objectHypotheses": ["alley wall"],
+      "environmentalHypotheses": ["rain exposure", "localized leak runoff"],
+      "promptRefs": ["rainy alley", "wet brick wall"],
+      "utdgRefs": [
+        "utdg:concept:brick",
+        "utdg:archetype:rain-darkened-brick-wall"
+      ],
+      "confidence": "high"
+    }
+  ],
+  "objectHypotheses": [
+    {
+      "objectId": "obj_wall_left",
+      "label": "left alley wall",
+      "regionRefs": ["region_left_wall"],
+      "materialRefs": ["brick wall"],
+      "promptRefs": ["wet brick wall"],
+      "utdgRefs": ["utdg:concept:brick"],
+      "confidence": "high"
+    }
+  ],
+  "promptAlignment": [
+    {
+      "promptToken": "wet brick wall",
+      "matchedRegionRefs": ["region_left_wall"],
+      "matchedObjectRefs": ["obj_wall_left"],
+      "status": "present",
+      "confidence": "high"
+    },
+    {
+      "promptToken": "wind-driven rain",
+      "matchedRegionRefs": ["region_left_wall"],
+      "matchedObjectRefs": [],
+      "status": "partial",
+      "confidence": "medium"
+    }
+  ],
+  "utdgMatches": [
+    "utdg:concept:brick",
+    "utdg:archetype:rain-darkened-brick-wall",
+    "utdg:modifier:wetness"
+  ],
+  "adjustmentHandles": [
+    "wetness",
+    "runoff-intensity",
+    "mortar-darkening"
+  ],
+  "confidenceSummary": {
+    "overall": "medium",
+    "extraction": "high",
+    "normalization": "medium",
+    "provenance": "medium",
+    "rights": "high"
+  },
+  "lineage": {
+    "sourceInputIds": ["rainy_alley_render_001"]
+  }
+}

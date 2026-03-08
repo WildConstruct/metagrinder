@@ -1,0 +1,29 @@
+{
+  "graphId": "pgraph_demo_001",
+  "cameraId": "cam_alley_master",
+  "packetId": "rtp_demo_001",
+  "entries": [
+    {
+      "recordId": "sp_001",
+      "graphNodeId": "node_surface_001",
+      "semanticLod": "lod2",
+      "matchType": "semantic",
+      "matchedRefs": ["utdg:archetype:rain-darkened-brick-wall"],
+      "screenCoverageEstimate": 1,
+      "semanticInfluence": 1.3,
+      "bucket": "dominant_surfaces",
+      "selectedText": ["rain-darkened brick wall on the left side of the alley"]
+    },
+    {
+      "recordId": "sp_001",
+      "graphNodeId": "node_effect_001",
+      "semanticLod": "lod2",
+      "matchType": "spatial",
+      "matchedRefs": ["sp_001"],
+      "screenCoverageEstimate": 1,
+      "semanticInfluence": 1.3,
+      "bucket": "localized_effects",
+      "selectedText": ["wet brick leak zone with directional runoff streaks"]
+    }
+  ]
+}

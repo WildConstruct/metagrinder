@@ -1,0 +1,102 @@
+{
+  "metaballId": "metaball_demo_001",
+  "title": "Rainy Alley Spicy Metaball",
+  "packageType": "metaball-manifest",
+  "researchPackage": {
+    "path": "research-package.json",
+    "packageId": "rpkg_demo_001"
+  },
+  "utdgSubmission": {
+    "path": "utdg-submission.json",
+    "submissionId": "usub_demo_001"
+  },
+  "worldSemanticField": {
+    "path": "world-semantic-field.json",
+    "fieldId": "wsf_demo_001"
+  },
+  "renderTextPackets": [
+    {
+      "path": "render-text-packet.json",
+      "packetId": "rtp_demo_001"
+    }
+  ],
+  "promptGraphs": [
+    {
+      "path": "prompt-graph.json",
+      "graphId": "pgraph_demo_001"
+    }
+  ],
+  "semanticScenePackages": [
+    {
+      "path": "semantic-scene-package.json",
+      "packageId": "sspkg_demo_001"
+    }
+  ],
+  "patchProposals": [
+    {
+      "path": "patch-proposal.json",
+      "proposalId": "patch_demo_001"
+    }
+  ],
+  "witnessRenders": [
+    {
+      "path": "witness-render-manifest.json",
+      "witnessRenderId": "witness_demo_001"
+    },
+    {
+      "path": "witness-render-manifest-alt.json",
+      "witnessRenderId": "witness_demo_002"
+    }
+  ],
+  "cameraPasses": [
+    {
+      "path": "camera-pass-manifest.json",
+      "cameraPassId": "cpass_demo_001"
+    }
+  ],
+  "viewQueryConfig": {
+    "cameraId": "cam_alley_master",
+    "resolution": {
+      "width": 1920,
+      "height": 1080
+    },
+    "useOcclusion": true,
+    "distanceBias": 1,
+    "narrativePriorityBias": 1.2,
+    "semanticInfluenceBias": 1.1,
+    "maxRecords": 64,
+    "maxPacketEntries": 16
+  },
+  "promptGraphLodPolicy": {
+    "policyId": "lod_policy_demo_001",
+    "strategy": "distance-and-budget",
+    "thresholds": {
+      "lod0MinDistance": 5.5,
+      "lod1MinDistance": 3.25,
+      "lod2MaxDistance": 3.25
+    },
+    "budgets": {
+      "lod0": {
+        "maxEntries": 6,
+        "strategy": "coarse"
+      },
+      "lod1": {
+        "maxEntries": 10,
+        "strategy": "balanced"
+      },
+      "lod2": {
+        "maxEntries": 16,
+        "strategy": "fine"
+      }
+    },
+    "compaction": {
+      "preserveHeroDetails": true,
+      "heroNarrativeThreshold": 1,
+      "preserveLocalizedEffectsInWideShots": true
+    }
+  },
+  "metadata": {
+    "description": "A project-local metaball carrying research, UTDG staging, world semantic field data, and render packet guidance.",
+    "createdAt": "2026-03-07T12:10:00.000Z"
+  }
+}

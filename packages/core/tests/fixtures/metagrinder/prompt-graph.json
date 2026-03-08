@@ -1,0 +1,138 @@
+{
+  "graphId": "pgraph_demo_001",
+  "packageId": "metaball_demo_001",
+  "title": "Rainy Alley Prompt Graph",
+  "lodPolicyRef": "lod_policy_demo_001",
+  "nodes": [
+    {
+      "nodeId": "node_surface_001",
+      "label": "Left Wall Surface",
+      "semanticRefs": [
+        "utdg:concept:brick",
+        "utdg:archetype:rain-darkened-brick-wall"
+      ],
+      "spatialRefs": ["region_001"],
+      "nodeType": "surface",
+      "narrativePriority": 0.9,
+      "priorityWeight": 0.9,
+      "forceInclude": false,
+      "minScreenCoverage": 0.05,
+      "minSemanticInfluence": 0.4,
+      "textVariants": {
+        "lod0": ["brick wall"],
+        "lod1": ["rain-darkened brick wall"],
+        "lod2": ["rain-darkened brick wall on the left side of the alley"]
+      }
+    },
+    {
+      "nodeId": "node_effect_001",
+      "label": "Leak Zone",
+      "semanticRefs": [
+        "intent:wet-brick-left-wall",
+        "utdg:modifier:wetness"
+      ],
+      "spatialRefs": ["sp_001"],
+      "nodeType": "localized-effect",
+      "narrativePriority": 1.2,
+      "priorityWeight": 1.2,
+      "forceInclude": true,
+      "minScreenCoverage": 0.02,
+      "minSemanticInfluence": 0.25,
+      "textVariants": {
+        "lod0": ["wet wall leak zone"],
+        "lod1": ["wet wall leak zone"],
+        "lod2": ["wet brick leak zone with directional runoff streaks"]
+      }
+    },
+    {
+      "nodeId": "node_surface_002",
+      "label": "Wall Plane Context",
+      "semanticRefs": [
+        "utdg:concept:brick"
+      ],
+      "spatialRefs": ["region_001"],
+      "nodeType": "surface",
+      "narrativePriority": 0.5,
+      "priorityWeight": 0.4,
+      "forceInclude": false,
+      "minScreenCoverage": 0.05,
+      "minSemanticInfluence": 0.2,
+      "textVariants": {
+        "lod0": ["alley wall"],
+        "lod1": ["left alley wall plane"],
+        "lod2": ["left alley brick wall plane with broad rain darkening"]
+      }
+    },
+    {
+      "nodeId": "node_env_001",
+      "label": "Rain Condition",
+      "semanticRefs": ["effect:rain", "controller:rain-main"],
+      "spatialRefs": ["region_001", "sp_001"],
+      "nodeType": "environment",
+      "narrativePriority": 1,
+      "priorityWeight": 1,
+      "forceInclude": false,
+      "minScreenCoverage": 0,
+      "minSemanticInfluence": 0.2,
+      "textVariants": {
+        "lod0": ["rainy alley conditions"],
+        "lod1": ["wind-driven rain"],
+        "lod2": ["wind-driven rain moving left-to-right and downward"]
+      }
+    },
+    {
+      "nodeId": "node_hero_001",
+      "label": "Reflective Mortar Detail",
+      "semanticRefs": ["profile:brick-rain"],
+      "spatialRefs": ["sp_001"],
+      "nodeType": "hero-detail",
+      "narrativePriority": 1.4,
+      "priorityWeight": 1.5,
+      "forceInclude": true,
+      "minScreenCoverage": 0.01,
+      "minSemanticInfluence": 0.3,
+      "textVariants": {
+        "lod0": [],
+        "lod1": ["hero semantic detail preserved under prompt-budget compaction"],
+        "lod2": ["foreground wet patch with darkened mortar and reflective highlights"]
+      }
+    },
+    {
+      "nodeId": "node_bg_001",
+      "label": "Off Camera Continuation",
+      "semanticRefs": ["patch_demo_001"],
+      "spatialRefs": [],
+      "nodeType": "background-context",
+      "narrativePriority": 0.6,
+      "priorityWeight": 0.5,
+      "forceInclude": false,
+      "minScreenCoverage": 0,
+      "minSemanticInfluence": 0,
+      "textVariants": {
+        "lod0": ["off-camera wall continuation available"],
+        "lod1": ["proposed off-camera brick wall continuation available for relensing"],
+        "lod2": ["proposed off-camera brick wall continuation available for relensing"]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "edgeId": "edge_001",
+      "sourceNodeId": "node_effect_001",
+      "targetNodeId": "node_surface_001",
+      "relationship": "modifies"
+    },
+    {
+      "edgeId": "edge_002",
+      "sourceNodeId": "node_env_001",
+      "targetNodeId": "node_effect_001",
+      "relationship": "context-for"
+    },
+    {
+      "edgeId": "edge_003",
+      "sourceNodeId": "node_surface_002",
+      "targetNodeId": "node_surface_001",
+      "relationship": "context-for"
+    }
+  ]
+}

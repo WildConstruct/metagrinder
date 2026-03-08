@@ -1,0 +1,25 @@
+{
+  "packetId": "rtp_demo_001",
+  "generatedFromFieldId": "wsf_demo_001",
+  "cameraId": "cam_alley_master",
+  "semanticLod": "lod2",
+  "semanticBudget": {
+    "maxEntries": 16,
+    "strategy": "fine"
+  },
+  "dominant_surfaces": [
+    "rain-darkened brick wall on the left side of the alley"
+  ],
+  "localized_effects": [
+    "wet brick leak zone with directional runoff streaks"
+  ],
+  "environmental_conditions": [
+    "wind-driven rain moving left-to-right and downward"
+  ],
+  "hero_details": [
+    "foreground wet patch with darkened mortar and reflective highlights"
+  ],
+  "optional_background_context": [
+    "narrow alley with damp atmospheric conditions"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "submissionId": "usub_demo_001",
+  "derivedFromPackageId": "rpkg_demo_001",
+  "candidates": [
+    {
+      "candidateId": "cand_brick_001",
+      "entityType": "Archetype",
+      "label": "rain-darkened brick wall",
+      "summary": "A brick wall archetype with darkened wet response and directional streaking.",
+      "sourceRefs": ["src_rec_brick_01"],
+      "evidenceRefs": ["ev_brick_01"],
+      "proposedRightsProfile": "reference-only",
+      "sourceRights": "Institution Terms",
+      "contributionTerms": "platform-community-commons",
+      "rightsConfidence": "medium",
+      "commercialAllowed": false,
+      "normalization": {
+        "conceptType": "material",
+        "externalIds": {
+          "gettyAatId": null,
+          "institutionRecordId": "museum:brick:001"
+        }
+      },
+      "confidence": {
+        "extraction": "medium",
+        "normalization": "medium"
+      },
+      "reviewStatus": "staged"
+    }
+  ]
+}

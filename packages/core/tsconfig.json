@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "types": ["jest", "node"],
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "./dist"
+  },
+  "include": [
+    "public.ts",
+    "types/graph.ts",
+    "utils/index.ts",
+    "utils/psgCodec.ts",
+    "utils/psgStorage.ts",
+    "utils/supabaseClient.ts",
+    "utils/supabaseFeature.ts",
+    "utils/persistenceUtils.ts",
+    "types/vite-client.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "__tests__",
+    "**/__tests__",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "dist"
+  ]
+}

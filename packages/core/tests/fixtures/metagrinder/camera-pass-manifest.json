@@ -1,0 +1,34 @@
+{
+  "cameraPassId": "cpass_demo_001",
+  "metaballId": "metaball_demo_001",
+  "cameraId": "cam_alley_master",
+  "worldSemanticFieldId": "wsf_demo_001",
+  "renderTextPacketId": "rtp_demo_001",
+  "inputArtifacts": [
+    "witness-render.png",
+    "depth-pass.exr",
+    "world-normal-pass.exr",
+    "world-semantic-field.json"
+  ],
+  "outputArtifacts": [
+    "render-text-packet.json",
+    "semantic-mask.png",
+    "preview-control-image.png",
+    "model-conditioning-payload.json"
+  ],
+  "queryConfig": {
+    "cameraId": "cam_alley_master",
+    "resolution": {
+      "width": 1920,
+      "height": 1080
+    },
+    "useOcclusion": true,
+    "distanceBias": 1,
+    "narrativePriorityBias": 1.2,
+    "semanticInfluenceBias": 1.1,
+    "maxRecords": 64,
+    "maxPacketEntries": 16
+  },
+  "taskMode": "image-modify-prep",
+  "generatedAt": "2026-03-07T12:20:00.000Z"
+}

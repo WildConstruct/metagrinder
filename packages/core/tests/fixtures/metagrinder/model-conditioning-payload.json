@@ -1,0 +1,34 @@
+{
+  "taskMode": "material-refinement",
+  "renderTextPacket": {
+    "packetId": "rtp_demo_001",
+    "generatedFromFieldId": "wsf_demo_001",
+    "cameraId": "cam_alley_master",
+    "dominant_surfaces": [
+      "rain-darkened brick wall on the left side of the alley"
+    ],
+    "localized_effects": [
+      "wet brick leak zone with directional runoff streaks"
+    ],
+    "environmental_conditions": [
+      "wind-driven rain moving left-to-right and downward"
+    ],
+    "hero_details": [
+      "foreground wet patch with darkened mortar and reflective highlights"
+    ],
+    "optional_background_context": [
+      "narrow alley with damp atmospheric conditions"
+    ]
+  },
+  "conditioningAssets": {
+    "witnessRender": "preview-control-image.png",
+    "semanticMask": "semantic-mask.png",
+    "localizedEffectMask": "localized-effect-mask.png",
+    "depthPass": "depth-pass.exr",
+    "worldNormalPass": "world-normal-pass.exr"
+  },
+  "styleRefs": [],
+  "notes": [
+    "Use witness render for composition lock"
+  ]
+}

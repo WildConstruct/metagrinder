@@ -1,0 +1,27 @@
+{
+  "packageId": "rpkg_demo_001",
+  "packageType": "research-package",
+  "title": "Rainy Alley Metaball",
+  "createdAt": "2026-03-07T12:00:00.000Z",
+  "parserVersion": "0.1.0",
+  "strategyVersion": "0.1.0",
+  "contributorId": "user_demo",
+  "sourceInputs": ["src_alley_notes"],
+  "sourceInputIds": ["src_alley_notes"],
+  "collections": [
+    { "id": "col_source", "type": "source-map", "path": "source-map.psg" },
+    { "id": "col_concepts", "type": "concept-clusters", "path": "concept-clusters.psg" },
+    { "id": "col_synthesis", "type": "prompt-synthesis", "path": "prompt-synthesis.psg" }
+  ],
+  "lineage": {
+    "sourceInputIds": ["src_alley_notes"]
+  },
+  "confidenceSummary": {
+    "overall": "medium",
+    "extraction": "medium",
+    "normalization": "medium",
+    "provenance": "high",
+    "rights": "medium"
+  },
+  "reviewStatus": "draft"
+}

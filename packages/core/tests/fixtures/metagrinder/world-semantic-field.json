@@ -1,0 +1,69 @@
+{
+  "fieldId": "wsf_demo_001",
+  "packageId": "rpkg_demo_001",
+  "coordinateSpace": "world",
+  "records": [
+    {
+      "id": "sp_001",
+      "recordType": "SemanticPoint",
+      "worldPosition": { "x": 1.5, "y": 2.25, "z": -4.0 },
+      "worldNormal": { "x": 0, "y": 0, "z": 1 },
+      "influenceRadius": 1.2,
+      "falloff": "smoothstep",
+      "utdgRefs": ["utdg:archetype:rain-darkened-brick-wall"],
+      "sourceRefs": ["src_rec_brick_01"],
+      "labels": ["wet brick", "leak zone"],
+      "importanceWeight": 1.3,
+      "narrativeWeight": 1.1,
+      "visibilityWeight": 1.0,
+      "effectRefs": ["effect:rain"],
+      "localizedIntentRefs": ["intent:wet-brick-left-wall"],
+      "responseProfileRefs": ["profile:brick-rain"],
+      "environmentalControllerRefs": ["controller:rain-main"],
+      "geometryBindingRef": "geo:wall_left",
+      "materialBindingRef": "mat:brick_master",
+      "surfaceBindingRef": "surface:wall_left_lower",
+      "objectRef": "obj:alley_wall_left",
+      "semanticLodOverride": {
+        "minLod": "lod1",
+        "preserveHeroDetailsAboveNarrativeWeight": 1,
+        "forceIncludeInWideShots": true
+      },
+      "lineage": {
+        "packageId": "rpkg_demo_001",
+        "sourceInputIds": ["src_alley_notes"],
+        "derivedFromIds": ["cand_brick_001"]
+      },
+      "reviewStatus": "draft"
+    },
+    {
+      "id": "region_001",
+      "recordType": "SemanticRegion",
+      "bounds": {
+        "min": { "x": 0, "y": 0, "z": -5 },
+        "max": { "x": 4, "y": 5, "z": -3 }
+      },
+      "utdgRefs": ["utdg:concept:brick"],
+      "sourceRefs": [],
+      "labels": ["left alley wall"],
+      "importanceWeight": 1.0,
+      "narrativeWeight": 0.8,
+      "visibilityWeight": 1.0,
+      "effectRefs": [],
+      "localizedIntentRefs": [],
+      "responseProfileRefs": [],
+      "environmentalControllerRefs": ["controller:rain-main"],
+      "geometryBindingRef": "geo:wall_left",
+      "materialBindingRef": "mat:brick_master",
+      "surfaceBindingRef": "surface:wall_left",
+      "objectRef": "obj:alley_wall_left",
+      "lineage": {
+        "packageId": "rpkg_demo_001",
+        "sourceInputIds": ["src_alley_notes"],
+        "derivedFromIds": []
+      },
+      "reviewStatus": "draft",
+      "surfaceClass": "wall"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "packetId": "generated_wsf_demo_001_cam_alley_master",
+  "cameraId": "cam_alley_master",
+  "entries": [
+    {
+      "text": "hero semantic detail preserved under prompt-budget compaction",
+      "bucket": "hero_details",
+      "source": "prompt-graph",
+      "recordId": "sp_001",
+      "semanticLod": "lod1",
+      "graphNodeId": "node_hero_001",
+      "matchType": "spatial",
+      "matchedRefs": [
+        "sp_001"
+      ],
+      "screenCoverageEstimate": 1,
+      "semanticInfluence": 1.3
+    },
+    {
+      "text": "wet wall leak zone",
+      "bucket": "localized_effects",
+      "source": "prompt-graph",
+      "recordId": "sp_001",
+      "semanticLod": "lod1",
+      "graphNodeId": "node_effect_001",
+      "matchType": "spatial",
+      "matchedRefs": [
+        "sp_001"
+      ],
+      "screenCoverageEstimate": 1,
+      "semanticInfluence": 1.3
+    },
+    {
+      "text": "wind-driven rain",
+      "bucket": "environmental_conditions",
+      "source": "prompt-graph",
+      "recordId": "sp_001",
+      "semanticLod": "lod1",
+      "graphNodeId": "node_env_001",
+      "matchType": "spatial",
+      "matchedRefs": [
+        "sp_001"
+      ],
+      "screenCoverageEstimate": 1,
+      "semanticInfluence": 1.3
+    },
+    {
+      "text": "rain-darkened brick wall",
+      "bucket": "dominant_surfaces",
+      "source": "prompt-graph",
+      "recordId": "sp_001",
+      "semanticLod": "lod1",
+      "graphNodeId": "node_surface_001",
+      "matchType": "semantic",
+      "matchedRefs": [
+        "utdg:archetype:rain-darkened-brick-wall"
+      ],
+      "screenCoverageEstimate": 1,
+      "semanticInfluence": 1.3
+    },
+    {
+      "text": "proposed off-camera brick wall continuation available for relensing",
+      "bucket": "optional_background_context",
+      "source": "patch-proposal",
+      "recordId": null,
+      "semanticLod": "lod1",
+      "graphNodeId": null,
+      "matchType": "wall-continuation",
+      "matchedRefs": [
+        "region_left_wall"
+      ]
+    }
+  ]
+}

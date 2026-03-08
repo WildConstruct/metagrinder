@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "lib": ["DOM", "DOM.Iterable", "ES2020"],
+    "skipLibCheck": true,
+    "strict": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@prompt-spaghetti/graph-core": ["packages/graph-core/src"],
+      "@prompt-spaghetti/ui-kit": ["packages/ui-kit/src"],
+      "@prompt-spaghetti/analytics-sdk": ["packages/analytics-sdk/src"],
+      "@prompt-spaghetti/claude-sdk": ["packages/claude-sdk/src"],
+      "@promptscape/core": ["packages/core"],
+      "@promptscape/core/*": ["packages/core/*"]
+    }
+  },
+  "include": ["packages/**/*", "client/**/*"],
+  "exclude": [
+    "node_modules",
+    "**/PythonTransform.ts",
+    "**/python-executor-client.ts",
+    "**/__tests__/PythonTransform.test.ts",
+    "**/__tests__/executor/executor.test.ts",
+    "**/__tests__/nodeDataUtils.test.ts",
+    "**/__tests__/correctionsStore.test.ts",
+    "**/__tests__/Inspector/*",
+    "**/__tests__/components/*"
+  ]
+}

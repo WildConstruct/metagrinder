@@ -1,0 +1,22 @@
+{
+  "name": "prompt-spaghetti-metagrinder-fork",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pruned Metagrinder/UTDG/PSG implementation fork",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@8.15.4",
+  "scripts": {
+    "validate:metagrinder": "pnpm --filter @promptscape/core validate:metagrinder",
+    "validate:rainy-alley-prototype": "pnpm --filter @promptscape/core validate:rainy-alley-prototype",
+    "validate:rainy-alley-shot-differences": "pnpm --filter @promptscape/core validate:rainy-alley-shot-differences",
+    "run:rainy-alley-prototype": "pnpm --filter @promptscape/core run:rainy-alley-prototype",
+    "run:metagrinder-mvp": "pnpm --filter @promptscape/core run:metagrinder-mvp",
+    "test:metagrinder": "pnpm --filter @promptscape/core test:metagrinder"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.9.3"
+  }
+}

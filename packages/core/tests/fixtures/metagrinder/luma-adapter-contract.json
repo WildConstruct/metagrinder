@@ -1,0 +1,17 @@
+{
+  "adapterId": "luma_demo_001",
+  "provider": "luma",
+  "mode": "image-modify",
+  "prompt": "wet brick wall with directional rain streaking, narrow alley, reflective darkened mortar",
+  "modifyImage": "preview-control-image.png",
+  "styleRefs": [],
+  "characterRefs": [],
+  "metadata": {
+    "renderTextPacketId": "rtp_demo_001",
+    "cameraPassId": "cpass_demo_001",
+    "metaballId": "metaball_demo_001",
+    "notes": [
+      "Use semantic mask and witness render as upstream control assets"
+    ]
+  }
+}

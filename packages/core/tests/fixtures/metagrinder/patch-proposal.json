@@ -1,0 +1,16 @@
+{
+  "proposalId": "patch_demo_001",
+  "packageId": "sspkg_demo_001",
+  "targetType": "wall-continuation",
+  "targetRefs": ["region_left_wall"],
+  "proposedSemanticRefs": [
+    "utdg:concept:brick",
+    "utdg:archetype:rain-darkened-brick-wall"
+  ],
+  "rationale": [
+    "Visible left wall material continuity suggests extension beyond frame edge.",
+    "Prompt and recovered scene both support rain-darkened brick continuation."
+  ],
+  "confidence": "medium",
+  "reviewStatus": "draft"
+}

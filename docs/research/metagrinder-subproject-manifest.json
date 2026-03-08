@@ -1,0 +1,59 @@
+{
+  "subprojectId": "metagrinder-experimental",
+  "updatedAt": "2026-03-07",
+  "purpose": "Fork and quarantine boundary for the Metagrinder / UTDG / semantic world authoring experimental slice.",
+  "includePaths": [
+    "docs/research/deep-research-parser-prd.md",
+    "docs/research/utdg-contribution-meat-grinder-prd.md",
+    "docs/research/research-parser-utdg-system-map.md",
+    "docs/research/utdg-approach-validation.md",
+    "docs/research/utdg-application-profile-v1.md",
+    "docs/research/utdg-rights-and-licensing-matrix.md",
+    "docs/research/utdg-staging-and-curation-workflow.md",
+    "docs/research/meat-grinder-artifact-contract-v1.md",
+    "docs/research/utdg-prompt-vertex-paint-use-case.md",
+    "docs/research/utdg-environmental-effects-smart-painter.md",
+    "docs/research/world-semantic-field-spec.md",
+    "docs/research/metagrinder-terminology.md",
+    "docs/research/camera-query-algorithm-spec.md",
+    "docs/research/metagrinder-camera-pass-service-spec.md",
+    "docs/research/semantic-world-authoring-spec.md",
+    "docs/research/semantic-world-authoring-prototype-scope.md",
+    "docs/research/rainy-alley-demo-plan.md",
+    "docs/research/metagrinder-tooling-integration-spec.md",
+    "docs/research/deep-semantic-exr-spec.md",
+    "docs/research/rainy-alley-phase-1-runtime-architecture.md",
+    "docs/research/rainy-alley-phase-1-build-plan.md",
+    "docs/research/rainy-alley-phase-1-ticket-breakdown.md",
+    "docs/research/rainy-alley-phase-1-operator-note.md",
+    "docs/research/reverse-prompt-analysis-spec.md",
+    "docs/research/semantic-scene-package-format.md",
+    "docs/research/historical-world-pack-market-note.md",
+    "docs/research/progressive-scene-recovery-spec.md",
+    "docs/research/perspective-witness-renderer-spec.md",
+    "docs/research/semantic-extras-and-crowd-note.md",
+    "docs/research/reverse-analysis-pipeline-spec.md",
+    "docs/research/prompt-graph-lod-note.md",
+    "docs/research/metagrinder-fork-boundary.md",
+    "packages/core/types/metagrinder.ts",
+    "packages/core/types/metagrinder.runtime.js",
+    "packages/core/scripts/lib/rainy-alley-prototype.js",
+    "packages/core/scripts/run-rainy-alley-prototype.js",
+    "packages/core/scripts/validate-metagrinder-fixtures.js",
+    "packages/core/scripts/validate-rainy-alley-prototype.js",
+    "packages/core/scripts/validate-rainy-alley-shot-differences.js",
+    "packages/core/tests/fixtures/metagrinder",
+    "packages/core/tests/metagrinder.test.ts"
+  ],
+  "sharedTouchpoints": [
+    "packages/core/package.json",
+    "packages/core/index.ts"
+  ],
+  "generatedPaths": [
+    "packages/core/tests/output/metagrinder"
+  ],
+  "mvpExcludeAdvice": [
+    "Exclude all includePaths from the MVP commit unless explicitly bringing the experimental slice forward.",
+    "If excluding the slice, also remove the sharedTouchpoints changes."
+  ]
+}

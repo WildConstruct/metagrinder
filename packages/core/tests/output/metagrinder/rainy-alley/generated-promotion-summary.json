@@ -1,0 +1,19 @@
+{
+  "packageId": "sspkg_demo_001",
+  "promotedRegionRefs": [
+    "region_left_wall"
+  ],
+  "proposedPatchIds": [
+    "patch_demo_001"
+  ],
+  "adjustmentHandles": [
+    "wetness",
+    "runoff-intensity",
+    "mortar-darkening"
+  ],
+  "utdgMatches": [
+    "utdg:concept:brick",
+    "utdg:archetype:rain-darkened-brick-wall",
+    "utdg:modifier:wetness"
+  ]
+}

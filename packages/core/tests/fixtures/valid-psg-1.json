@@ -1,0 +1,69 @@
+{
+  "version": "1.0",
+  "kind": "graph",
+  "meta": {
+    "id": "test-graph-1",
+    "name": "Test Graph 1",
+    "description": "A simple test graph",
+    "tags": ["test", "sample"],
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z",
+    "author": {
+      "id": "author-1",
+      "name": "Test Author"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "node-1",
+        "type": "Start",
+        "label": "Start Node",
+        "data": {
+          "position": { "x": 0, "y": 0 }
+        }
+      },
+      {
+        "id": "node-2",
+        "type": "Process",
+        "label": "Process Node",
+        "data": {
+          "position": { "x": 100, "y": 100 }
+        }
+      },
+      {
+        "id": "node-3",
+        "type": "End",
+        "label": "End Node",
+        "data": {
+          "position": { "x": 200, "y": 200 }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-1",
+        "source": "node-1",
+        "target": "node-2",
+        "label": "Flow 1"
+      },
+      {
+        "id": "edge-2",
+        "source": "node-2",
+        "target": "node-3",
+        "label": "Flow 2"
+      }
+    ],
+    "layout": {
+      "type": "hierarchical"
+    },
+    "settings": {
+      "grid": true,
+      "snapToGrid": true
+    }
+  },
+  "extras": {
+    "previewUrl": "https://example.com/preview.png",
+    "thumbSeed": "seed-123"
+  }
+}

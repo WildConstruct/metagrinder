@@ -1,0 +1,21 @@
+{
+  "submissionId": "usub_demo_001",
+  "packageType": "utdg-submission",
+  "derivedFromPackageId": "rpkg_demo_001",
+  "candidateFile": "utdg-candidates.json",
+  "evidenceFile": "utdg-evidence.psg",
+  "contributorId": "user_demo",
+  "submissionMode": "staged",
+  "createdAt": "2026-03-07T12:05:00.000Z",
+  "parserVersion": "0.1.0",
+  "strategyVersion": "0.1.0",
+  "sourceInputIds": ["src_alley_notes"],
+  "confidenceSummary": {
+    "overall": "medium",
+    "extraction": "medium",
+    "normalization": "medium",
+    "provenance": "high",
+    "rights": "medium"
+  },
+  "reviewStatus": "staged"
+}

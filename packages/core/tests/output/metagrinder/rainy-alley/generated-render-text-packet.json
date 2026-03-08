@@ -1,0 +1,28 @@
+{
+  "packetId": "generated_wsf_demo_001_cam_alley_master",
+  "generatedFromFieldId": "wsf_demo_001",
+  "cameraId": "cam_alley_master",
+  "semanticLod": "lod1",
+  "semanticBudget": {
+    "maxEntries": 10,
+    "strategy": "balanced"
+  },
+  "dominant_surfaces": [
+    "rain-darkened brick wall"
+  ],
+  "localized_effects": [
+    "wet wall leak zone"
+  ],
+  "environmental_conditions": [
+    "wind-driven rain"
+  ],
+  "hero_details": [
+    "hero semantic detail preserved under prompt-budget compaction",
+    "adjustable wetness control available from semantic backfill",
+    "adjustable runoff-intensity control available from semantic backfill"
+  ],
+  "optional_background_context": [
+    "narrow alley with damp atmospheric conditions",
+    "proposed off-camera brick wall continuation available for relensing"
+  ]
+}

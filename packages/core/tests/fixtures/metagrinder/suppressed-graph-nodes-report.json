@@ -1,0 +1,19 @@
+{
+  "graphId": "pgraph_demo_001",
+  "cameraId": "cam_alley_master",
+  "packetId": "rtp_demo_001",
+  "entries": [
+    {
+      "recordId": "region_001",
+      "graphNodeId": "node_surface_001",
+      "semanticLod": "lod1",
+      "bucket": "dominant_surfaces",
+      "selectedText": ["rain-darkened brick wall"],
+      "suppressionReason": "bucket-budget",
+      "screenCoverageEstimate": 0.65,
+      "semanticInfluence": 0.7,
+      "narrativePriority": 0.9,
+      "priorityWeight": 0.9
+    }
+  ]
+}
