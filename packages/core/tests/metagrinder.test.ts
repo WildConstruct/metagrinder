@@ -537,13 +537,17 @@ describe('metagrinder schemas', () => {
     ).toBe(true);
   });
 
-  test('runs end-to-end on a non-Broadway research subject', () => {
-    const rawText = readTextFixture('research-input-greenhouse.txt');
+  test.each([
+    ['research-input-greenhouse.txt', 'Glasshouse at dawn'],
+    ['research-input-shipyard.txt', 'Winter shipyard shift change'],
+    ['research-input-desert-outpost.txt', 'Desert relay station at dusk']
+  ])('runs end-to-end on a non-Broadway research subject: %s', (fixtureName, title) => {
+    const rawText = readTextFixture(fixtureName);
     const ingestArtifact = buildIngestArtifact({
-      inputPath: 'research-input-greenhouse.txt',
+      inputPath: fixtureName,
       rawText,
-      inputId: 'research-input-greenhouse',
-      title: 'Glasshouse at dawn',
+      inputId: fixtureName.replace(/\.txt$/, ''),
+      title,
       createdAt: '2026-03-07T12:00:00.000Z'
     });
     const extractArtifact = buildExtractArtifact({
