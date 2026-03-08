@@ -6,6 +6,7 @@ const {
   MetagrinderExtractArtifactSchema,
   MetagrinderIngestArtifactSchema,
   MetagrinderMutationArtifactSchema,
+  MetagrinderMutationReviewArtifactSchema,
   MetagrinderReviewArtifactSchema,
   MetagrinderScoreArtifactSchema,
   MetagrinderSynthesizeArtifactSchema,
@@ -1015,6 +1016,76 @@ function buildMutationArtifact({ synthesizeArtifact }) {
   });
 }
 
+function buildMutationReviewArtifact({ mutationArtifact }) {
+  const promotableVariantIds = [];
+  const flaggedVariantIds = [];
+  const rejectedVariantIds = [];
+  const duplicateVariantIds = [];
+  const weakVariantIds = [];
+  const incompatibilityWarnings = mutationArtifact.compatibilityDecisions
+    .filter((decision) => decision.status === 'incompatible')
+    .map((decision) =>
+      `${decision.leftFragmentId} + ${decision.rightFragmentId}: ${decision.reasons.join(', ')}`
+    );
+
+  const normalizedVariantTextCounts = mutationArtifact.variants.reduce((counts, variant) => {
+    const key = normalizedFragmentText(variant.text);
+    counts.set(key, (counts.get(key) || 0) + 1);
+    return counts;
+  }, new Map());
+
+  mutationArtifact.variants.forEach((variant) => {
+    const normalizedVariantKey = normalizedFragmentText(variant.text);
+    const isDuplicate = (normalizedVariantTextCounts.get(normalizedVariantKey) || 0) > 1;
+    const isWeak = variant.distinctivenessScore < 0.55 || variant.sourceInputIds.length < 2;
+    const hasThinFragment = variant.text.split(/\s+/).length < 6;
+
+    if (isDuplicate) {
+      duplicateVariantIds.push(variant.variantId);
+    }
+    if (isWeak) {
+      weakVariantIds.push(variant.variantId);
+    }
+
+    if (isDuplicate || hasThinFragment) {
+      rejectedVariantIds.push(variant.variantId);
+      return;
+    }
+
+    if (isWeak) {
+      flaggedVariantIds.push(variant.variantId);
+      return;
+    }
+
+    promotableVariantIds.push(variant.variantId);
+  });
+
+  const recommendedActions = [];
+  if (promotableVariantIds.length > 0) {
+    recommendedActions.push('Review promotable mutation variants as candidates for downstream prompt package expansion.');
+  }
+  if (flaggedVariantIds.length > 0) {
+    recommendedActions.push('Inspect flagged mutation variants for weak distinctiveness or narrow source support before promotion.');
+  }
+  if (rejectedVariantIds.length > 0) {
+    recommendedActions.push('Keep rejected mutation variants out of downstream collections unless compatibility and distinctiveness rules are revised.');
+  }
+  if (incompatibilityWarnings.length > 0) {
+    recommendedActions.push('Review incompatibility warnings to refine fragment compatibility rules before widening mutation generation.');
+  }
+
+  return MetagrinderMutationReviewArtifactSchema.parse({
+    inputId: mutationArtifact.inputId,
+    promotableVariantIds,
+    flaggedVariantIds,
+    rejectedVariantIds,
+    duplicateVariantIds,
+    weakVariantIds,
+    incompatibilityWarnings,
+    recommendedActions
+  });
+}
+
 function buildScoreArtifact({ ingestArtifact, extractArtifact, synthesizeArtifact }) {
   const inferredClaimCount = extractArtifact.claims.filter(
     (claim) => claim.attributionMode === 'inferred'
@@ -1509,6 +1580,7 @@ module.exports = {
   buildExtractArtifact,
   buildIngestArtifact,
   buildMutationArtifact,
+  buildMutationReviewArtifact,
   buildMultiInputIngestArtifact,
   buildPromptSynthesisPsg,
   buildResearchPackageManifest,

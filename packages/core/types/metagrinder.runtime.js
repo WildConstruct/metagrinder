@@ -274,6 +274,17 @@ const MetagrinderMutationArtifactSchema = z.object({
   generationSummary: MetagrinderMutationGenerationSummarySchema
 });
 
+const MetagrinderMutationReviewArtifactSchema = z.object({
+  inputId: z.string(),
+  promotableVariantIds: z.array(z.string()).default([]),
+  flaggedVariantIds: z.array(z.string()).default([]),
+  rejectedVariantIds: z.array(z.string()).default([]),
+  duplicateVariantIds: z.array(z.string()).default([]),
+  weakVariantIds: z.array(z.string()).default([]),
+  incompatibilityWarnings: z.array(z.string()).default([]),
+  recommendedActions: z.array(z.string()).default([])
+});
+
 const MetagrinderScoreArtifactSchema = z.object({
   inputId: z.string(),
   corroboratedConceptIds: z.array(z.string()).default([]),
@@ -850,6 +861,7 @@ module.exports = {
   MetagrinderMutationGenerationSummarySchema,
   MetagrinderMutationCompatibilityStatusSchema,
   MetagrinderMutationInputFragmentSchema,
+  MetagrinderMutationReviewArtifactSchema,
   MetagrinderPromptMutationVariantSchema,
   MetagrinderScoreArtifactSchema,
   MetagrinderSourceTypeSchema,

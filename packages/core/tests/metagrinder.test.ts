@@ -11,6 +11,7 @@ import {
     MetagrinderExtractArtifactSchema,
     MetagrinderIngestArtifactSchema,
     MetagrinderMutationArtifactSchema,
+    MetagrinderMutationReviewArtifactSchema,
     MetagrinderReviewArtifactSchema,
     MetagrinderScoreArtifactSchema,
     MetagrinderSynthesizeArtifactSchema,
@@ -36,6 +37,7 @@ const {
       buildExtractArtifact,
       buildIngestArtifact,
       buildMutationArtifact,
+      buildMutationReviewArtifact,
       buildMultiInputIngestArtifact,
       buildPromptSynthesisPsg,
       buildResearchPackageManifest,
@@ -213,6 +215,22 @@ describe('metagrinder schemas', () => {
     expect(result.candidateFragments).toHaveLength(1);
     expect(result.compatibilityDecisions[0].status).toBe('incompatible');
     expect(result.variants[0].variantId).toBe('variant_001');
+  });
+
+  test('parses metagrinder mutation review artifact', () => {
+    const result = MetagrinderMutationReviewArtifactSchema.parse({
+      inputId: 'src_001',
+      promotableVariantIds: ['variant_001'],
+      flaggedVariantIds: ['variant_002'],
+      rejectedVariantIds: ['variant_003'],
+      duplicateVariantIds: ['variant_003'],
+      weakVariantIds: ['variant_002'],
+      incompatibilityWarnings: ['fragment_001 + fragment_004: same-family-fragments-cannot-be-recombined'],
+      recommendedActions: ['Inspect flagged mutation variants for weak distinctiveness.']
+    });
+
+    expect(result.promotableVariantIds).toContain('variant_001');
+    expect(result.rejectedVariantIds).toContain('variant_003');
   });
 
   test('parses metagrinder score artifact', () => {
@@ -912,6 +930,58 @@ describe('metagrinder schemas', () => {
     ).toBe(true);
     expect(
       mutationArtifact.variants.every(variant => variant.fragmentIds.length === 2)
+    ).toBe(true);
+  });
+
+  test('builds mutation review output with promotable, flagged, and rejected variants', () => {
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact: {
+        inputId: 'mutation-review-test',
+        promptFragments: [
+          {
+            fragmentId: 'fragment_001',
+            family: 'atmosphere',
+            text: 'humid dawn air around glass panes',
+            conceptIds: ['concept_001'],
+            sourceInputIds: ['src_001', 'src_002'],
+            sourceChunkIds: ['src_001_chunk_001']
+          },
+          {
+            fragmentId: 'fragment_002',
+            family: 'lighting',
+            text: 'soft reflected dawn light on wet tile',
+            conceptIds: ['concept_002'],
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_002']
+          },
+          {
+            fragmentId: 'fragment_003',
+            family: 'wardrobe',
+            text: 'workers in coats',
+            conceptIds: ['concept_003'],
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_003']
+          },
+          {
+            fragmentId: 'fragment_004',
+            family: 'lighting',
+            text: 'soft reflected dawn light on wet tile',
+            conceptIds: ['concept_004'],
+            sourceInputIds: ['src_003'],
+            sourceChunkIds: ['src_003_chunk_001']
+          }
+        ]
+      }
+    });
+    const mutationReviewArtifact = buildMutationReviewArtifact({
+      mutationArtifact
+    });
+
+    expect(mutationReviewArtifact.promotableVariantIds.length).toBeGreaterThanOrEqual(1);
+    expect(mutationReviewArtifact.flaggedVariantIds.length).toBeGreaterThanOrEqual(1);
+    expect(mutationReviewArtifact.incompatibilityWarnings.length).toBeGreaterThanOrEqual(1);
+    expect(
+      mutationReviewArtifact.recommendedActions.some(action => action.includes('flagged mutation variants'))
     ).toBe(true);
   });
 
