@@ -931,6 +931,59 @@ describe('metagrinder schemas', () => {
     expect(result.augmentationPlanArtifact.verificationTargets.length).toBeGreaterThanOrEqual(1);
   });
 
+  test('review service handles low-signal briefs with no primary focus', () => {
+    const modeDetectionArtifact = {
+      inputId: 'low-signal-brief',
+      researchKind: 'unknown'
+    };
+    const categoryHypothesisArtifact = {
+      inputId: 'low-signal-brief',
+      researchKind: 'unknown',
+      categories: [],
+      recommendedFocus: []
+    };
+    const assumptionReviewArtifact = researchReviewService.buildAssumptionReviewArtifact({
+      inputId: 'low-signal-brief',
+      modeDetectionArtifact,
+      categoryHypothesisArtifact,
+      ingestArtifact: {
+        chunks: []
+      }
+    });
+    const augmentationPlanArtifact = researchReviewService.buildAugmentationPlanArtifact({
+      inputId: 'low-signal-brief',
+      modeDetectionArtifact,
+      categoryHypothesisArtifact,
+      assumptionReviewArtifact
+    });
+
+    expect(categoryHypothesisArtifact.recommendedFocus).toEqual([]);
+    expect(
+      assumptionReviewArtifact.warnings.some(warning => warning.includes('No clear primary focus'))
+    ).toBe(true);
+    expect(
+      augmentationPlanArtifact.verificationTargets.some(target => target.includes('Choose at least one primary extraction focus'))
+    ).toBe(true);
+    expect(
+      augmentationPlanArtifact.rationale.some(entry => entry.includes('No primary focus'))
+    ).toBe(true);
+  });
+
+  test('review service buildResearchBriefReviewArtifacts can build ingest on demand', () => {
+    const result = researchReviewService.buildResearchBriefReviewArtifacts({
+      rawText: '# Notes\n\nTemplate:\n- lone gunslinger\n\nObservations:\nDry wind across the street.',
+      title: 'On demand brief',
+      inputPath: 'on-demand.txt',
+      inputId: 'on-demand-brief',
+      createdAt: '2026-03-09T12:00:00.000Z',
+      buildIngestArtifact
+    });
+
+    expect(result.ingestArtifact.inputId).toBe('on-demand-brief');
+    expect(result.modeDetectionArtifact.researchKind).toBeDefined();
+    expect(result.assumptionReviewArtifact.decisionOptions).toContain('adjust-priorities');
+  });
+
   test('tailors environment-observation category focus to the actual brief content', () => {
     const greenhouse = buildResearchBriefReviewArtifacts({
       rawText: readTextFixture('research-input-greenhouse.txt'),
@@ -1352,6 +1405,163 @@ describe('metagrinder schemas', () => {
     expect(scoreArtifact.ambiguityFlags.length).toBeGreaterThan(0);
   });
 
+  test('downgrades normalization for disputed concepts and near-duplicate warnings', () => {
+    const scoreArtifact = researchScoreService.buildScoreArtifact({
+      ingestArtifact: {
+        inputId: 'score-disputes',
+        chunks: [
+          { chunkId: 'chunk_001' },
+          { chunkId: 'chunk_002' }
+        ]
+      },
+      extractArtifact: {
+        claims: [
+          {
+            claimId: 'claim_001',
+            text: 'Neon signage reflected on the street.',
+            attributionMode: 'quoted'
+          }
+        ],
+        evidence: [
+          { evidenceId: 'ev_001' },
+          { evidenceId: 'ev_002' }
+        ],
+        openQuestions: [],
+        warnings: [
+          {
+            code: 'near-duplicate-concept'
+          }
+        ],
+        conceptCandidates: [
+          {
+            conceptId: 'concept_001',
+            label: 'street reflections',
+            summary: 'cool reflections|warm reflections',
+            attributionMode: 'inferred',
+            confidence: 'medium',
+            sourceInputIds: ['src_a', 'src_b']
+          },
+          {
+            conceptId: 'concept_002',
+            label: 'sign glow',
+            summary: 'steady marquee glow|flickering shop glow',
+            attributionMode: 'quoted',
+            confidence: 'medium',
+            sourceInputIds: ['src_a', 'src_b']
+          }
+        ]
+      },
+      synthesizeArtifact: {
+        promptFragments: [{}, {}, {}, {}]
+      }
+    });
+
+    expect(scoreArtifact.disputedConceptIds).toEqual(['concept_001', 'concept_002']);
+    expect(scoreArtifact.confidenceSummary.normalization).toBe('medium');
+    expect(scoreArtifact.ambiguityFlags).toContain('near-duplicate-concept_1');
+  });
+
+  test('review artifact includes actions for weak concepts, sparse synthesis, disputes, and overlap warnings', () => {
+    const scoreArtifact = researchScoreService.buildScoreArtifact({
+      ingestArtifact: {
+        inputId: 'score-review-actions',
+        chunks: [{ chunkId: 'chunk_001' }]
+      },
+      extractArtifact: {
+        claims: [
+          {
+            claimId: 'claim_001',
+            text: 'Some accounts emphasize gloves, while others focus on coats.',
+            attributionMode: 'inferred',
+            sourceInputIds: ['src_a', 'src_b']
+          }
+        ],
+        evidence: [],
+        openQuestions: [
+          {
+            questionId: 'open_001',
+            text: 'Were gloves universal or occasional?'
+          }
+        ],
+        warnings: [
+          {
+            code: 'near-duplicate-concept',
+            message: 'Two wardrobe concepts may be over-merged.'
+          }
+        ],
+        conceptCandidates: [
+          {
+            conceptId: 'concept_001',
+            label: 'winter outerwear',
+            summary: 'coats|gloves',
+            attributionMode: 'inferred',
+            confidence: 'medium',
+            sourceInputIds: ['src_a', 'src_b']
+          }
+        ]
+      },
+      synthesizeArtifact: {
+        promptFragments: [{ family: 'atmosphere' }]
+      }
+    });
+
+    const reviewArtifact = researchScoreService.buildReviewArtifact({
+      ingestArtifact: {
+        inputId: 'score-review-actions'
+      },
+      extractArtifact: {
+        claims: [
+          {
+            claimId: 'claim_001',
+            text: 'Some accounts emphasize gloves, while others focus on coats.',
+            sourceChunkIds: [],
+            sourceInputIds: ['src_a', 'src_b']
+          }
+        ],
+        openQuestions: [
+          {
+            questionId: 'open_001',
+            text: 'Were gloves universal or occasional?'
+          }
+        ],
+        warnings: [
+          {
+            code: 'near-duplicate-concept',
+            message: 'Two wardrobe concepts may be over-merged.'
+          }
+        ],
+        conceptCandidates: [
+          {
+            conceptId: 'concept_001',
+            label: 'winter outerwear',
+            summary: 'coats|gloves',
+            confidence: 'medium',
+            sourceInputIds: ['src_a', 'src_b']
+          }
+        ]
+      },
+      synthesizeArtifact: {
+        promptFragments: [{ family: 'atmosphere' }]
+      },
+      scoreArtifact
+    });
+
+    expect(reviewArtifact.missingProvenance).toEqual(['claim_001']);
+    expect(reviewArtifact.weakConceptIds).toEqual(['concept_001']);
+    expect(
+      reviewArtifact.recommendedActions.some(action => action.includes('Add more prompt fragments'))
+    ).toBe(true);
+    expect(
+      reviewArtifact.recommendedActions.some(action => action.includes('Tighten weak concept labels'))
+    ).toBe(true);
+    expect(
+      reviewArtifact.recommendedActions.some(action => action.includes('Inspect merged concepts with differing summaries'))
+    ).toBe(true);
+    expect(
+      reviewArtifact.recommendedActions.some(action => action.includes('Review overlap warnings'))
+    ).toBe(true);
+  });
+
   test('builds deterministic extract artifact from ingest fixture', () => {
     const rawText = readTextFixture('research-input-broadway.txt');
     const ingestArtifact = buildIngestArtifact({
@@ -1403,6 +1613,92 @@ describe('metagrinder schemas', () => {
     expect(
       extractArtifact.warnings.some(warning => warning.code === 'unexpected-finding')
     ).toBe(true);
+  });
+
+  test('extract preserves empty, reference-table, and inferred review cases', () => {
+    const extractArtifact = researchExtractService.buildExtractArtifact({
+      ingestArtifact: {
+        inputId: 'extract-edge-cases',
+        chunks: [
+          {
+            chunkId: 'chunk_001',
+            sourceInputId: 'src_001',
+            text: '   ',
+            sectionLabel: 'Blank',
+            sequence: 0,
+            chunkKind: 'source-note',
+            tags: []
+          },
+          {
+            chunkId: 'chunk_002',
+            sourceInputId: 'src_001',
+            text: 'Hat | Coat | Gloves',
+            sectionLabel: 'Wardrobe Grid',
+            sequence: 1,
+            chunkKind: 'reference-table',
+            tags: []
+          },
+          {
+            chunkId: 'chunk_003',
+            sourceInputId: 'src_001',
+            text: 'The crowd may have lingered under the marquee.',
+            sectionLabel: 'Unexpected',
+            sequence: 2,
+            chunkKind: 'concept-list',
+            tags: ['unexpected-findings']
+          }
+        ]
+      }
+    });
+
+    expect(
+      extractArtifact.warnings.some(warning => warning.code === 'empty-chunk')
+    ).toBe(true);
+    expect(
+      extractArtifact.warnings.some(warning => warning.code === 'reference-table-chunk-preserved-for-review')
+    ).toBe(true);
+    expect(
+      extractArtifact.warnings.some(warning => warning.code === 'unexpected-finding')
+    ).toBe(true);
+    expect(extractArtifact.openQuestions.length).toBeGreaterThanOrEqual(1);
+    expect(extractArtifact.claims[0].confidence).toBe('medium');
+  });
+
+  test('extract merges concept summaries across sources and downgrades merged confidence when later evidence is weaker', () => {
+    const extractArtifact = researchExtractService.buildExtractArtifact({
+      ingestArtifact: {
+        inputId: 'extract-merge-cases',
+        chunks: [
+          {
+            chunkId: 'chunk_001',
+            sourceInputId: 'src_a',
+            text: 'Neon signage reflected on the wet street.',
+            sectionLabel: 'Lighting',
+            sequence: 0,
+            chunkKind: 'source-note',
+            tags: []
+          },
+          {
+            chunkId: 'chunk_002',
+            sourceInputId: 'src_b',
+            text: 'Neon signage may have reflected on the wet street.',
+            sectionLabel: 'Lighting',
+            sequence: 1,
+            chunkKind: 'source-note',
+            tags: []
+          }
+        ]
+      }
+    });
+
+    const mergedConcept = extractArtifact.conceptCandidates.find(
+      concept => concept.label === 'neon street reflections'
+    );
+
+    expect(mergedConcept?.sourceInputIds.sort()).toEqual(['src_a', 'src_b']);
+    expect(mergedConcept?.summary).toContain('|');
+    expect(mergedConcept?.confidence).toBe('medium');
+    expect(mergedConcept?.attributionMode).toBe('inferred');
   });
 
   test('preserves template and generation-rule chunks without treating them as ordinary claims', () => {
@@ -1596,6 +1892,129 @@ describe('metagrinder schemas', () => {
     expect(
       synthesizeArtifact.promptFragments.every(fragment => fragment.sourceChunkIds[0] === 'single-note_chunk_001')
     ).toBe(true);
+  });
+
+  test('dedupes repeated prompt fragments and uses synthetic fallbacks when families remain empty', () => {
+    const synthesizeArtifact = researchSynthesizeService.buildSynthesizeArtifact({
+      extractArtifact: {
+        inputId: 'empty-synthesis',
+        claims: [],
+        conceptCandidates: [
+          {
+            conceptId: 'concept_001',
+            label: 'wet pavement reflections',
+            category: 'materials-and-surfaces',
+            confidence: 'high',
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_001']
+          },
+          {
+            conceptId: 'concept_002',
+            label: 'wet pavement reflections',
+            category: 'materials-and-surfaces',
+            confidence: 'high',
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_001']
+          }
+        ]
+      }
+    });
+
+    expect(
+      synthesizeArtifact.promptFragments.filter(
+        fragment => fragment.family === 'atmosphere' && fragment.text === 'wet pavement reflections'
+      )
+    ).toHaveLength(1);
+    expect(synthesizeArtifact.promptFragments).toHaveLength(4);
+    expect(
+      synthesizeArtifact.promptFragments.every(fragment => fragment.sourceChunkIds.length > 0)
+    ).toBe(true);
+  });
+
+  test('uses claim fallback when concept candidates do not cover a missing prompt family', () => {
+    const synthesizeArtifact = researchSynthesizeService.buildSynthesizeArtifact({
+      extractArtifact: {
+        inputId: 'claim-fallback',
+        conceptCandidates: [],
+        claims: [
+          {
+            claimId: 'claim_001',
+            text: 'Orderly ushers guided patrons through the lobby.',
+            category: 'people-and-crowd',
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_001']
+          }
+        ]
+      }
+    });
+
+    const crowdFragment = synthesizeArtifact.promptFragments.find(
+      fragment => fragment.family === 'crowd-behavior'
+    );
+
+    expect(crowdFragment?.text).toBe('Orderly ushers guided patrons through the lobby');
+    expect(crowdFragment?.sourceChunkIds).toEqual(['src_001_chunk_001']);
+  });
+
+  test('uses explicit synthetic fallback copy when no concepts or claims exist', () => {
+    const synthesizeArtifact = researchSynthesizeService.buildSynthesizeArtifact({
+      extractArtifact: {
+        inputId: 'desert-station',
+        conceptCandidates: [],
+        claims: []
+      }
+    });
+
+    expect(
+      synthesizeArtifact.promptFragments.find(fragment => fragment.family === 'wardrobe')?.text
+    ).toBe('period outerwear and evening dress suited to the setting');
+    expect(
+      synthesizeArtifact.promptFragments.find(fragment => fragment.family === 'crowd-behavior')?.text
+    ).toBe('orderly pedestrian crowd movement around the venue');
+    expect(
+      synthesizeArtifact.promptFragments.find(fragment => fragment.family === 'lighting')?.text
+    ).toBe('localized signage and directional evening light');
+    expect(
+      synthesizeArtifact.promptFragments.find(fragment => fragment.family === 'atmosphere')?.text
+    ).toBe('ambient environmental conditions consistent with desert-station');
+    expect(
+      synthesizeArtifact.promptFragments.every(fragment => fragment.sourceInputIds.length === 0)
+    ).toBe(true);
+  });
+
+  test('prefers matching concepts over claims when deriving fallback fragments for missing families', () => {
+    const synthesizeArtifact = researchSynthesizeService.buildSynthesizeArtifact({
+      extractArtifact: {
+        inputId: 'concept-fallback',
+        conceptCandidates: [
+          {
+            conceptId: 'concept_001',
+            label: 'lamplit storefront glow',
+            category: 'lighting',
+            confidence: 'high',
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_001']
+          }
+        ],
+        claims: [
+          {
+            claimId: 'claim_001',
+            text: 'Direction signs cast long beams down the street.',
+            category: 'lighting',
+            sourceInputIds: ['src_002'],
+            sourceChunkIds: ['src_002_chunk_001']
+          }
+        ]
+      }
+    });
+
+    const lightingFragment = synthesizeArtifact.promptFragments.find(
+      fragment => fragment.family === 'lighting'
+    );
+
+    expect(lightingFragment?.text).toBe('lamplit storefront glow');
+    expect(lightingFragment?.conceptIds).toEqual(['concept_001']);
+    expect(lightingFragment?.sourceChunkIds).toEqual(['src_001_chunk_001']);
   });
 
   test('builds mutation artifact directly from synthesis output without reshaping', () => {
@@ -1881,6 +2300,293 @@ describe('metagrinder schemas', () => {
     expect(
       researchPackageManifest.collections.some(collection => collection.path === 'prompt-mutations.psg')
     ).toBe(true);
+  });
+
+  test('package service skips missing concept nodes and validates optional mutation bundles', () => {
+    const conceptClustersPsg = researchPackageService.buildConceptClustersPsg({
+      ingestArtifact: {
+        inputId: 'package-skip-test',
+        title: 'Package skip test',
+        sourceInputs: [{ sourceInputId: 'src_001' }]
+      },
+      extractArtifact: {
+        conceptCandidates: [
+          {
+            conceptId: 'concept_001',
+            label: 'marquee glow',
+            summary: 'Bright marquee glow over the entrance.',
+            category: 'lighting',
+            confidence: 'high',
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['chunk_001'],
+            attributionMode: 'quoted'
+          }
+        ]
+      },
+      classifyArtifact: {
+        collections: {
+          conceptClusterBuckets: [
+            {
+              bucketId: 'bucket_001',
+              label: 'Lighting',
+              category: 'lighting',
+              conceptIds: ['concept_001', 'concept_missing'],
+              claimIds: []
+            }
+          ]
+        }
+      }
+    });
+
+    expect(conceptClustersPsg.nodes).toHaveLength(1);
+    expect(conceptClustersPsg.edges).toHaveLength(0);
+
+    expect(() => researchPackageService.validatePackageArtifacts({
+      augmentationPlanArtifact: {
+        inputId: 'pkg',
+        researchKind: 'historical-scene-research',
+        verificationTargets: [],
+        missingSourceTypes: [],
+        followUpResearchDirections: [],
+        rationale: []
+      },
+      assumptionReviewArtifact: {
+        inputId: 'pkg',
+        researchKind: 'historical-scene-research',
+        detectedChunkKinds: ['source-note'],
+        recommendedFocus: ['lighting'],
+        warnings: [],
+        decisionOptions: ['proceed-as-is']
+      },
+      categoryHypothesisArtifact: {
+        inputId: 'pkg',
+        researchKind: 'historical-scene-research',
+        categories: [],
+        recommendedFocus: []
+      },
+      modeDetectionArtifact: {
+        inputId: 'pkg',
+        researchKind: 'historical-scene-research',
+        confidence: 'high',
+        reasons: [],
+        suggestedCategories: [],
+        candidateKinds: []
+      },
+      ingestArtifact: {
+        inputId: 'pkg',
+        title: 'Pkg',
+        sourceType: 'plain-text',
+        researchKind: 'historical-scene-research',
+        sourceInputs: [{ sourceInputId: 'src_001', title: 'Pkg', sourceType: 'plain-text', sequence: 0 }],
+        chunks: [{ chunkId: 'chunk_001', sourceInputId: 'src_001', text: 'Text', sequence: 0, chunkKind: 'source-note', tags: [] }]
+      },
+      extractArtifact: {
+        inputId: 'pkg',
+        claims: [],
+        conceptCandidates: [],
+        evidence: [],
+        openQuestions: [],
+        warnings: []
+      },
+      classifyArtifact: {
+        inputId: 'pkg',
+        collections: {
+          sourceMapChunkIds: [],
+          claimsAndEvidenceClaimIds: [],
+          conceptClusterBuckets: []
+        }
+      },
+      synthesizeArtifact: {
+        inputId: 'pkg',
+        promptFragments: []
+      },
+      mutationArtifact: null,
+      mutationReviewArtifact: null,
+      scoreArtifact: {
+        inputId: 'pkg',
+        corroboratedConceptIds: [],
+        disputedConceptIds: [],
+        confidenceSummary: {
+          overall: 'low',
+          extraction: 'low',
+          normalization: 'low',
+          provenance: 'medium',
+          rights: 'low'
+        },
+        ambiguityFlags: []
+      },
+      reviewArtifact: {
+        inputId: 'pkg',
+        unresolvedAmbiguities: [],
+        corroboratedConceptIds: [],
+        overlapWarnings: [],
+        contradictionFlags: [],
+        missingProvenance: [],
+        weakConceptIds: [],
+        recommendedActions: []
+      },
+      sourceMapPsg: {
+        version: '1.0.0',
+        name: 'Source Map',
+        nodes: [{ id: 'node_001', type: 'TextBlock', x: 0, y: 0 }],
+        edges: []
+      },
+      conceptClustersPsg,
+      promptSynthesisPsg: {
+        version: '1.0.0',
+        name: 'Prompt Synthesis',
+        nodes: [{ id: 'node_001', type: 'WeightedChoice', x: 0, y: 0 }],
+        edges: []
+      },
+      promptMutationsPsg: null,
+      researchPackageManifest: {
+        packageId: 'pkg_research_package',
+        packageType: 'research-package',
+        title: 'Pkg',
+        parserVersion: '0.1.0',
+        strategyVersion: 'epic1-story5',
+        contributorId: 'local-metagrinder-mvp',
+        sourceInputs: ['src_001'],
+        sourceInputIds: ['src_001'],
+        collections: [],
+        lineage: { sourceInputIds: ['src_001'] },
+        confidenceSummary: {
+          overall: 'low',
+          extraction: 'low',
+          normalization: 'low',
+          provenance: 'medium',
+          rights: 'low'
+        },
+        reviewStatus: 'draft'
+      }
+    })).not.toThrow();
+  });
+
+  test('package validation rejects malformed PSG files', () => {
+    expect(() => researchPackageService.validatePackageArtifacts({
+      augmentationPlanArtifact: {
+        inputId: 'pkg-bad',
+        researchKind: 'historical-scene-research',
+        verificationTargets: [],
+        missingSourceTypes: [],
+        followUpResearchDirections: [],
+        rationale: []
+      },
+      assumptionReviewArtifact: {
+        inputId: 'pkg-bad',
+        researchKind: 'historical-scene-research',
+        detectedChunkKinds: ['source-note'],
+        recommendedFocus: [],
+        warnings: [],
+        decisionOptions: ['proceed-as-is']
+      },
+      categoryHypothesisArtifact: {
+        inputId: 'pkg-bad',
+        researchKind: 'historical-scene-research',
+        categories: [],
+        recommendedFocus: []
+      },
+      modeDetectionArtifact: {
+        inputId: 'pkg-bad',
+        researchKind: 'historical-scene-research',
+        confidence: 'high',
+        reasons: [],
+        suggestedCategories: [],
+        candidateKinds: []
+      },
+      ingestArtifact: {
+        inputId: 'pkg-bad',
+        title: 'Pkg bad',
+        sourceType: 'plain-text',
+        researchKind: 'historical-scene-research',
+        sourceInputs: [{ sourceInputId: 'src_001', title: 'Pkg', sourceType: 'plain-text', sequence: 0 }],
+        chunks: [{ chunkId: 'chunk_001', sourceInputId: 'src_001', text: 'Text', sequence: 0, chunkKind: 'source-note', tags: [] }]
+      },
+      extractArtifact: {
+        inputId: 'pkg-bad',
+        claims: [],
+        conceptCandidates: [],
+        evidence: [],
+        openQuestions: [],
+        warnings: []
+      },
+      classifyArtifact: {
+        inputId: 'pkg-bad',
+        collections: {
+          sourceMapChunkIds: [],
+          claimsAndEvidenceClaimIds: [],
+          conceptClusterBuckets: []
+        }
+      },
+      synthesizeArtifact: {
+        inputId: 'pkg-bad',
+        promptFragments: []
+      },
+      mutationArtifact: null,
+      mutationReviewArtifact: null,
+      scoreArtifact: {
+        inputId: 'pkg-bad',
+        corroboratedConceptIds: [],
+        disputedConceptIds: [],
+        confidenceSummary: {
+          overall: 'low',
+          extraction: 'low',
+          normalization: 'low',
+          provenance: 'medium',
+          rights: 'low'
+        },
+        ambiguityFlags: []
+      },
+      reviewArtifact: {
+        inputId: 'pkg-bad',
+        unresolvedAmbiguities: [],
+        corroboratedConceptIds: [],
+        overlapWarnings: [],
+        contradictionFlags: [],
+        missingProvenance: [],
+        weakConceptIds: [],
+        recommendedActions: []
+      },
+      sourceMapPsg: {
+        version: '',
+        name: 'Bad Source Map',
+        nodes: [],
+        edges: []
+      },
+      conceptClustersPsg: {
+        version: '1.0.0',
+        name: 'Concept Clusters',
+        nodes: [],
+        edges: []
+      },
+      promptSynthesisPsg: {
+        version: '1.0.0',
+        name: 'Prompt Synthesis',
+        nodes: [],
+        edges: []
+      },
+      promptMutationsPsg: null,
+      researchPackageManifest: {
+        packageId: 'pkg-bad_research_package',
+        packageType: 'research-package',
+        title: 'Pkg bad',
+        parserVersion: '0.1.0',
+        strategyVersion: 'epic1-story5',
+        contributorId: 'local-metagrinder-mvp',
+        sourceInputs: ['src_001'],
+        sourceInputIds: ['src_001'],
+        collections: [],
+        lineage: { sourceInputIds: ['src_001'] },
+        confidenceSummary: {
+          overall: 'low',
+          extraction: 'low',
+          normalization: 'low',
+          provenance: 'medium',
+          rights: 'low'
+        },
+        reviewStatus: 'draft'
+      }
+    })).toThrow('source-map.psg is missing a string version.');
   });
 
   test('upgrades package manifest and collection metadata for multi-document input', () => {
