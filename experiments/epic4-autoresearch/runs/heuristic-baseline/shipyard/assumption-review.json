@@ -1,0 +1,21 @@
+{
+  "inputId": "shipyard",
+  "researchKind": "environment-observation",
+  "detectedChunkKinds": [
+    "source-note",
+    "observation",
+    "concept-list",
+    "uncertainty"
+  ],
+  "recommendedFocus": [
+    "movement",
+    "lighting",
+    "atmosphere"
+  ],
+  "warnings": [],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

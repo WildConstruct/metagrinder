@@ -1,0 +1,47 @@
+{
+  "inputId": "archival-costume-crowd-memo",
+  "researchKind": "historical-scene-research",
+  "categories": [
+    {
+      "categoryId": "wardrobe",
+      "label": "wardrobe",
+      "priority": "primary",
+      "rationale": "Proposed from research mode historical-scene-research using brief signals: coat, coats, hat, hats."
+    },
+    {
+      "categoryId": "weather-and-environment",
+      "label": "weather-and-environment",
+      "priority": "primary",
+      "rationale": "Proposed from research mode historical-scene-research using brief signals: cold, damp, street."
+    },
+    {
+      "categoryId": "people-and-crowd",
+      "label": "people-and-crowd",
+      "priority": "primary",
+      "rationale": "Proposed from research mode historical-scene-research using brief signals: crowd."
+    },
+    {
+      "categoryId": "lighting",
+      "label": "lighting",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode historical-scene-research using brief signals: marquee."
+    },
+    {
+      "categoryId": "materials-and-surfaces",
+      "label": "materials-and-surfaces",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode historical-scene-research using brief signals: wool."
+    },
+    {
+      "categoryId": "mood-and-social-tone",
+      "label": "mood-and-social-tone",
+      "priority": "optional",
+      "rationale": "Proposed from research mode historical-scene-research using brief signals: tone."
+    }
+  ],
+  "recommendedFocus": [
+    "wardrobe",
+    "weather-and-environment",
+    "people-and-crowd"
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "inputId": "spaghettiwestern",
+  "researchKind": "mixed",
+  "categories": [
+    {
+      "categoryId": "templates",
+      "label": "templates",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: template, example, description."
+    },
+    {
+      "categoryId": "generation-rules",
+      "label": "generation-rules",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: rules, logic, if, then."
+    },
+    {
+      "categoryId": "reusable-concepts",
+      "label": "reusable-concepts",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: traits."
+    },
+    {
+      "categoryId": "uncertainties",
+      "label": "uncertainties",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: contradictions."
+    },
+    {
+      "categoryId": "source-notes",
+      "label": "source-notes",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: source."
+    }
+  ],
+  "recommendedFocus": [
+    "templates",
+    "generation-rules",
+    "reusable-concepts"
+  ]
+}

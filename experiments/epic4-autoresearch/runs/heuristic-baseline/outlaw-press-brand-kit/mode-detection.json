@@ -1,0 +1,44 @@
+{
+  "inputId": "outlaw-press-brand-kit",
+  "researchKind": "style-analysis",
+  "confidence": "high",
+  "reasons": [
+    "Top detected mode: style-analysis (9).",
+    "Secondary mode signal: procedural-guide (6).",
+    "Matched mode signals: visual language, tone, satire, brand, publication.",
+    "Section labels contributed to mode detection across 4 chunks."
+  ],
+  "suggestedCategories": [
+    "genre-context",
+    "visual-signifiers",
+    "tone",
+    "reference-points",
+    "prompt-implications"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "style-analysis",
+      "score": 9
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 6
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 1
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 0
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 0
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 0
+    }
+  ]
+}

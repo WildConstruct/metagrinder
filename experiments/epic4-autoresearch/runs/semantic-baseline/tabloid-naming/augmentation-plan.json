@@ -1,0 +1,12 @@
+{
+  "inputId": "tabloid-naming",
+  "researchKind": "style-analysis",
+  "verificationTargets": [
+    "Review: Generation-rule chunks were detected during structural intake. Confirm whether they should guide synthesis instead of concept extraction."
+  ],
+  "missingSourceTypes": [],
+  "followUpResearchDirections": [],
+  "rationale": [
+    "Semantic baseline generated from prototype similarity over chunked intake for style-analysis."
+  ]
+}

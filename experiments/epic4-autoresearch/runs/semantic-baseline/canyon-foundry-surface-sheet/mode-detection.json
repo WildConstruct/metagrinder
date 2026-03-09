@@ -1,0 +1,46 @@
+{
+  "inputId": "canyon-foundry-surface-sheet",
+  "researchKind": "material-reference",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: material-reference (187.35).",
+    "Secondary prototype match: historical-scene-research (27.83).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "surface-response",
+    "wear-and-damage",
+    "materials",
+    "environmental-effects"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "material-reference",
+      "score": 187.35
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 27.83
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 26.4
+    },
+    {
+      "researchKind": "mixed",
+      "score": 5.54
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 4
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 4
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0.84
+    }
+  ]
+}

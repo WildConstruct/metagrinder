@@ -1,0 +1,10 @@
+{
+  "inputId": "greenhouse",
+  "researchKind": "environment-observation",
+  "verificationTargets": [],
+  "missingSourceTypes": [],
+  "followUpResearchDirections": [],
+  "rationale": [
+    "Semantic baseline generated from prototype similarity over chunked intake for environment-observation."
+  ]
+}

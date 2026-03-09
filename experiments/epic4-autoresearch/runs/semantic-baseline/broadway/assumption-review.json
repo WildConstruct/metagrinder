@@ -1,0 +1,18 @@
+{
+  "inputId": "broadway",
+  "researchKind": "historical-scene-research",
+  "detectedChunkKinds": [
+    "observation"
+  ],
+  "recommendedFocus": [
+    "wardrobe",
+    "weather-and-environment",
+    "people-and-crowd"
+  ],
+  "warnings": [],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

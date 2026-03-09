@@ -1,0 +1,24 @@
+{
+  "inputId": "spaghettiwestern",
+  "researchKind": "mixed",
+  "detectedChunkKinds": [
+    "observation",
+    "template",
+    "generation-rule"
+  ],
+  "recommendedFocus": [
+    "templates",
+    "generation-rules",
+    "reusable-concepts"
+  ],
+  "warnings": [
+    "Prototype comparison found multiple strong framework families. Review before trusting a single extraction shape.",
+    "Template chunks were detected during structural intake. Keep examples separate from ordinary evidence.",
+    "Generation-rule chunks were detected during structural intake. Confirm whether they should guide synthesis instead of concept extraction."
+  ],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "inputId": "greenhouse",
+  "researchKind": "environment-observation",
+  "categories": [
+    {
+      "categoryId": "structures",
+      "label": "structures",
+      "priority": "primary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: greenhouse, frames, roof, panels."
+    },
+    {
+      "categoryId": "atmosphere",
+      "label": "atmosphere",
+      "priority": "primary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: air, fog, humid, condensation."
+    },
+    {
+      "categoryId": "lighting",
+      "label": "lighting",
+      "priority": "primary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: light, dawn, reflections, shine."
+    },
+    {
+      "categoryId": "materials",
+      "label": "materials",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: glass, iron, stone, water."
+    },
+    {
+      "categoryId": "movement",
+      "label": "movement",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: moved, movement, paused, passed."
+    },
+    {
+      "categoryId": "terrain",
+      "label": "terrain",
+      "priority": "optional",
+      "rationale": "Proposed from research mode environment-observation using brief signals: soil, walkways, stone."
+    }
+  ],
+  "recommendedFocus": [
+    "structures",
+    "atmosphere",
+    "lighting"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "inputId": "medieval-peasant-generator",
+  "researchKind": "character-framework",
+  "verificationTargets": [
+    "Review: Generation-rule chunks were detected during structural intake. Confirm whether they should guide synthesis instead of concept extraction.",
+    "Review: Reference-table chunks were detected. They may need restructuring before deeper extraction."
+  ],
+  "missingSourceTypes": [],
+  "followUpResearchDirections": [],
+  "rationale": [
+    "Semantic baseline generated from prototype similarity over chunked intake for character-framework."
+  ]
+}

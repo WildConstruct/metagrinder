@@ -1,0 +1,45 @@
+{
+  "inputId": "archival-costume-crowd-memo",
+  "researchKind": "historical-scene-research",
+  "confidence": "medium",
+  "reasons": [
+    "Top detected mode: historical-scene-research (5).",
+    "Secondary mode signal: style-analysis (1).",
+    "Matched mode signals: street, theater, crowd, evening, marquee.",
+    "Section labels contributed to mode detection across 4 chunks."
+  ],
+  "suggestedCategories": [
+    "wardrobe",
+    "people-and-crowd",
+    "weather-and-environment",
+    "lighting",
+    "materials-and-surfaces",
+    "mood-and-social-tone"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "historical-scene-research",
+      "score": 5
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 1
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 1
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 0
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 0
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 0
+    }
+  ]
+}

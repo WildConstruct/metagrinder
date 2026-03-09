@@ -1,0 +1,20 @@
+{
+  "inputId": "weeklyworldnews-blueprint",
+  "researchKind": "style-analysis",
+  "detectedChunkKinds": [
+    "observation",
+    "generation-rule"
+  ],
+  "recommendedFocus": [
+    "genre-context",
+    "visual-signifiers"
+  ],
+  "warnings": [
+    "Generation-rule chunks were detected. Confirm whether they should shape synthesis rather than core concept extraction."
+  ],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

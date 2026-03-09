@@ -1,0 +1,48 @@
+{
+  "inputId": "spaghettiwestern",
+  "researchKind": "mixed",
+  "confidence": "medium",
+  "reasons": [
+    "Top prototype match: character-framework (388.43).",
+    "Secondary prototype match: mixed (273.47).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone.",
+    "Multiple prototype families remained strong after structural weighting, so the brief should be reviewed as mixed."
+  ],
+  "suggestedCategories": [
+    "templates",
+    "generation-rules",
+    "reusable-concepts",
+    "uncertainties",
+    "source-notes"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "character-framework",
+      "score": 388.43
+    },
+    {
+      "researchKind": "mixed",
+      "score": 273.47
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 255.37
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 185.32
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 92.42
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 90.19
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 85.83
+    }
+  ]
+}

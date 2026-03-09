@@ -1,0 +1,17 @@
+{
+  "inputId": "medieval-peasant-generator",
+  "researchKind": "character-framework",
+  "verificationTargets": [
+    "Confirm which generation rules should guide prompt assembly and which should remain advisory only."
+  ],
+  "missingSourceTypes": [
+    "genre example set with concrete scene excerpts"
+  ],
+  "followUpResearchDirections": [
+    "Split assembly logic into a dedicated rule sheet for later prompt construction.",
+    "Pair archetype notes with concrete scene-level evidence from representative films."
+  ],
+  "rationale": [
+    "Procedural guidance should be interpreted differently from observed or sourced material."
+  ]
+}

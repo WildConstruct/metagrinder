@@ -1,0 +1,45 @@
+{
+  "inputId": "spaghettiwestern",
+  "researchKind": "character-framework",
+  "confidence": "high",
+  "reasons": [
+    "Top detected mode: character-framework (31).",
+    "Secondary mode signal: style-analysis (21).",
+    "Matched mode signals: archetype, persona, survivor, anti-hero, maniac.",
+    "Section labels contributed to mode detection across 39 chunks."
+  ],
+  "suggestedCategories": [
+    "archetypes",
+    "physical-state",
+    "wardrobe-and-gear",
+    "behavior-and-presence",
+    "capabilities-and-flaws",
+    "sensory-footprint"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "character-framework",
+      "score": 31
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 21
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 15
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 8
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 7
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 7
+    }
+  ]
+}

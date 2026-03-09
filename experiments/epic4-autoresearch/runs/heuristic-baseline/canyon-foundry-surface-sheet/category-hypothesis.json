@@ -1,0 +1,34 @@
+{
+  "inputId": "canyon-foundry-surface-sheet",
+  "researchKind": "material-reference",
+  "categories": [
+    {
+      "categoryId": "materials",
+      "label": "materials",
+      "priority": "primary",
+      "rationale": "Proposed from research mode material-reference."
+    },
+    {
+      "categoryId": "surface-response",
+      "label": "surface-response",
+      "priority": "primary",
+      "rationale": "Proposed from research mode material-reference."
+    },
+    {
+      "categoryId": "wear-and-damage",
+      "label": "wear-and-damage",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode material-reference."
+    },
+    {
+      "categoryId": "environmental-effects",
+      "label": "environmental-effects",
+      "priority": "optional",
+      "rationale": "Proposed from research mode material-reference."
+    }
+  ],
+  "recommendedFocus": [
+    "materials",
+    "surface-response"
+  ]
+}

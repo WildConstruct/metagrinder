@@ -1,0 +1,10 @@
+{
+  "inputId": "broadway",
+  "researchKind": "historical-scene-research",
+  "verificationTargets": [],
+  "missingSourceTypes": [],
+  "followUpResearchDirections": [],
+  "rationale": [
+    "Semantic baseline generated from prototype similarity over chunked intake for historical-scene-research."
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "inputId": "canyon-foundry-surface-sheet",
+  "researchKind": "material-reference",
+  "verificationTargets": [],
+  "missingSourceTypes": [],
+  "followUpResearchDirections": [],
+  "rationale": [
+    "Semantic baseline generated from prototype similarity over chunked intake for material-reference."
+  ]
+}

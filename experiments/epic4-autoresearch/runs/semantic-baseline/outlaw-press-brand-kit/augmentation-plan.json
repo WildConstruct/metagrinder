@@ -1,0 +1,12 @@
+{
+  "inputId": "outlaw-press-brand-kit",
+  "researchKind": "style-analysis",
+  "verificationTargets": [
+    "Review: This brief reads as analytical guidance rather than plain scene evidence. Review extraction priorities before proceeding."
+  ],
+  "missingSourceTypes": [],
+  "followUpResearchDirections": [],
+  "rationale": [
+    "Semantic baseline generated from prototype similarity over chunked intake for style-analysis."
+  ]
+}

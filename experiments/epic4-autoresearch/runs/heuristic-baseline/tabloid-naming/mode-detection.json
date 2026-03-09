@@ -1,0 +1,44 @@
+{
+  "inputId": "tabloid-naming",
+  "researchKind": "style-analysis",
+  "confidence": "high",
+  "reasons": [
+    "Top detected mode: style-analysis (16).",
+    "Secondary mode signal: procedural-guide (8).",
+    "Matched mode signals: cinema, film, aesthetic, style, tone.",
+    "Section labels contributed to mode detection across 250 chunks."
+  ],
+  "suggestedCategories": [
+    "genre-context",
+    "visual-signifiers",
+    "tone",
+    "reference-points",
+    "prompt-implications"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "style-analysis",
+      "score": 16
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 8
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 5
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 2
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 2
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 0
+    }
+  ]
+}

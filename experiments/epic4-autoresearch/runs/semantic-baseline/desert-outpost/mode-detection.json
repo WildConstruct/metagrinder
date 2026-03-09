@@ -1,0 +1,48 @@
+{
+  "inputId": "desert-outpost",
+  "researchKind": "environment-observation",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: environment-observation (80.57).",
+    "Secondary prototype match: mixed (51.5).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "materials",
+    "structures",
+    "atmosphere",
+    "lighting",
+    "movement",
+    "terrain"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "environment-observation",
+      "score": 80.57
+    },
+    {
+      "researchKind": "mixed",
+      "score": 51.5
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 46.14
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 13.72
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 3.39
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 1
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0.69
+    }
+  ]
+}

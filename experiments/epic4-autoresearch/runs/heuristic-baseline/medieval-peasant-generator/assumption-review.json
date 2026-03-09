@@ -1,0 +1,23 @@
+{
+  "inputId": "medieval-peasant-generator",
+  "researchKind": "character-framework",
+  "detectedChunkKinds": [
+    "observation",
+    "generation-rule",
+    "reference-table"
+  ],
+  "recommendedFocus": [
+    "archetypes",
+    "physical-state",
+    "wardrobe-and-gear"
+  ],
+  "warnings": [
+    "Generation-rule chunks were detected. Confirm whether they should shape synthesis rather than core concept extraction.",
+    "Reference-table chunks were detected. They may need restructuring before deeper extraction or verification."
+  ],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

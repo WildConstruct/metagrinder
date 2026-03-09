@@ -1,0 +1,48 @@
+{
+  "inputId": "broadway",
+  "researchKind": "historical-scene-research",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: historical-scene-research (83.83).",
+    "Secondary prototype match: environment-observation (17.6).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "wardrobe",
+    "weather-and-environment",
+    "people-and-crowd",
+    "materials-and-surfaces",
+    "lighting",
+    "mood-and-social-tone"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "historical-scene-research",
+      "score": 83.83
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 17.6
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 7.42
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 4.39
+    },
+    {
+      "researchKind": "mixed",
+      "score": 4.03
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 3
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0
+    }
+  ]
+}

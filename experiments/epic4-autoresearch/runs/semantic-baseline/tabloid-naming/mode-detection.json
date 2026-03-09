@@ -1,0 +1,47 @@
+{
+  "inputId": "tabloid-naming",
+  "researchKind": "style-analysis",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: style-analysis (1977.78).",
+    "Secondary prototype match: historical-scene-research (756.94).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "genre-context",
+    "visual-signifiers",
+    "tone",
+    "reference-points",
+    "prompt-implications"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "style-analysis",
+      "score": 1977.78
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 756.94
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 681.3
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 625.64
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 455.41
+    },
+    {
+      "researchKind": "mixed",
+      "score": 356.85
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 298.16
+    }
+  ]
+}

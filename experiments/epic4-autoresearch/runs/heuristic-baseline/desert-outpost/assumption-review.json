@@ -1,0 +1,21 @@
+{
+  "inputId": "desert-outpost",
+  "researchKind": "environment-observation",
+  "detectedChunkKinds": [
+    "source-note",
+    "observation",
+    "concept-list",
+    "uncertainty"
+  ],
+  "recommendedFocus": [
+    "materials",
+    "atmosphere",
+    "structures"
+  ],
+  "warnings": [],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

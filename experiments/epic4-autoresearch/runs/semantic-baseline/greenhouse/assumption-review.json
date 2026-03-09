@@ -1,0 +1,21 @@
+{
+  "inputId": "greenhouse",
+  "researchKind": "environment-observation",
+  "detectedChunkKinds": [
+    "source-note",
+    "observation",
+    "concept-list",
+    "uncertainty"
+  ],
+  "recommendedFocus": [
+    "structures",
+    "atmosphere",
+    "materials"
+  ],
+  "warnings": [],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "inputId": "broadway",
+  "researchKind": "historical-scene-research",
+  "verificationTargets": [],
+  "missingSourceTypes": [
+    "period photographs or archival visual references",
+    "primary-source descriptions or reportage"
+  ],
+  "followUpResearchDirections": [
+    "Add corroborating period-specific wardrobe and crowd behavior sources."
+  ],
+  "rationale": []
+}

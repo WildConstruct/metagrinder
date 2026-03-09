@@ -1,0 +1,47 @@
+{
+  "inputId": "outlaw-press-brand-kit",
+  "researchKind": "style-analysis",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: style-analysis (53.35).",
+    "Secondary prototype match: procedural-guide (36.03).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "visual-signifiers",
+    "prompt-implications",
+    "genre-context",
+    "tone",
+    "reference-points"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "style-analysis",
+      "score": 53.35
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 36.03
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 10.7
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 9.45
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 5.49
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 5.09
+    },
+    {
+      "researchKind": "mixed",
+      "score": 4
+    }
+  ]
+}

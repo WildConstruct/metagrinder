@@ -1,0 +1,47 @@
+{
+  "inputId": "broadway",
+  "researchKind": "historical-scene-research",
+  "categories": [
+    {
+      "categoryId": "wardrobe",
+      "label": "wardrobe",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: coats, hats, gloves, wardrobe."
+    },
+    {
+      "categoryId": "weather-and-environment",
+      "label": "weather-and-environment",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: cold, winter, damp, pavement."
+    },
+    {
+      "categoryId": "people-and-crowd",
+      "label": "people-and-crowd",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: audience, theatergoers, groups."
+    },
+    {
+      "categoryId": "materials-and-surfaces",
+      "label": "materials-and-surfaces",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: wool, pavement, shoes."
+    },
+    {
+      "categoryId": "lighting",
+      "label": "lighting",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: marquee, neon."
+    },
+    {
+      "categoryId": "mood-and-social-tone",
+      "label": "mood-and-social-tone",
+      "priority": "optional",
+      "rationale": "Proposed from the historical-scene-research prototype."
+    }
+  ],
+  "recommendedFocus": [
+    "wardrobe",
+    "weather-and-environment",
+    "people-and-crowd"
+  ]
+}

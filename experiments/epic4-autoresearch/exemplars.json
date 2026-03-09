@@ -1,0 +1,610 @@
+{
+  "historical-scene-research": {
+    "description": "Research focused on reconstructing a scene or social moment with evidence about people, wardrobe, environment, lighting, and social tone.",
+    "prototype_terms": [
+      "scene",
+      "street",
+      "audience",
+      "crowd",
+      "theater",
+      "broadway",
+      "marquee",
+      "wardrobe",
+      "weather",
+      "lighting",
+      "social tone",
+      "period moment"
+    ],
+    "section_terms": [
+      "source notes",
+      "key observations",
+      "streetwear notes",
+      "costume notes",
+      "scene"
+    ],
+    "chunk_kind_weights": {
+      "observation": 1.2,
+      "source-note": 1.1
+    },
+    "category_focus": [
+      {
+        "label": "wardrobe",
+        "signals": [
+          "coat",
+          "coats",
+          "hats",
+          "gloves",
+          "streetwear",
+          "wardrobe",
+          "silhouette",
+          "outerwear"
+        ]
+      },
+      {
+        "label": "people-and-crowd",
+        "signals": [
+          "crowd",
+          "audience",
+          "people",
+          "theatergoers",
+          "visitors",
+          "groups"
+        ]
+      },
+      {
+        "label": "weather-and-environment",
+        "signals": [
+          "cold",
+          "winter",
+          "damp",
+          "pavement",
+          "sidewalk",
+          "breath"
+        ]
+      },
+      {
+        "label": "lighting",
+        "signals": [
+          "light",
+          "marquee",
+          "neon",
+          "reflection",
+          "signage"
+        ]
+      },
+      {
+        "label": "materials-and-surfaces",
+        "signals": [
+          "wool",
+          "pavement",
+          "shoes",
+          "fabric",
+          "surface"
+        ]
+      },
+      {
+        "label": "mood-and-social-tone",
+        "signals": [
+          "post-show",
+          "formality",
+          "refinement",
+          "social",
+          "tone"
+        ]
+      }
+    ]
+  },
+  "environment-observation": {
+    "description": "Research focused on observing a place through structures, materials, atmosphere, lighting, terrain, and movement in a setting.",
+    "prototype_terms": [
+      "environment",
+      "atmosphere",
+      "structure",
+      "material",
+      "lighting",
+      "terrain",
+      "movement",
+      "greenhouse",
+      "shipyard",
+      "station",
+      "dust",
+      "condensation"
+    ],
+    "section_terms": [
+      "source notes",
+      "key observations",
+      "reusable concepts"
+    ],
+    "chunk_kind_weights": {
+      "observation": 1.2,
+      "source-note": 1.1,
+      "concept-list": 1.05
+    },
+    "category_focus": [
+      {
+        "label": "structures",
+        "signals": [
+          "greenhouse",
+          "frames",
+          "roof",
+          "panels",
+          "gantry",
+          "cranes",
+          "catwalk",
+          "station",
+          "walls",
+          "antenna",
+          "benches"
+        ]
+      },
+      {
+        "label": "atmosphere",
+        "signals": [
+          "air",
+          "wind",
+          "fog",
+          "humid",
+          "humidity",
+          "haze",
+          "condensation",
+          "dust",
+          "grit"
+        ]
+      },
+      {
+        "label": "lighting",
+        "signals": [
+          "light",
+          "dawn",
+          "dusk",
+          "reflection",
+          "flood",
+          "orange",
+          "shine",
+          "glow"
+        ]
+      },
+      {
+        "label": "materials",
+        "signals": [
+          "glass",
+          "iron",
+          "steel",
+          "stone",
+          "water",
+          "fabric",
+          "metal",
+          "corrugated",
+          "sandstone"
+        ]
+      },
+      {
+        "label": "movement",
+        "signals": [
+          "moved",
+          "movement",
+          "crossed",
+          "tracked",
+          "paused",
+          "passed",
+          "groups"
+        ]
+      },
+      {
+        "label": "terrain",
+        "signals": [
+          "ridge",
+          "soil",
+          "walkways",
+          "yard",
+          "landscape",
+          "ground"
+        ]
+      }
+    ]
+  },
+  "material-reference": {
+    "description": "Research focused on surfaces, material behavior, wear, damage, finish response, and environmental effects on physical assemblies.",
+    "prototype_terms": [
+      "material",
+      "surface",
+      "surface response",
+      "wear",
+      "damage",
+      "finish",
+      "oxide",
+      "paint",
+      "metal",
+      "abrasion",
+      "grease",
+      "environmental effects"
+    ],
+    "section_terms": [
+      "material notes",
+      "surface response",
+      "wear and damage",
+      "environmental effects"
+    ],
+    "chunk_kind_weights": {
+      "observation": 1.1,
+      "concept-list": 1.0
+    },
+    "category_focus": [
+      {
+        "label": "materials",
+        "signals": [
+          "iron",
+          "steel",
+          "rubber",
+          "paint",
+          "metal",
+          "panel",
+          "seal"
+        ]
+      },
+      {
+        "label": "surface-response",
+        "signals": [
+          "surface",
+          "highlight",
+          "satin",
+          "oxide",
+          "finish",
+          "contrast",
+          "response"
+        ]
+      },
+      {
+        "label": "wear-and-damage",
+        "signals": [
+          "wear",
+          "damage",
+          "abrasion",
+          "crack",
+          "nick",
+          "rounded",
+          "flake"
+        ]
+      },
+      {
+        "label": "environmental-effects",
+        "signals": [
+          "grit",
+          "wind",
+          "heat",
+          "dust",
+          "evaporates",
+          "sun-facing"
+        ]
+      }
+    ]
+  },
+  "character-framework": {
+    "description": "Research focused on roles, archetypes, appearance, attire, behavior, capabilities, and reusable character generation notes.",
+    "prototype_terms": [
+      "archetype",
+      "character",
+      "roles",
+      "occupations",
+      "appearance",
+      "attire",
+      "population",
+      "generator",
+      "peasants",
+      "traits",
+      "social hierarchy",
+      "daily lives"
+    ],
+    "section_terms": [
+      "social tapestry",
+      "daily bread",
+      "gender roles",
+      "appearance",
+      "characteristics"
+    ],
+    "chunk_kind_weights": {
+      "observation": 1.0,
+      "reference-table": 1.3,
+      "generation-rule": 1.1
+    },
+    "category_focus": [
+      {
+        "label": "archetypes",
+        "signals": [
+          "archetype",
+          "status",
+          "hierarchy",
+          "villein",
+          "cottar",
+          "freemen",
+          "reeve",
+          "bailiff"
+        ]
+      },
+      {
+        "label": "physical-state",
+        "signals": [
+          "health",
+          "mortality",
+          "disease",
+          "labor",
+          "body",
+          "daily lives"
+        ]
+      },
+      {
+        "label": "wardrobe-and-gear",
+        "signals": [
+          "attire",
+          "clothing",
+          "garments",
+          "wool",
+          "linen",
+          "leather",
+          "shoes",
+          "belt"
+        ]
+      },
+      {
+        "label": "behavior-and-presence",
+        "signals": [
+          "roles",
+          "work",
+          "household",
+          "behavior",
+          "custom",
+          "social"
+        ]
+      },
+      {
+        "label": "capabilities-and-flaws",
+        "signals": [
+          "skills",
+          "crafts",
+          "labor",
+          "freedom",
+          "obligations",
+          "limitations"
+        ]
+      },
+      {
+        "label": "sensory-footprint",
+        "signals": [
+          "smell",
+          "odor",
+          "texture",
+          "sound",
+          "mud",
+          "ale"
+        ]
+      }
+    ]
+  },
+  "style-analysis": {
+    "description": "Research focused on genre, tone, reference points, visual language, style, satire, audience, branding, and creative direction.",
+    "prototype_terms": [
+      "genre",
+      "tone",
+      "style",
+      "aesthetic",
+      "brand",
+      "naming",
+      "satire",
+      "publication",
+      "media universe",
+      "content strategy",
+      "format",
+      "meme"
+    ],
+    "section_terms": [
+      "introduction",
+      "methodology",
+      "evaluation framework",
+      "detailed name evaluations",
+      "format innovation"
+    ],
+    "chunk_kind_weights": {
+      "observation": 1.0,
+      "generation-rule": 1.2
+    },
+    "category_focus": [
+      {
+        "label": "genre-context",
+        "signals": [
+          "genre",
+          "tabloid",
+          "paranormal",
+          "surreal",
+          "satire",
+          "weekly world news"
+        ]
+      },
+      {
+        "label": "visual-signifiers",
+        "signals": [
+          "visual",
+          "aesthetic",
+          "format",
+          "imagery",
+          "headline",
+          "brand"
+        ]
+      },
+      {
+        "label": "tone",
+        "signals": [
+          "tone",
+          "absurdity",
+          "humor",
+          "parody",
+          "weirdness",
+          "uncanny"
+        ]
+      },
+      {
+        "label": "reference-points",
+        "signals": [
+          "onion",
+          "adult swim",
+          "meow wolf",
+          "cryptid",
+          "conspiracy",
+          "retro"
+        ]
+      },
+      {
+        "label": "prompt-implications",
+        "signals": [
+          "strategy",
+          "recommendation",
+          "launch",
+          "extension",
+          "format",
+          "viral"
+        ]
+      }
+    ]
+  },
+  "procedural-guide": {
+    "description": "Research focused on method, instructions, templates, decision rules, evaluation criteria, and workflow logic for generation.",
+    "prototype_terms": [
+      "methodology",
+      "framework",
+      "guide",
+      "template",
+      "criteria",
+      "evaluation",
+      "strategy",
+      "workflow",
+      "step",
+      "decision",
+      "probability",
+      "logic"
+    ],
+    "section_terms": [
+      "methodology",
+      "evaluation framework",
+      "criteria",
+      "next steps",
+      "recommendation"
+    ],
+    "chunk_kind_weights": {
+      "generation-rule": 1.4,
+      "template": 1.4,
+      "reference-table": 1.1
+    },
+    "category_focus": [
+      {
+        "label": "generation-rules",
+        "signals": [
+          "rules",
+          "logic",
+          "generation",
+          "decision",
+          "criteria",
+          "workflow"
+        ]
+      },
+      {
+        "label": "templates",
+        "signals": [
+          "template",
+          "example",
+          "format",
+          "structure"
+        ]
+      },
+      {
+        "label": "probability-weighting",
+        "signals": [
+          "probability",
+          "weighting",
+          "ranking",
+          "priority"
+        ]
+      },
+      {
+        "label": "contradiction-avoidance",
+        "signals": [
+          "conflict",
+          "avoid",
+          "warning",
+          "contra"
+        ]
+      },
+      {
+        "label": "prompt-assembly",
+        "signals": [
+          "assembly",
+          "construction",
+          "combine",
+          "synthesis"
+        ]
+      }
+    ]
+  },
+  "mixed": {
+    "description": "Research that strongly combines multiple framework families and should be reviewed before using a single extraction shape.",
+    "prototype_terms": [
+      "mixed",
+      "hybrid",
+      "multiple",
+      "combined",
+      "template",
+      "rules",
+      "observations"
+    ],
+    "section_terms": [
+      "reusable concepts",
+      "uncertainties"
+    ],
+    "chunk_kind_weights": {
+      "generation-rule": 1.3,
+      "template": 1.3,
+      "observation": 1.0
+    },
+    "category_focus": [
+      {
+        "label": "source-notes",
+        "signals": [
+          "source",
+          "notes",
+          "evidence"
+        ]
+      },
+      {
+        "label": "reusable-concepts",
+        "signals": [
+          "reusable",
+          "concepts",
+          "traits"
+        ]
+      },
+      {
+        "label": "generation-rules",
+        "signals": [
+          "rules",
+          "logic",
+          "if",
+          "then"
+        ]
+      },
+      {
+        "label": "templates",
+        "signals": [
+          "template",
+          "example",
+          "description"
+        ]
+      },
+      {
+        "label": "uncertainties",
+        "signals": [
+          "uncertainties",
+          "contradictions",
+          "ambiguity"
+        ]
+      }
+    ]
+  }
+}

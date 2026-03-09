@@ -1,0 +1,47 @@
+{
+  "inputId": "shipyard",
+  "researchKind": "environment-observation",
+  "categories": [
+    {
+      "categoryId": "movement",
+      "label": "movement",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: moved, movement, crossed, tracked."
+    },
+    {
+      "categoryId": "structures",
+      "label": "structures",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: gantry, cranes, catwalk."
+    },
+    {
+      "categoryId": "atmosphere",
+      "label": "atmosphere",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: wind, haze."
+    },
+    {
+      "categoryId": "materials",
+      "label": "materials",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: steel, water, metal."
+    },
+    {
+      "categoryId": "lighting",
+      "label": "lighting",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: light, dawn, flood."
+    },
+    {
+      "categoryId": "terrain",
+      "label": "terrain",
+      "priority": "optional",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: yard."
+    }
+  ],
+  "recommendedFocus": [
+    "movement",
+    "structures",
+    "atmosphere"
+  ]
+}

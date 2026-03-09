@@ -1,0 +1,45 @@
+{
+  "inputId": "shipyard",
+  "researchKind": "environment-observation",
+  "confidence": "high",
+  "reasons": [
+    "Top detected mode: environment-observation (8).",
+    "Secondary mode signal: material-reference (1).",
+    "Matched mode signals: wind, dust, steel, crane, gantry.",
+    "Section labels contributed to mode detection across 4 chunks."
+  ],
+  "suggestedCategories": [
+    "terrain",
+    "atmosphere",
+    "lighting",
+    "structures",
+    "materials",
+    "movement"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "environment-observation",
+      "score": 8
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 1
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 0
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 0
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 0
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0
+    }
+  ]
+}

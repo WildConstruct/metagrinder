@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Metagrinder Research Brief Lab</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Metagrinder Intake</p>
+        <h1>Research Brief Lab</h1>
+        <p class="lede">
+          Paste deep research markdown, repair the obvious blob problems, and get a cleaner
+          structure before feeding it into Metagrinder.
+        </p>
+      </section>
+
+      <section class="controls">
+        <label class="title-field">
+          <span>Draft title</span>
+          <input id="draft-title" type="text" placeholder="Optional title for the cleaned brief">
+        </label>
+        <div class="button-row">
+          <button id="normalize-button" type="button">Normalize Brief</button>
+          <button id="copy-button" type="button">Copy Cleaned Markdown</button>
+          <button id="load-sample-button" type="button">Load Spaghettiwestern Sample</button>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Raw Markdown</h2>
+            <p>Paste the original research blob here.</p>
+          </div>
+          <textarea id="raw-input" spellcheck="false" placeholder="Paste research markdown here..."></textarea>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Parser-Friendly Draft</h2>
+            <p>Structural cleanup only. This is meant to be edited further.</p>
+          </div>
+          <textarea id="normalized-output" spellcheck="false" placeholder="Normalized markdown will appear here..."></textarea>
+        </article>
+      </section>
+
+      <section class="insights">
+        <article class="card">
+          <h3>Detected Repairs</h3>
+          <ul id="diagnostics-list"></ul>
+        </article>
+        <article class="card">
+          <h3>Suggested Next Edits</h3>
+          <ul id="next-steps-list">
+            <li>Add explicit section headings if the brief still feels muddy.</li>
+            <li>Separate research observations from generation instructions.</li>
+            <li>Break huge sections into smaller reusable concept blocks.</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+
+    <script src="/packages/core/scripts/lib/research-brief-preparser.js"></script>
+    <script src="./app.js"></script>
+  </body>
+  </html>

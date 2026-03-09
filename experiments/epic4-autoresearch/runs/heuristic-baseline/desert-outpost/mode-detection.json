@@ -1,0 +1,45 @@
+{
+  "inputId": "desert-outpost",
+  "researchKind": "environment-observation",
+  "confidence": "medium",
+  "reasons": [
+    "Top detected mode: environment-observation (7).",
+    "Secondary mode signal: material-reference (2).",
+    "Matched mode signals: wind, dust, ridge, sandstone, corrugated.",
+    "Section labels contributed to mode detection across 4 chunks."
+  ],
+  "suggestedCategories": [
+    "terrain",
+    "atmosphere",
+    "lighting",
+    "structures",
+    "materials",
+    "movement"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "environment-observation",
+      "score": 7
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 2
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 1
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 1
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 1
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0
+    }
+  ]
+}

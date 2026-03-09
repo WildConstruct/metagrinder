@@ -1,0 +1,48 @@
+{
+  "inputId": "medieval-peasant-generator",
+  "researchKind": "character-framework",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: character-framework (2855.91).",
+    "Secondary prototype match: historical-scene-research (1127).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "physical-state",
+    "capabilities-and-flaws",
+    "behavior-and-presence",
+    "wardrobe-and-gear",
+    "archetypes",
+    "sensory-footprint"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "character-framework",
+      "score": 2855.91
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 1127
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 454.79
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 407.28
+    },
+    {
+      "researchKind": "mixed",
+      "score": 310.67
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 298.4
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 45.33
+    }
+  ]
+}

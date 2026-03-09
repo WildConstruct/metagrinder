@@ -1,0 +1,22 @@
+{
+  "inputId": "modular-enemy-generator-notes",
+  "researchKind": "procedural-guide",
+  "detectedChunkKinds": [
+    "observation",
+    "generation-rule",
+    "template"
+  ],
+  "recommendedFocus": [
+    "generation-rules",
+    "templates"
+  ],
+  "warnings": [
+    "Template chunks were detected. They should guide authoring, not be treated as ordinary factual evidence.",
+    "Generation-rule chunks were detected. Confirm whether they should shape synthesis rather than core concept extraction."
+  ],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

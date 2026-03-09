@@ -1,0 +1,47 @@
+{
+  "inputId": "weeklyworldnews-blueprint",
+  "researchKind": "style-analysis",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: style-analysis (1140.9).",
+    "Secondary prototype match: environment-observation (563.32).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "genre-context",
+    "tone",
+    "visual-signifiers",
+    "prompt-implications",
+    "reference-points"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "style-analysis",
+      "score": 1140.9
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 563.32
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 509.43
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 450.82
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 333.07
+    },
+    {
+      "researchKind": "mixed",
+      "score": 317
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 123.09
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "inputId": "shipyard",
+  "researchKind": "environment-observation",
+  "categories": [
+    {
+      "categoryId": "movement",
+      "label": "movement",
+      "priority": "primary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: moved, movement, crossed, tracked."
+    },
+    {
+      "categoryId": "lighting",
+      "label": "lighting",
+      "priority": "primary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: light, dawn, reflections, flood lamps."
+    },
+    {
+      "categoryId": "atmosphere",
+      "label": "atmosphere",
+      "priority": "primary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: wind, haze, dust."
+    },
+    {
+      "categoryId": "structures",
+      "label": "structures",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: gantry, cranes, catwalk."
+    },
+    {
+      "categoryId": "materials",
+      "label": "materials",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: steel, water, metal."
+    },
+    {
+      "categoryId": "terrain",
+      "label": "terrain",
+      "priority": "optional",
+      "rationale": "Proposed from research mode environment-observation using brief signals: yard."
+    }
+  ],
+  "recommendedFocus": [
+    "movement",
+    "lighting",
+    "atmosphere"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "inputId": "outlaw-press-brand-kit",
+  "researchKind": "style-analysis",
+  "detectedChunkKinds": [
+    "observation"
+  ],
+  "recommendedFocus": [
+    "genre-context",
+    "visual-signifiers"
+  ],
+  "warnings": [],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "inputId": "greenhouse",
+  "researchKind": "environment-observation",
+  "categories": [
+    {
+      "categoryId": "structures",
+      "label": "structures",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: greenhouse, frames, roof, panels."
+    },
+    {
+      "categoryId": "atmosphere",
+      "label": "atmosphere",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: air, humid, condensation."
+    },
+    {
+      "categoryId": "materials",
+      "label": "materials",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: glass, iron, stone, water."
+    },
+    {
+      "categoryId": "movement",
+      "label": "movement",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: moved, movement, paused, passed."
+    },
+    {
+      "categoryId": "lighting",
+      "label": "lighting",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: light, dawn, shine."
+    },
+    {
+      "categoryId": "terrain",
+      "label": "terrain",
+      "priority": "optional",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: soil, walkways."
+    }
+  ],
+  "recommendedFocus": [
+    "structures",
+    "atmosphere",
+    "materials"
+  ]
+}

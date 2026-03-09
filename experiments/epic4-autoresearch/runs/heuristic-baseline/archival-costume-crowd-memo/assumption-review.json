@@ -1,0 +1,21 @@
+{
+  "inputId": "archival-costume-crowd-memo",
+  "researchKind": "historical-scene-research",
+  "detectedChunkKinds": [
+    "source-note",
+    "observation",
+    "concept-list",
+    "uncertainty"
+  ],
+  "recommendedFocus": [
+    "wardrobe",
+    "weather-and-environment",
+    "people-and-crowd"
+  ],
+  "warnings": [],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

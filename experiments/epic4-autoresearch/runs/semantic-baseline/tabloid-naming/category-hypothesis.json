@@ -1,0 +1,41 @@
+{
+  "inputId": "tabloid-naming",
+  "researchKind": "style-analysis",
+  "categories": [
+    {
+      "categoryId": "genre-context",
+      "label": "genre-context",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: tabloid, paranormal, surreal, satire."
+    },
+    {
+      "categoryId": "visual-signifiers",
+      "label": "visual-signifiers",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: visual, aesthetic, format, imagery."
+    },
+    {
+      "categoryId": "tone",
+      "label": "tone",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: tone, absurdity, humor, parody."
+    },
+    {
+      "categoryId": "reference-points",
+      "label": "reference-points",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: onion, adult swim, meow wolf, cryptid."
+    },
+    {
+      "categoryId": "prompt-implications",
+      "label": "prompt-implications",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: launch, extension, format, viral."
+    }
+  ],
+  "recommendedFocus": [
+    "genre-context",
+    "visual-signifiers",
+    "tone"
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "inputId": "desert-outpost",
+  "researchKind": "environment-observation",
+  "categories": [
+    {
+      "categoryId": "materials",
+      "label": "materials",
+      "priority": "primary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: stone, water, fabric, metal."
+    },
+    {
+      "categoryId": "atmosphere",
+      "label": "atmosphere",
+      "priority": "primary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: air, wind, dust, grit."
+    },
+    {
+      "categoryId": "structures",
+      "label": "structures",
+      "priority": "primary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: panels, station, walls, antenna."
+    },
+    {
+      "categoryId": "lighting",
+      "label": "lighting",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: light, dusk, orange."
+    },
+    {
+      "categoryId": "movement",
+      "label": "movement",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode environment-observation using brief signals: movement, groups, paused."
+    },
+    {
+      "categoryId": "terrain",
+      "label": "terrain",
+      "priority": "optional",
+      "rationale": "Proposed from research mode environment-observation using brief signals: ridge, stone."
+    }
+  ],
+  "recommendedFocus": [
+    "materials",
+    "atmosphere",
+    "structures"
+  ]
+}

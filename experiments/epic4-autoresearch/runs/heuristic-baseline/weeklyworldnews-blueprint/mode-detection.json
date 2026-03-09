@@ -1,0 +1,44 @@
+{
+  "inputId": "weeklyworldnews-blueprint",
+  "researchKind": "style-analysis",
+  "confidence": "high",
+  "reasons": [
+    "Top detected mode: style-analysis (23).",
+    "Secondary mode signal: procedural-guide (7).",
+    "Matched mode signals: aesthetic, style, visual language, tone, exploitation.",
+    "Section labels contributed to mode detection across 262 chunks."
+  ],
+  "suggestedCategories": [
+    "genre-context",
+    "visual-signifiers",
+    "tone",
+    "reference-points",
+    "prompt-implications"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "style-analysis",
+      "score": 23
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 7
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 6
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 5
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 4
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 2
+    }
+  ]
+}

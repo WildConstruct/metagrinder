@@ -7,9 +7,13 @@ import {
   CameraPassManifestSchema,
   CanonicalUtdgRecordSchema,
   LumaAdapterContractSchema,
+  MetagrinderAssumptionReviewArtifactSchema,
+  MetagrinderAugmentationPlanArtifactSchema,
+  MetagrinderCategoryHypothesisArtifactSchema,
   MetagrinderClassifyArtifactSchema,
     MetagrinderExtractArtifactSchema,
     MetagrinderIngestArtifactSchema,
+    MetagrinderModeDetectionArtifactSchema,
     MetagrinderMutationArtifactSchema,
     MetagrinderMutationReviewArtifactSchema,
     MetagrinderReviewArtifactSchema,
@@ -32,15 +36,21 @@ import {
 } from '../types/metagrinder';
 
 const {
+      buildAssumptionReviewArtifact,
+      buildAugmentationPlanArtifact,
       buildClassifyArtifact,
+      buildCategoryHypothesisArtifact,
       buildConceptClustersPsg,
       buildExtractArtifact,
       buildIngestArtifact,
+      buildModeDetectionArtifact,
       buildMutationArtifact,
       buildMutationReviewArtifact,
       buildMultiInputIngestArtifact,
       buildPromptMutationsPsg,
       buildPromptSynthesisPsg,
+      preparseResearchBrief,
+      buildResearchBriefReviewArtifacts,
       buildResearchPackageManifest,
     buildReviewArtifact,
     buildScoreArtifact,
@@ -48,6 +58,15 @@ const {
     buildSynthesizeArtifact,
     runMetagrinderMvp
   } = require('../scripts/lib/metagrinder-mvp.js');
+const researchIngestService = require('../services/researchIngest/index.js');
+const researchClassifyService = require('../services/researchClassify/index.js');
+const researchExtractService = require('../services/researchExtract/index.js');
+const researchMutationService = require('../services/researchMutation/index.js');
+const researchPackageService = require('../services/researchPackage/index.js');
+const researchPipelineService = require('../services/researchPipeline/index.js');
+const researchReviewService = require('../services/researchReview/index.js');
+const researchScoreService = require('../services/researchScore/index.js');
+const researchSynthesizeService = require('../services/researchSynthesize/index.js');
 
 const readFixture = (name: string) => {
   const fixturePath = path.join(
@@ -84,6 +103,7 @@ describe('metagrinder schemas', () => {
       inputId: 'src_001',
       title: 'Broadway notes',
       sourceType: 'plain-text',
+      researchKind: 'historical-scene-research',
       sourceInputs: [
         {
           sourceInputId: 'src_001',
@@ -104,6 +124,77 @@ describe('metagrinder schemas', () => {
 
     expect(result.chunks).toHaveLength(1);
     expect(result.chunks[0].sourceInputId).toBe('src_001');
+    expect(result.chunks[0].chunkKind).toBe('unknown');
+  });
+
+  test('parses metagrinder mode detection artifact', () => {
+    const result = MetagrinderModeDetectionArtifactSchema.parse({
+      inputId: 'src_001',
+      researchKind: 'historical-scene-research',
+      confidence: 'high',
+      reasons: ['Top detected mode: historical-scene-research (9).'],
+      suggestedCategories: ['wardrobe', 'people-and-crowd'],
+      candidateKinds: [
+        {
+          researchKind: 'historical-scene-research',
+          score: 9
+        },
+        {
+          researchKind: 'style-analysis',
+          score: 2
+        }
+      ]
+    });
+
+    expect(result.researchKind).toBe('historical-scene-research');
+    expect(result.candidateKinds[0].score).toBe(9);
+  });
+
+  test('parses metagrinder category hypothesis artifact', () => {
+    const result = MetagrinderCategoryHypothesisArtifactSchema.parse({
+      inputId: 'src_001',
+      researchKind: 'historical-scene-research',
+      categories: [
+        {
+          categoryId: 'wardrobe',
+          label: 'wardrobe',
+          priority: 'primary',
+          rationale: 'Proposed from research mode historical-scene-research.'
+        }
+      ],
+      recommendedFocus: ['wardrobe']
+    });
+
+    expect(result.categories[0].priority).toBe('primary');
+    expect(result.recommendedFocus).toContain('wardrobe');
+  });
+
+  test('parses metagrinder assumption review artifact', () => {
+    const result = MetagrinderAssumptionReviewArtifactSchema.parse({
+      inputId: 'src_001',
+      researchKind: 'mixed',
+      detectedChunkKinds: ['observation', 'template'],
+      recommendedFocus: ['source-notes'],
+      warnings: ['Template chunks were detected.'],
+      decisionOptions: ['proceed-as-is', 'adjust-priorities', 'request-augmentation']
+    });
+
+    expect(result.detectedChunkKinds).toContain('template');
+    expect(result.decisionOptions).toContain('adjust-priorities');
+  });
+
+  test('parses metagrinder augmentation plan artifact', () => {
+    const result = MetagrinderAugmentationPlanArtifactSchema.parse({
+      inputId: 'src_001',
+      researchKind: 'mixed',
+      verificationTargets: ['Separate observations from templates.'],
+      missingSourceTypes: ['separate observational source notes'],
+      followUpResearchDirections: ['Create a clean example bank.'],
+      rationale: ['Mixed-mode briefs need stronger separation.']
+    });
+
+    expect(result.researchKind).toBe('mixed');
+    expect(result.missingSourceTypes).toContain('separate observational source notes');
   });
 
   test('parses metagrinder extract artifact', () => {
@@ -310,6 +401,701 @@ describe('metagrinder schemas', () => {
     expect(
       result.chunks.some(chunk => chunk.tags.includes('unexpected-findings'))
     ).toBe(true);
+    expect(
+      result.chunks.some(chunk => chunk.chunkKind === 'source-note')
+    ).toBe(true);
+    expect(
+      result.chunks.some(chunk => chunk.chunkKind === 'concept-list')
+    ).toBe(true);
+    expect(
+      result.chunks.some(chunk => chunk.chunkKind === 'uncertainty')
+    ).toBe(true);
+  });
+
+  test('preparses flattened research briefs into a more chunkable structure', () => {
+    const rawText = fs.readFileSync(
+      path.join(__dirname, '..', '..', '..', 'spaghettiwestern.md'),
+      'utf-8'
+    );
+    const result = preparseResearchBrief(rawText);
+
+    expect(result.diagnostics).toContain('restored-inline-roman-headings');
+    expect(result.diagnostics).toContain('split-description-runs');
+    expect(result.normalizedText).toContain('\n\nII. Foundational Archetypes');
+    expect(result.normalizedText).toContain('\nDescription 1:');
+    expect(result.normalizedText).toContain('\n\nVIII. Assembly Logic');
+  });
+
+  test('shared research brief preparser module exposes the intake normalizer', () => {
+    const preparser = require('../scripts/lib/research-brief-preparser.js');
+
+    expect(typeof preparser.preparseResearchBrief).toBe('function');
+    expect(
+      preparser.preparseResearchBrief('OverviewI. Section body.').diagnostics
+    ).toContain('restored-inline-roman-headings');
+  });
+
+  test('uses structural preparse heuristics to improve ingest chunking for flattened briefs', () => {
+    const rawText = fs.readFileSync(
+      path.join(__dirname, '..', '..', '..', 'spaghettiwestern.md'),
+      'utf-8'
+    );
+    const result = buildIngestArtifact({
+      inputPath: 'spaghettiwestern.md',
+      rawText,
+      inputId: 'spaghettiwestern',
+      title: 'Spaghettiwestern',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+
+    expect(result.chunks.length).toBeGreaterThan(1);
+    expect(
+      result.chunks.some(chunk => chunk.tags.includes('restored-inline-roman-headings'))
+    ).toBe(true);
+    expect(
+      result.chunks.some(chunk => chunk.sectionLabel?.includes('Foundational Archetypes'))
+    ).toBe(true);
+    expect(
+      result.chunks.some(chunk => chunk.sectionLabel?.includes('Assembly Logic'))
+    ).toBe(true);
+    expect(
+      result.chunks.some(chunk => chunk.chunkKind === 'generation-rule')
+    ).toBe(true);
+    expect(
+      result.chunks.some(chunk => chunk.chunkKind === 'template')
+    ).toBe(true);
+  });
+
+  test('researchIngest service matches the exported ingest path', () => {
+    const rawText = fs.readFileSync(
+      path.join(__dirname, '..', '..', '..', 'spaghettiwestern.md'),
+      'utf-8'
+    );
+    const directServiceArtifact = researchIngestService.buildIngestArtifact({
+      inputPath: 'spaghettiwestern.md',
+      rawText,
+      inputId: 'spaghettiwestern',
+      title: 'Spaghettiwestern',
+      createdAt: '2026-03-09T12:00:00.000Z',
+      preparseResearchBrief,
+      buildModeDetectionArtifact: researchReviewService.buildModeDetectionArtifact
+    });
+    const exportedArtifact = buildIngestArtifact({
+      inputPath: 'spaghettiwestern.md',
+      rawText,
+      inputId: 'spaghettiwestern',
+      title: 'Spaghettiwestern',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+
+    expect(directServiceArtifact).toEqual(exportedArtifact);
+    expect(directServiceArtifact.researchKind).toBe('mixed');
+  });
+
+  test('detects historical scene research mode for Broadway notes', () => {
+    const rawText = readTextFixture('research-input-broadway.txt');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-broadway.txt',
+      rawText,
+      inputId: 'research-input-broadway',
+      title: '1950s New York Broadway audience on a cold evening',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const modeDetectionArtifact = buildModeDetectionArtifact({
+      inputId: ingestArtifact.inputId,
+      title: ingestArtifact.title,
+      chunks: ingestArtifact.chunks
+    });
+
+    expect(ingestArtifact.researchKind).toBe('historical-scene-research');
+    expect(modeDetectionArtifact.researchKind).toBe('historical-scene-research');
+    expect(modeDetectionArtifact.suggestedCategories).toContain('wardrobe');
+    expect(modeDetectionArtifact.suggestedCategories).toContain('people-and-crowd');
+
+    const categoryHypothesisArtifact = buildCategoryHypothesisArtifact({
+      inputId: ingestArtifact.inputId,
+      modeDetectionArtifact,
+      ingestArtifact
+    });
+    const assumptionReviewArtifact = buildAssumptionReviewArtifact({
+      inputId: ingestArtifact.inputId,
+      modeDetectionArtifact,
+      categoryHypothesisArtifact,
+      ingestArtifact
+    });
+    const augmentationPlanArtifact = buildAugmentationPlanArtifact({
+      inputId: ingestArtifact.inputId,
+      modeDetectionArtifact,
+      categoryHypothesisArtifact,
+      assumptionReviewArtifact,
+      ingestArtifact
+    });
+
+    expect(categoryHypothesisArtifact.recommendedFocus).toContain('wardrobe');
+    expect(categoryHypothesisArtifact.recommendedFocus).toContain('people-and-crowd');
+    expect(
+      categoryHypothesisArtifact.categories.find((entry: any) => entry.label === 'lighting')?.priority
+    ).toBe('secondary');
+    expect(assumptionReviewArtifact.decisionOptions).toContain('proceed-as-is');
+    expect(augmentationPlanArtifact.missingSourceTypes).toContain('period photographs or archival visual references');
+  });
+
+  test('detects mixed research mode for the spaghettiwestern framework brief', () => {
+    const rawText = fs.readFileSync(
+      path.join(__dirname, '..', '..', '..', 'spaghettiwestern.md'),
+      'utf-8'
+    );
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'spaghettiwestern.md',
+      rawText,
+      inputId: 'spaghettiwestern',
+      title: 'Spaghettiwestern',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const modeDetectionArtifact = buildModeDetectionArtifact({
+      inputId: ingestArtifact.inputId,
+      title: ingestArtifact.title,
+      chunks: ingestArtifact.chunks
+    });
+
+    expect(modeDetectionArtifact.researchKind).toBe('mixed');
+    expect(
+      modeDetectionArtifact.candidateKinds.some(candidate => candidate.researchKind === 'character-framework')
+    ).toBe(true);
+    expect(
+      modeDetectionArtifact.candidateKinds.some(candidate => candidate.researchKind === 'procedural-guide')
+    ).toBe(true);
+
+    const categoryHypothesisArtifact = buildCategoryHypothesisArtifact({
+      inputId: ingestArtifact.inputId,
+      modeDetectionArtifact,
+      ingestArtifact
+    });
+    const assumptionReviewArtifact = buildAssumptionReviewArtifact({
+      inputId: ingestArtifact.inputId,
+      modeDetectionArtifact,
+      categoryHypothesisArtifact,
+      ingestArtifact
+    });
+    const augmentationPlanArtifact = buildAugmentationPlanArtifact({
+      inputId: ingestArtifact.inputId,
+      modeDetectionArtifact,
+      categoryHypothesisArtifact,
+      assumptionReviewArtifact,
+      ingestArtifact
+    });
+
+    expect(categoryHypothesisArtifact.recommendedFocus).toContain('source-notes');
+    expect(categoryHypothesisArtifact.recommendedFocus).toContain('reusable-concepts');
+    expect(
+      categoryHypothesisArtifact.categories.find((entry: any) => entry.label === 'templates')?.priority
+    ).toBe('secondary');
+    expect(assumptionReviewArtifact.warnings.length).toBeGreaterThanOrEqual(1);
+    expect(assumptionReviewArtifact.decisionOptions).toContain('request-augmentation');
+    expect(augmentationPlanArtifact.verificationTargets.length).toBeGreaterThanOrEqual(1);
+    expect(augmentationPlanArtifact.missingSourceTypes).toContain('separate observational source notes');
+  });
+
+  test('researchReview service matches the exported semantic mode path', () => {
+    const rawText = fs.readFileSync(
+      path.join(__dirname, '..', '..', '..', 'spaghettiwestern.md'),
+      'utf-8'
+    );
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'spaghettiwestern.md',
+      rawText,
+      inputId: 'spaghettiwestern',
+      title: 'Spaghettiwestern',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+
+    const directServiceArtifact = researchReviewService.buildModeDetectionArtifact({
+      inputId: ingestArtifact.inputId,
+      title: ingestArtifact.title,
+      chunks: ingestArtifact.chunks
+    });
+    const exportedArtifact = buildModeDetectionArtifact({
+      inputId: ingestArtifact.inputId,
+      title: ingestArtifact.title,
+      chunks: ingestArtifact.chunks
+    });
+
+    expect(directServiceArtifact).toEqual(exportedArtifact);
+    expect(directServiceArtifact.researchKind).toBe('mixed');
+  });
+
+  test('researchExtract service matches the exported extract path', () => {
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-broadway.txt',
+      rawText: readTextFixture('research-input-broadway.txt'),
+      inputId: 'research-input-broadway',
+      title: '1950s New York Broadway audience on a cold evening',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+
+    const directServiceArtifact = researchExtractService.buildExtractArtifact({
+      ingestArtifact
+    });
+    const exportedArtifact = buildExtractArtifact({
+      ingestArtifact
+    });
+
+    expect(directServiceArtifact).toEqual(exportedArtifact);
+    expect(directServiceArtifact.claims.length).toBeGreaterThan(0);
+  });
+
+  test('researchClassify service matches the exported classify path', () => {
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-broadway.txt',
+      rawText: readTextFixture('research-input-broadway.txt'),
+      inputId: 'research-input-broadway',
+      title: '1950s New York Broadway audience on a cold evening',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({
+      ingestArtifact
+    });
+
+    const directServiceArtifact = researchClassifyService.buildClassifyArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+    const exportedArtifact = buildClassifyArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+
+    expect(directServiceArtifact).toEqual(exportedArtifact);
+    expect(directServiceArtifact.collections.conceptClusterBuckets.length).toBeGreaterThan(0);
+  });
+
+  test('researchSynthesize service matches the exported synthesize path', () => {
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-broadway.txt',
+      rawText: readTextFixture('research-input-broadway.txt'),
+      inputId: 'research-input-broadway',
+      title: '1950s New York Broadway audience on a cold evening',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({
+      ingestArtifact
+    });
+
+    const directServiceArtifact = researchSynthesizeService.buildSynthesizeArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+    const exportedArtifact = buildSynthesizeArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+
+    expect(directServiceArtifact).toEqual(exportedArtifact);
+    expect(directServiceArtifact.promptFragments.length).toBeGreaterThan(0);
+  });
+
+  test('researchMutation service matches the exported mutation paths', () => {
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-broadway.txt',
+      rawText: readTextFixture('research-input-broadway.txt'),
+      inputId: 'research-input-broadway',
+      title: '1950s New York Broadway audience on a cold evening',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({
+      ingestArtifact
+    });
+    const synthesizeArtifact = buildSynthesizeArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+
+    const directMutationArtifact = researchMutationService.buildMutationArtifact({
+      synthesizeArtifact
+    });
+    const exportedMutationArtifact = buildMutationArtifact({
+      synthesizeArtifact
+    });
+    const directReviewArtifact = researchMutationService.buildMutationReviewArtifact({
+      mutationArtifact: directMutationArtifact
+    });
+    const exportedReviewArtifact = buildMutationReviewArtifact({
+      mutationArtifact: exportedMutationArtifact
+    });
+
+    expect(directMutationArtifact).toEqual(exportedMutationArtifact);
+    expect(directReviewArtifact).toEqual(exportedReviewArtifact);
+  });
+
+  test('researchScore service matches the exported score and review paths', () => {
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-broadway.txt',
+      rawText: readTextFixture('research-input-broadway.txt'),
+      inputId: 'research-input-broadway',
+      title: '1950s New York Broadway audience on a cold evening',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({
+      ingestArtifact
+    });
+    const synthesizeArtifact = buildSynthesizeArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+
+    const directScoreArtifact = researchScoreService.buildScoreArtifact({
+      ingestArtifact,
+      extractArtifact,
+      synthesizeArtifact
+    });
+    const exportedScoreArtifact = buildScoreArtifact({
+      ingestArtifact,
+      extractArtifact,
+      synthesizeArtifact
+    });
+    const directReviewArtifact = researchScoreService.buildReviewArtifact({
+      ingestArtifact,
+      extractArtifact,
+      synthesizeArtifact,
+      scoreArtifact: directScoreArtifact
+    });
+    const exportedReviewArtifact = buildReviewArtifact({
+      ingestArtifact,
+      extractArtifact,
+      synthesizeArtifact,
+      scoreArtifact: exportedScoreArtifact
+    });
+
+    expect(directScoreArtifact).toEqual(exportedScoreArtifact);
+    expect(directReviewArtifact).toEqual(exportedReviewArtifact);
+  });
+
+  test('researchPackage service matches the exported PSG and package paths', () => {
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-broadway.txt',
+      rawText: readTextFixture('research-input-broadway.txt'),
+      inputId: 'research-input-broadway',
+      title: '1950s New York Broadway audience on a cold evening',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({
+      ingestArtifact
+    });
+    const classifyArtifact = buildClassifyArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+    const synthesizeArtifact = buildSynthesizeArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact
+    });
+    const scoreArtifact = buildScoreArtifact({
+      ingestArtifact,
+      extractArtifact,
+      synthesizeArtifact
+    });
+
+    const directSourceMapPsg = researchPackageService.buildSourceMapPsg({
+      ingestArtifact
+    });
+    const exportedSourceMapPsg = buildSourceMapPsg({
+      ingestArtifact
+    });
+    const directConceptClustersPsg = researchPackageService.buildConceptClustersPsg({
+      ingestArtifact,
+      extractArtifact,
+      classifyArtifact
+    });
+    const exportedConceptClustersPsg = buildConceptClustersPsg({
+      ingestArtifact,
+      extractArtifact,
+      classifyArtifact
+    });
+    const directPromptSynthesisPsg = researchPackageService.buildPromptSynthesisPsg({
+      ingestArtifact,
+      synthesizeArtifact
+    });
+    const exportedPromptSynthesisPsg = buildPromptSynthesisPsg({
+      ingestArtifact,
+      synthesizeArtifact
+    });
+    const directPromptMutationsPsg = researchPackageService.buildPromptMutationsPsg({
+      ingestArtifact,
+      mutationArtifact
+    });
+    const exportedPromptMutationsPsg = buildPromptMutationsPsg({
+      ingestArtifact,
+      mutationArtifact
+    });
+    const directResearchPackageManifest = researchPackageService.buildResearchPackageManifest({
+      ingestArtifact,
+      scoreArtifact,
+      mutationArtifact
+    });
+    const exportedResearchPackageManifest = buildResearchPackageManifest({
+      ingestArtifact,
+      scoreArtifact,
+      mutationArtifact
+    });
+
+    expect(directSourceMapPsg).toEqual(exportedSourceMapPsg);
+    expect(directConceptClustersPsg).toEqual(exportedConceptClustersPsg);
+    expect(directPromptSynthesisPsg).toEqual(exportedPromptSynthesisPsg);
+    expect(directPromptMutationsPsg).toEqual(exportedPromptMutationsPsg);
+    expect(directResearchPackageManifest).toEqual(exportedResearchPackageManifest);
+  });
+
+  test('researchPipeline service matches the exported runner path', () => {
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-pipeline-exported-'));
+    const directOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-pipeline-direct-'));
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-broadway.txt'
+    );
+
+    const exportedResult = runMetagrinderMvp({
+      inputPath,
+      outputDir
+    });
+    const directResult = researchPipelineService.runPipeline({
+      inputPath,
+      outputDir: directOutputDir,
+      resolveInputPath: (candidatePath: string) => {
+        const candidateInputPaths = [
+          path.resolve(candidatePath),
+          path.resolve(__dirname, '..', '..', '..', candidatePath)
+        ];
+        return candidateInputPaths.find((resolvedPath) => fs.existsSync(resolvedPath));
+      },
+      readTextFile: (filePath: string) => fs.readFileSync(filePath, 'utf8'),
+      ensureDir: (dirPath: string) => fs.mkdirSync(dirPath, { recursive: true }),
+      writeJson: (filePath: string, value: unknown) =>
+        fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8'),
+      deriveTitle: researchIngestService.deriveTitle,
+      deriveCombinedTitle: researchIngestService.deriveCombinedTitle,
+      slugify: (value: string) => value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48) || 'research-input',
+      buildIngestArtifact,
+      buildMultiInputIngestArtifact,
+      buildResearchBriefReviewArtifacts,
+      buildExtractArtifact,
+      buildClassifyArtifact,
+      buildSynthesizeArtifact,
+      buildMutationArtifact,
+      buildMutationReviewArtifact,
+      buildScoreArtifact,
+      buildReviewArtifact,
+      buildSourceMapPsg,
+      buildConceptClustersPsg,
+      buildPromptSynthesisPsg,
+      buildPromptMutationsPsg,
+      buildResearchPackageManifest,
+      validatePackageArtifacts: researchPackageService.validatePackageArtifacts,
+      now: () => exportedResult.ingestArtifact.createdAt
+    });
+
+    expect(directResult).toEqual({
+      ...exportedResult,
+      outputDir: path.resolve(directOutputDir)
+    });
+    expect(fs.readFileSync(path.join(directOutputDir, 'research-package.json'), 'utf8')).toBe(
+      fs.readFileSync(path.join(outputDir, 'research-package.json'), 'utf8')
+    );
+  });
+
+  test('builds a review bundle for operator inspection before extraction', () => {
+    const rawText = fs.readFileSync(
+      path.join(__dirname, '..', '..', '..', 'spaghettiwestern.md'),
+      'utf-8'
+    );
+    const result = buildResearchBriefReviewArtifacts({
+      rawText,
+      title: 'Spaghettiwestern',
+      inputPath: 'spaghettiwestern.md',
+      inputId: 'spaghettiwestern',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+
+    expect(result.ingestArtifact.inputId).toBe('spaghettiwestern');
+    expect(result.modeDetectionArtifact.researchKind).toBe('mixed');
+    expect(result.categoryHypothesisArtifact.recommendedFocus).toContain('source-notes');
+    expect(result.assumptionReviewArtifact.warnings.length).toBeGreaterThanOrEqual(1);
+    expect(result.augmentationPlanArtifact.verificationTargets.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('tailors environment-observation category focus to the actual brief content', () => {
+    const greenhouse = buildResearchBriefReviewArtifacts({
+      rawText: readTextFixture('research-input-greenhouse.txt'),
+      title: 'Glasshouse at Dawn',
+      inputPath: 'research-input-greenhouse.txt',
+      inputId: 'research-input-greenhouse',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const shipyard = buildResearchBriefReviewArtifacts({
+      rawText: readTextFixture('research-input-shipyard.txt'),
+      title: 'Winter Shipyard Shift Change',
+      inputPath: 'research-input-shipyard.txt',
+      inputId: 'research-input-shipyard',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const desert = buildResearchBriefReviewArtifacts({
+      rawText: readTextFixture('research-input-desert-outpost.txt'),
+      title: 'Desert Relay Station at Dusk',
+      inputPath: 'research-input-desert-outpost.txt',
+      inputId: 'research-input-desert-outpost',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+
+    expect(greenhouse.modeDetectionArtifact.reasons.join(' ')).toContain('greenhouse');
+    expect(greenhouse.categoryHypothesisArtifact.recommendedFocus).toEqual(
+      expect.arrayContaining(['structures', 'atmosphere', 'lighting'])
+    );
+    expect(
+      greenhouse.categoryHypothesisArtifact.categories.find((entry: any) => entry.label === 'structures')?.rationale
+    ).toContain('greenhouse');
+
+    expect(shipyard.modeDetectionArtifact.confidence).toBe('high');
+    expect(shipyard.categoryHypothesisArtifact.recommendedFocus).toEqual(
+      expect.arrayContaining(['movement', 'lighting', 'atmosphere'])
+    );
+    expect(
+      shipyard.categoryHypothesisArtifact.categories.find((entry: any) => entry.label === 'structures')?.priority
+    ).toBe('secondary');
+
+    expect(desert.categoryHypothesisArtifact.recommendedFocus).toEqual(
+      expect.arrayContaining(['materials', 'atmosphere', 'structures'])
+    );
+    expect(
+      desert.categoryHypothesisArtifact.categories.find((entry: any) => entry.label === 'lighting')?.priority
+    ).toBe('secondary');
+  });
+
+  test('classifies additional long-form research reports more usefully than generic environment mode', () => {
+    const medieval = buildResearchBriefReviewArtifacts({
+      rawText: fs.readFileSync(
+        path.join(__dirname, '..', '..', '..', 'research_tests', 'medieval_peasent_generator.md'),
+        'utf-8'
+      ),
+      title: 'medieval_peasent_generator',
+      inputPath: 'research_tests/medieval_peasent_generator.md',
+      inputId: 'medieval-peasent-generator',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const naming = buildResearchBriefReviewArtifacts({
+      rawText: fs.readFileSync(
+        path.join(__dirname, '..', '..', '..', 'research_tests', 'tabloid_naming.md'),
+        'utf-8'
+      ),
+      title: 'tabloid_naming',
+      inputPath: 'research_tests/tabloid_naming.md',
+      inputId: 'tabloid-naming',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const doomDigest = buildResearchBriefReviewArtifacts({
+      rawText: fs.readFileSync(
+        path.join(__dirname, '..', '..', '..', 'research_tests', 'weeklyworldnews'),
+        'utf-8'
+      ),
+      title: 'weeklyworldnews',
+      inputPath: 'research_tests/weeklyworldnews',
+      inputId: 'weeklyworldnews',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+
+    expect(medieval.modeDetectionArtifact.researchKind).toBe('character-framework');
+    expect(medieval.modeDetectionArtifact.reasons.join(' ')).toContain('characteristics');
+    expect(medieval.assumptionReviewArtifact.detectedChunkKinds).toContain('reference-table');
+
+    expect(naming.modeDetectionArtifact.researchKind).toBe('style-analysis');
+    expect(naming.modeDetectionArtifact.reasons.join(' ')).toContain('style');
+    expect(naming.categoryHypothesisArtifact.recommendedFocus).toEqual(
+      expect.arrayContaining(['genre-context', 'visual-signifiers'])
+    );
+
+    expect(doomDigest.modeDetectionArtifact.researchKind).toBe('style-analysis');
+    expect(doomDigest.modeDetectionArtifact.reasons.join(' ')).toContain('tone');
+    expect(doomDigest.assumptionReviewArtifact.detectedChunkKinds).toContain('generation-rule');
+  });
+
+  test('holds up on unseen adversarial validation briefs from the semantic framework study', () => {
+    const archival = buildResearchBriefReviewArtifacts({
+      rawText: fs.readFileSync(
+        path.join(__dirname, '..', '..', '..', 'experiments', 'epic4-autoresearch', 'validation', 'archival-costume-crowd-memo.md'),
+        'utf-8'
+      ),
+      title: 'Archival costume crowd memo',
+      inputPath: 'experiments/epic4-autoresearch/validation/archival-costume-crowd-memo.md',
+      inputId: 'archival-costume-crowd-memo',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const material = buildResearchBriefReviewArtifacts({
+      rawText: fs.readFileSync(
+        path.join(__dirname, '..', '..', '..', 'experiments', 'epic4-autoresearch', 'validation', 'canyon-foundry-surface-sheet.md'),
+        'utf-8'
+      ),
+      title: 'Canyon foundry surface sheet',
+      inputPath: 'experiments/epic4-autoresearch/validation/canyon-foundry-surface-sheet.md',
+      inputId: 'canyon-foundry-surface-sheet',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const brandKit = buildResearchBriefReviewArtifacts({
+      rawText: fs.readFileSync(
+        path.join(__dirname, '..', '..', '..', 'experiments', 'epic4-autoresearch', 'validation', 'outlaw-press-brand-kit.md'),
+        'utf-8'
+      ),
+      title: 'Outlaw press brand kit',
+      inputPath: 'experiments/epic4-autoresearch/validation/outlaw-press-brand-kit.md',
+      inputId: 'outlaw-press-brand-kit',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const procedural = buildResearchBriefReviewArtifacts({
+      rawText: fs.readFileSync(
+        path.join(__dirname, '..', '..', '..', 'experiments', 'epic4-autoresearch', 'validation', 'modular-enemy-generator-notes.md'),
+        'utf-8'
+      ),
+      title: 'Modular enemy generator notes',
+      inputPath: 'experiments/epic4-autoresearch/validation/modular-enemy-generator-notes.md',
+      inputId: 'modular-enemy-generator-notes',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+
+    expect(archival.modeDetectionArtifact.researchKind).toBe('historical-scene-research');
+    expect(archival.modeDetectionArtifact.confidence).toBe('high');
+    expect(archival.modeDetectionArtifact.reasons.join(' ')).toContain('crowd');
+    expect(archival.categoryHypothesisArtifact.recommendedFocus).toEqual(
+      expect.arrayContaining(['wardrobe', 'people-and-crowd', 'weather-and-environment'])
+    );
+
+    expect(material.modeDetectionArtifact.researchKind).toBe('material-reference');
+    expect(material.modeDetectionArtifact.reasons.join(' ')).toContain('surface');
+    expect(material.categoryHypothesisArtifact.recommendedFocus).toEqual(
+      expect.arrayContaining(['materials', 'surface-response', 'wear-and-damage'])
+    );
+
+    expect(brandKit.modeDetectionArtifact.researchKind).toBe('style-analysis');
+    expect(brandKit.modeDetectionArtifact.confidence).toBe('high');
+    expect(brandKit.modeDetectionArtifact.reasons.join(' ')).toContain('brand');
+    expect(brandKit.categoryHypothesisArtifact.recommendedFocus).toEqual(
+      expect.arrayContaining(['genre-context', 'visual-signifiers'])
+    );
+
+    expect(procedural.modeDetectionArtifact.researchKind).toBe('procedural-guide');
+    expect(procedural.modeDetectionArtifact.reasons.join(' ')).toContain('template');
+    expect(procedural.categoryHypothesisArtifact.recommendedFocus).toEqual(
+      expect.arrayContaining(['generation-rules', 'templates'])
+    );
+    expect(procedural.assumptionReviewArtifact.warnings.join(' ')).toContain('Template chunks were detected');
+    expect(procedural.assumptionReviewArtifact.detectedChunkKinds).toEqual(
+      expect.arrayContaining(['generation-rule', 'template'])
+    );
   });
 
   test('builds multi-input ingest artifact preserving source identities', () => {
@@ -616,6 +1402,36 @@ describe('metagrinder schemas', () => {
     ).toBe(true);
     expect(
       extractArtifact.warnings.some(warning => warning.code === 'unexpected-finding')
+    ).toBe(true);
+  });
+
+  test('preserves template and generation-rule chunks without treating them as ordinary claims', () => {
+    const rawText = fs.readFileSync(
+      path.join(__dirname, '..', '..', '..', 'spaghettiwestern.md'),
+      'utf-8'
+    );
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'spaghettiwestern.md',
+      rawText,
+      inputId: 'spaghettiwestern',
+      title: 'Spaghettiwestern',
+      createdAt: '2026-03-09T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({
+      ingestArtifact
+    });
+
+    expect(
+      ingestArtifact.chunks.some(chunk => chunk.chunkKind === 'template')
+    ).toBe(true);
+    expect(
+      ingestArtifact.chunks.some(chunk => chunk.chunkKind === 'generation-rule')
+    ).toBe(true);
+    expect(
+      extractArtifact.warnings.some(warning => warning.code === 'template-chunk-preserved-for-review')
+    ).toBe(true);
+    expect(
+      extractArtifact.warnings.some(warning => warning.code === 'generation-rule-chunk-preserved-for-review')
     ).toBe(true);
   });
 
@@ -1190,12 +2006,20 @@ describe('metagrinder schemas', () => {
     });
 
     expect(fs.existsSync(path.join(outputDir, 'mutate.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'category-hypothesis.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'assumption-review.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'augmentation-plan.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'mode-detection.json'))).toBe(true);
     expect(fs.existsSync(path.join(outputDir, 'mutation-review.json'))).toBe(true);
     expect(fs.existsSync(path.join(outputDir, 'prompt-mutations.psg'))).toBe(true);
     expect(
       result.researchPackageManifest.collections.some(collection => collection.type === 'prompt-mutations')
     ).toBe(true);
     expect(result.promptMutationsPsg.nodes.length).toBeGreaterThanOrEqual(1);
+    expect(result.augmentationPlanArtifact.verificationTargets.length).toBeGreaterThanOrEqual(0);
+    expect(result.assumptionReviewArtifact.decisionOptions).toContain('adjust-priorities');
+    expect(result.modeDetectionArtifact.researchKind).toBeDefined();
+    expect(result.categoryHypothesisArtifact.recommendedFocus.length).toBeGreaterThan(0);
   });
 
   test('keeps mutation collection in the manifest even when no variants are generated', () => {

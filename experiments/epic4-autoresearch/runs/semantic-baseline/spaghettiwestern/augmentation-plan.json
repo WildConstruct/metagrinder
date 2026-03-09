@@ -1,0 +1,12 @@
+{
+  "inputId": "spaghettiwestern",
+  "researchKind": "mixed",
+  "verificationTargets": [
+    "Separate source notes, templates, and procedural logic before deeper extraction."
+  ],
+  "missingSourceTypes": [],
+  "followUpResearchDirections": [],
+  "rationale": [
+    "Semantic baseline generated from prototype similarity over chunked intake for mixed."
+  ]
+}

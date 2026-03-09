@@ -1,0 +1,48 @@
+{
+  "inputId": "archival-costume-crowd-memo",
+  "researchKind": "historical-scene-research",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: historical-scene-research (83.25).",
+    "Secondary prototype match: environment-observation (53.6).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "wardrobe",
+    "people-and-crowd",
+    "weather-and-environment",
+    "lighting",
+    "materials-and-surfaces",
+    "mood-and-social-tone"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "historical-scene-research",
+      "score": 83.25
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 53.6
+    },
+    {
+      "researchKind": "mixed",
+      "score": 51.5
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 8.27
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 3.34
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 1.69
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 1
+    }
+  ]
+}

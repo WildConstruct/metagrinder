@@ -1,0 +1,129 @@
+{
+  "leftRun": "experiments/epic4-autoresearch/runs/heuristic-baseline",
+  "rightRun": "experiments/epic4-autoresearch/runs/semantic-baseline",
+  "leftScore": 106,
+  "rightScore": 114,
+  "scoreDelta": 8,
+  "improved": [
+    {
+      "id": "spaghettiwestern",
+      "leftScore": 4,
+      "rightScore": 10,
+      "leftMode": "character-framework",
+      "rightMode": "mixed",
+      "leftProblems": [
+        "accepted alternate mode: character-framework",
+        "no expected focus labels surfaced",
+        "top focus ordering missed expected primary labels",
+        "confidence was not in expected range: high"
+      ],
+      "rightProblems": []
+    },
+    {
+      "id": "archival-costume-crowd-memo",
+      "leftScore": 8,
+      "rightScore": 9,
+      "leftMode": "historical-scene-research",
+      "rightMode": "historical-scene-research",
+      "leftProblems": [
+        "confidence was not in expected range: medium"
+      ],
+      "rightProblems": []
+    },
+    {
+      "id": "outlaw-press-brand-kit",
+      "leftScore": 9,
+      "rightScore": 10,
+      "leftMode": "style-analysis",
+      "rightMode": "style-analysis",
+      "leftProblems": [
+        "expected warning signals were missing"
+      ],
+      "rightProblems": []
+    }
+  ],
+  "regressed": [],
+  "unchanged": [
+    {
+      "id": "broadway",
+      "leftScore": 9,
+      "rightScore": 9,
+      "leftMode": "historical-scene-research",
+      "rightMode": "historical-scene-research",
+      "leftProblems": [],
+      "rightProblems": []
+    },
+    {
+      "id": "greenhouse",
+      "leftScore": 9,
+      "rightScore": 9,
+      "leftMode": "environment-observation",
+      "rightMode": "environment-observation",
+      "leftProblems": [],
+      "rightProblems": []
+    },
+    {
+      "id": "shipyard",
+      "leftScore": 9,
+      "rightScore": 9,
+      "leftMode": "environment-observation",
+      "rightMode": "environment-observation",
+      "leftProblems": [],
+      "rightProblems": []
+    },
+    {
+      "id": "desert-outpost",
+      "leftScore": 9,
+      "rightScore": 9,
+      "leftMode": "environment-observation",
+      "rightMode": "environment-observation",
+      "leftProblems": [],
+      "rightProblems": []
+    },
+    {
+      "id": "medieval-peasant-generator",
+      "leftScore": 10,
+      "rightScore": 10,
+      "leftMode": "character-framework",
+      "rightMode": "character-framework",
+      "leftProblems": [],
+      "rightProblems": []
+    },
+    {
+      "id": "tabloid-naming",
+      "leftScore": 10,
+      "rightScore": 10,
+      "leftMode": "style-analysis",
+      "rightMode": "style-analysis",
+      "leftProblems": [],
+      "rightProblems": []
+    },
+    {
+      "id": "weeklyworldnews-blueprint",
+      "leftScore": 10,
+      "rightScore": 10,
+      "leftMode": "style-analysis",
+      "rightMode": "style-analysis",
+      "leftProblems": [],
+      "rightProblems": []
+    },
+    {
+      "id": "canyon-foundry-surface-sheet",
+      "leftScore": 9,
+      "rightScore": 9,
+      "leftMode": "material-reference",
+      "rightMode": "material-reference",
+      "leftProblems": [],
+      "rightProblems": []
+    },
+    {
+      "id": "modular-enemy-generator-notes",
+      "leftScore": 10,
+      "rightScore": 10,
+      "leftMode": "procedural-guide",
+      "rightMode": "procedural-guide",
+      "leftProblems": [],
+      "rightProblems": []
+    }
+  ]
+}

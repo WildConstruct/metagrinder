@@ -1,0 +1,41 @@
+{
+  "inputId": "modular-enemy-generator-notes",
+  "researchKind": "procedural-guide",
+  "categories": [
+    {
+      "categoryId": "templates",
+      "label": "templates",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: template, example."
+    },
+    {
+      "categoryId": "generation-rules",
+      "label": "generation-rules",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: rules, generation."
+    },
+    {
+      "categoryId": "prompt-assembly",
+      "label": "prompt-assembly",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: combine."
+    },
+    {
+      "categoryId": "probability-weighting",
+      "label": "probability-weighting",
+      "priority": "secondary",
+      "rationale": "Proposed from the procedural-guide prototype."
+    },
+    {
+      "categoryId": "contradiction-avoidance",
+      "label": "contradiction-avoidance",
+      "priority": "secondary",
+      "rationale": "Proposed from the procedural-guide prototype."
+    }
+  ],
+  "recommendedFocus": [
+    "templates",
+    "generation-rules",
+    "prompt-assembly"
+  ]
+}

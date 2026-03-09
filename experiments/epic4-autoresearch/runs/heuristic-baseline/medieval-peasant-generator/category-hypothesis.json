@@ -1,0 +1,47 @@
+{
+  "inputId": "medieval-peasant-generator",
+  "researchKind": "character-framework",
+  "categories": [
+    {
+      "categoryId": "archetypes",
+      "label": "archetypes",
+      "priority": "primary",
+      "rationale": "Proposed from research mode character-framework."
+    },
+    {
+      "categoryId": "physical-state",
+      "label": "physical-state",
+      "priority": "primary",
+      "rationale": "Proposed from research mode character-framework."
+    },
+    {
+      "categoryId": "wardrobe-and-gear",
+      "label": "wardrobe-and-gear",
+      "priority": "primary",
+      "rationale": "Proposed from research mode character-framework."
+    },
+    {
+      "categoryId": "behavior-and-presence",
+      "label": "behavior-and-presence",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode character-framework."
+    },
+    {
+      "categoryId": "capabilities-and-flaws",
+      "label": "capabilities-and-flaws",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode character-framework."
+    },
+    {
+      "categoryId": "sensory-footprint",
+      "label": "sensory-footprint",
+      "priority": "optional",
+      "rationale": "Proposed from research mode character-framework."
+    }
+  ],
+  "recommendedFocus": [
+    "archetypes",
+    "physical-state",
+    "wardrobe-and-gear"
+  ]
+}

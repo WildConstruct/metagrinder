@@ -1,0 +1,44 @@
+{
+  "inputId": "modular-enemy-generator-notes",
+  "researchKind": "procedural-guide",
+  "confidence": "high",
+  "reasons": [
+    "Top detected mode: procedural-guide (8).",
+    "Secondary mode signal: character-framework (1).",
+    "Matched mode signals: framework, template, if , then .",
+    "Section labels contributed to mode detection across 4 chunks."
+  ],
+  "suggestedCategories": [
+    "generation-rules",
+    "templates",
+    "probability-weighting",
+    "contradiction-avoidance",
+    "prompt-assembly"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "procedural-guide",
+      "score": 8
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 1
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 1
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 0
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 0
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 0
+    }
+  ]
+}

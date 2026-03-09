@@ -1,0 +1,40 @@
+{
+  "inputId": "weeklyworldnews-blueprint",
+  "researchKind": "style-analysis",
+  "categories": [
+    {
+      "categoryId": "genre-context",
+      "label": "genre-context",
+      "priority": "primary",
+      "rationale": "Proposed from research mode style-analysis."
+    },
+    {
+      "categoryId": "visual-signifiers",
+      "label": "visual-signifiers",
+      "priority": "primary",
+      "rationale": "Proposed from research mode style-analysis."
+    },
+    {
+      "categoryId": "tone",
+      "label": "tone",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode style-analysis."
+    },
+    {
+      "categoryId": "reference-points",
+      "label": "reference-points",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode style-analysis."
+    },
+    {
+      "categoryId": "prompt-implications",
+      "label": "prompt-implications",
+      "priority": "optional",
+      "rationale": "Proposed from research mode style-analysis."
+    }
+  ],
+  "recommendedFocus": [
+    "genre-context",
+    "visual-signifiers"
+  ]
+}

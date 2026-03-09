@@ -1,0 +1,45 @@
+{
+  "inputId": "medieval-peasant-generator",
+  "researchKind": "character-framework",
+  "confidence": "high",
+  "reasons": [
+    "Top detected mode: character-framework (10).",
+    "Secondary mode signal: environment-observation (6).",
+    "Matched mode signals: persona, survivor, characteristics, roles, occupations.",
+    "Section labels contributed to mode detection across 229 chunks."
+  ],
+  "suggestedCategories": [
+    "archetypes",
+    "physical-state",
+    "wardrobe-and-gear",
+    "behavior-and-presence",
+    "capabilities-and-flaws",
+    "sensory-footprint"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "character-framework",
+      "score": 10
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 6
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 5
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 4
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 4
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 4
+    }
+  ]
+}

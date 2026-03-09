@@ -1,0 +1,17 @@
+{
+  "inputId": "modular-enemy-generator-notes",
+  "researchKind": "procedural-guide",
+  "verificationTargets": [
+    "Review template chunks manually to decide which details are reusable examples versus actual evidence.",
+    "Confirm which generation rules should guide prompt assembly and which should remain advisory only."
+  ],
+  "missingSourceTypes": [],
+  "followUpResearchDirections": [
+    "Create a clean example bank separate from core research notes.",
+    "Split assembly logic into a dedicated rule sheet for later prompt construction."
+  ],
+  "rationale": [
+    "Template-heavy briefs can inflate downstream synthesis if examples are treated as facts.",
+    "Procedural guidance should be interpreted differently from observed or sourced material."
+  ]
+}

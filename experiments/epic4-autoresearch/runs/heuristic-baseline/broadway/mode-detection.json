@@ -1,0 +1,45 @@
+{
+  "inputId": "broadway",
+  "researchKind": "historical-scene-research",
+  "confidence": "high",
+  "reasons": [
+    "Top detected mode: historical-scene-research (17).",
+    "Secondary mode signal: environment-observation (3).",
+    "Matched mode signals: audience, street, broadway, theater, crowd.",
+    "Section labels contributed to mode detection across 3 chunks."
+  ],
+  "suggestedCategories": [
+    "wardrobe",
+    "people-and-crowd",
+    "weather-and-environment",
+    "lighting",
+    "materials-and-surfaces",
+    "mood-and-social-tone"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "historical-scene-research",
+      "score": 17
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 3
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 2
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 0
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 0
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0
+    }
+  ]
+}

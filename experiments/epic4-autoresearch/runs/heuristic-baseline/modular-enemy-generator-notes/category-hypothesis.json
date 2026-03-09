@@ -1,0 +1,40 @@
+{
+  "inputId": "modular-enemy-generator-notes",
+  "researchKind": "procedural-guide",
+  "categories": [
+    {
+      "categoryId": "generation-rules",
+      "label": "generation-rules",
+      "priority": "primary",
+      "rationale": "Proposed from research mode procedural-guide."
+    },
+    {
+      "categoryId": "templates",
+      "label": "templates",
+      "priority": "primary",
+      "rationale": "Proposed from research mode procedural-guide."
+    },
+    {
+      "categoryId": "probability-weighting",
+      "label": "probability-weighting",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode procedural-guide."
+    },
+    {
+      "categoryId": "contradiction-avoidance",
+      "label": "contradiction-avoidance",
+      "priority": "secondary",
+      "rationale": "Proposed from research mode procedural-guide."
+    },
+    {
+      "categoryId": "prompt-assembly",
+      "label": "prompt-assembly",
+      "priority": "optional",
+      "rationale": "Proposed from research mode procedural-guide."
+    }
+  ],
+  "recommendedFocus": [
+    "generation-rules",
+    "templates"
+  ]
+}

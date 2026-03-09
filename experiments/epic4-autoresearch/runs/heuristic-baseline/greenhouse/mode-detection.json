@@ -1,0 +1,45 @@
+{
+  "inputId": "greenhouse",
+  "researchKind": "environment-observation",
+  "confidence": "medium",
+  "reasons": [
+    "Top detected mode: environment-observation (5).",
+    "Secondary mode signal: historical-scene-research (1).",
+    "Matched mode signals: glass, condensation, greenhouse, fog, dawn.",
+    "Section labels contributed to mode detection across 4 chunks."
+  ],
+  "suggestedCategories": [
+    "terrain",
+    "atmosphere",
+    "lighting",
+    "structures",
+    "materials",
+    "movement"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "environment-observation",
+      "score": 5
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 1
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 1
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 0
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 0
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0
+    }
+  ]
+}

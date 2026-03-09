@@ -1,0 +1,47 @@
+{
+  "inputId": "medieval-peasant-generator",
+  "researchKind": "character-framework",
+  "categories": [
+    {
+      "categoryId": "physical-state",
+      "label": "physical-state",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: health, mortality, disease, labor."
+    },
+    {
+      "categoryId": "capabilities-and-flaws",
+      "label": "capabilities-and-flaws",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: skills, crafts, labor, freedom."
+    },
+    {
+      "categoryId": "behavior-and-presence",
+      "label": "behavior-and-presence",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: roles, work, household, custom."
+    },
+    {
+      "categoryId": "wardrobe-and-gear",
+      "label": "wardrobe-and-gear",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: attire, clothing, garments, wool."
+    },
+    {
+      "categoryId": "archetypes",
+      "label": "archetypes",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: status, hierarchy, villein, cottar."
+    },
+    {
+      "categoryId": "sensory-footprint",
+      "label": "sensory-footprint",
+      "priority": "optional",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: mud, ale."
+    }
+  ],
+  "recommendedFocus": [
+    "physical-state",
+    "capabilities-and-flaws",
+    "behavior-and-presence"
+  ]
+}

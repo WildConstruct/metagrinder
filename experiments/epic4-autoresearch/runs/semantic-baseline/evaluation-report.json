@@ -1,0 +1,247 @@
+{
+  "runDir": "experiments/epic4-autoresearch/runs/semantic-baseline",
+  "totalScore": 114,
+  "totalMax": 120,
+  "results": [
+    {
+      "id": "broadway",
+      "expectedMode": "historical-scene-research",
+      "actualMode": "historical-scene-research",
+      "recommendedFocus": [
+        "wardrobe",
+        "weather-and-environment",
+        "people-and-crowd"
+      ],
+      "warningCount": 0,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 0
+      },
+      "score": 9,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "greenhouse",
+      "expectedMode": "environment-observation",
+      "actualMode": "environment-observation",
+      "recommendedFocus": [
+        "structures",
+        "atmosphere",
+        "materials"
+      ],
+      "warningCount": 0,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 0
+      },
+      "score": 9,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "shipyard",
+      "expectedMode": "environment-observation",
+      "actualMode": "environment-observation",
+      "recommendedFocus": [
+        "movement",
+        "structures",
+        "atmosphere"
+      ],
+      "warningCount": 0,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 0
+      },
+      "score": 9,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "desert-outpost",
+      "expectedMode": "environment-observation",
+      "actualMode": "environment-observation",
+      "recommendedFocus": [
+        "materials",
+        "structures",
+        "atmosphere"
+      ],
+      "warningCount": 0,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 0
+      },
+      "score": 9,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "spaghettiwestern",
+      "expectedMode": "mixed",
+      "actualMode": "mixed",
+      "recommendedFocus": [
+        "templates",
+        "generation-rules",
+        "reusable-concepts"
+      ],
+      "warningCount": 3,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 1
+      },
+      "score": 10,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "medieval-peasant-generator",
+      "expectedMode": "character-framework",
+      "actualMode": "character-framework",
+      "recommendedFocus": [
+        "physical-state",
+        "capabilities-and-flaws",
+        "behavior-and-presence"
+      ],
+      "warningCount": 2,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 1
+      },
+      "score": 10,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "tabloid-naming",
+      "expectedMode": "style-analysis",
+      "actualMode": "style-analysis",
+      "recommendedFocus": [
+        "genre-context",
+        "visual-signifiers",
+        "tone"
+      ],
+      "warningCount": 1,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 1
+      },
+      "score": 10,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "weeklyworldnews-blueprint",
+      "expectedMode": "style-analysis",
+      "actualMode": "style-analysis",
+      "recommendedFocus": [
+        "genre-context",
+        "tone",
+        "visual-signifiers"
+      ],
+      "warningCount": 1,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 1
+      },
+      "score": 10,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "archival-costume-crowd-memo",
+      "expectedMode": "historical-scene-research",
+      "actualMode": "historical-scene-research",
+      "recommendedFocus": [
+        "wardrobe",
+        "people-and-crowd",
+        "weather-and-environment"
+      ],
+      "warningCount": 0,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 0
+      },
+      "score": 9,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "canyon-foundry-surface-sheet",
+      "expectedMode": "material-reference",
+      "actualMode": "material-reference",
+      "recommendedFocus": [
+        "surface-response",
+        "wear-and-damage",
+        "materials"
+      ],
+      "warningCount": 0,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 0
+      },
+      "score": 9,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "outlaw-press-brand-kit",
+      "expectedMode": "style-analysis",
+      "actualMode": "style-analysis",
+      "recommendedFocus": [
+        "visual-signifiers",
+        "prompt-implications",
+        "genre-context"
+      ],
+      "warningCount": 1,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 1
+      },
+      "score": 10,
+      "maxScore": 10,
+      "problems": []
+    },
+    {
+      "id": "modular-enemy-generator-notes",
+      "expectedMode": "procedural-guide",
+      "actualMode": "procedural-guide",
+      "recommendedFocus": [
+        "templates",
+        "generation-rules",
+        "prompt-assembly"
+      ],
+      "warningCount": 2,
+      "breakdown": {
+        "mode": 3,
+        "focus": 3,
+        "rationale": 3,
+        "warnings": 1
+      },
+      "score": 10,
+      "maxScore": 10,
+      "problems": []
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "inputId": "shipyard",
+  "researchKind": "environment-observation",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: environment-observation (78.05).",
+    "Secondary prototype match: mixed (52.01).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "movement",
+    "structures",
+    "atmosphere",
+    "materials",
+    "lighting",
+    "terrain"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "environment-observation",
+      "score": 78.05
+    },
+    {
+      "researchKind": "mixed",
+      "score": 52.01
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 51.76
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 15.78
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 1
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 1
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0.84
+    }
+  ]
+}

@@ -97,11 +97,34 @@ export const MetagrinderSourceTypeSchema = z.enum([
   'research-brief'
 ]);
 
+export const MetagrinderResearchKindSchema = z.enum([
+  'historical-scene-research',
+  'character-framework',
+  'material-reference',
+  'environment-observation',
+  'style-analysis',
+  'procedural-guide',
+  'mixed',
+  'unknown'
+]);
+
+export const MetagrinderChunkKindSchema = z.enum([
+  'source-note',
+  'observation',
+  'concept-list',
+  'generation-rule',
+  'template',
+  'uncertainty',
+  'reference-table',
+  'unknown'
+]);
+
 export const MetagrinderIngestChunkSchema = z.object({
   chunkId: z.string(),
   sourceInputId: z.string(),
   text: z.string().min(1),
   sectionLabel: z.string().optional(),
+  chunkKind: MetagrinderChunkKindSchema.default('unknown'),
   sequence: z.number().int().nonnegative(),
   tags: z.array(z.string()).default([])
 });
@@ -118,9 +141,66 @@ export const MetagrinderIngestArtifactSchema = z.object({
   inputId: z.string(),
   title: z.string(),
   sourceType: MetagrinderSourceTypeSchema.default('plain-text'),
+  researchKind: MetagrinderResearchKindSchema.default('unknown'),
   createdAt: z.string().datetime().optional(),
   sourceInputs: z.array(MetagrinderSourceInputSchema).min(1).default([]),
   chunks: z.array(MetagrinderIngestChunkSchema).min(1)
+});
+
+export const MetagrinderModeDetectionArtifactSchema = z.object({
+  inputId: z.string(),
+  researchKind: MetagrinderResearchKindSchema,
+  confidence: MetagrinderConfidenceLevelSchema,
+  reasons: z.array(z.string()).default([]),
+  suggestedCategories: z.array(z.string()).default([]),
+  candidateKinds: z.array(z.object({
+    researchKind: MetagrinderResearchKindSchema,
+    score: z.number().int().nonnegative()
+  })).default([])
+});
+
+export const MetagrinderCategoryPrioritySchema = z.enum([
+  'primary',
+  'secondary',
+  'optional'
+]);
+
+export const MetagrinderCategoryHypothesisEntrySchema = z.object({
+  categoryId: z.string(),
+  label: z.string(),
+  priority: MetagrinderCategoryPrioritySchema,
+  rationale: z.string()
+});
+
+export const MetagrinderCategoryHypothesisArtifactSchema = z.object({
+  inputId: z.string(),
+  researchKind: MetagrinderResearchKindSchema,
+  categories: z.array(MetagrinderCategoryHypothesisEntrySchema).default([]),
+  recommendedFocus: z.array(z.string()).default([])
+});
+
+export const MetagrinderReviewDecisionOptionSchema = z.enum([
+  'proceed-as-is',
+  'adjust-priorities',
+  'request-augmentation'
+]);
+
+export const MetagrinderAssumptionReviewArtifactSchema = z.object({
+  inputId: z.string(),
+  researchKind: MetagrinderResearchKindSchema,
+  detectedChunkKinds: z.array(MetagrinderChunkKindSchema).default([]),
+  recommendedFocus: z.array(z.string()).default([]),
+  warnings: z.array(z.string()).default([]),
+  decisionOptions: z.array(MetagrinderReviewDecisionOptionSchema).default([])
+});
+
+export const MetagrinderAugmentationPlanArtifactSchema = z.object({
+  inputId: z.string(),
+  researchKind: MetagrinderResearchKindSchema,
+  verificationTargets: z.array(z.string()).default([]),
+  missingSourceTypes: z.array(z.string()).default([]),
+  followUpResearchDirections: z.array(z.string()).default([]),
+  rationale: z.array(z.string()).default([])
 });
 
 export const MetagrinderPassSourceAttributionSchema = z.object({
@@ -956,9 +1036,18 @@ export type ResearchPackageManifest = z.infer<
   typeof ResearchPackageManifestSchema
 >;
 export type MetagrinderSourceType = z.infer<typeof MetagrinderSourceTypeSchema>;
+export type MetagrinderResearchKind = z.infer<typeof MetagrinderResearchKindSchema>;
+export type MetagrinderChunkKind = z.infer<typeof MetagrinderChunkKindSchema>;
 export type MetagrinderSourceInput = z.infer<typeof MetagrinderSourceInputSchema>;
 export type MetagrinderIngestChunk = z.infer<typeof MetagrinderIngestChunkSchema>;
 export type MetagrinderIngestArtifact = z.infer<typeof MetagrinderIngestArtifactSchema>;
+export type MetagrinderModeDetectionArtifact = z.infer<typeof MetagrinderModeDetectionArtifactSchema>;
+export type MetagrinderCategoryPriority = z.infer<typeof MetagrinderCategoryPrioritySchema>;
+export type MetagrinderCategoryHypothesisEntry = z.infer<typeof MetagrinderCategoryHypothesisEntrySchema>;
+export type MetagrinderCategoryHypothesisArtifact = z.infer<typeof MetagrinderCategoryHypothesisArtifactSchema>;
+export type MetagrinderReviewDecisionOption = z.infer<typeof MetagrinderReviewDecisionOptionSchema>;
+export type MetagrinderAssumptionReviewArtifact = z.infer<typeof MetagrinderAssumptionReviewArtifactSchema>;
+export type MetagrinderAugmentationPlanArtifact = z.infer<typeof MetagrinderAugmentationPlanArtifactSchema>;
 export type MetagrinderExtractedClaim = z.infer<typeof MetagrinderExtractedClaimSchema>;
 export type MetagrinderConceptCandidate = z.infer<typeof MetagrinderConceptCandidateSchema>;
 export type MetagrinderEvidenceSnippet = z.infer<typeof MetagrinderEvidenceSnippetSchema>;

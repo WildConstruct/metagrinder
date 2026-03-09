@@ -1,0 +1,48 @@
+{
+  "inputId": "greenhouse",
+  "researchKind": "environment-observation",
+  "confidence": "high",
+  "reasons": [
+    "Top prototype match: environment-observation (88.82).",
+    "Secondary prototype match: historical-scene-research (54.27).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "structures",
+    "atmosphere",
+    "materials",
+    "movement",
+    "lighting",
+    "terrain"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "environment-observation",
+      "score": 88.82
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 54.27
+    },
+    {
+      "researchKind": "mixed",
+      "score": 52.01
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 11.03
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 1
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 1
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0
+    }
+  ]
+}

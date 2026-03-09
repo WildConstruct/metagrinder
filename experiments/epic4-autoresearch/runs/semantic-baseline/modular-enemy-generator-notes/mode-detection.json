@@ -1,0 +1,47 @@
+{
+  "inputId": "modular-enemy-generator-notes",
+  "researchKind": "procedural-guide",
+  "confidence": "medium",
+  "reasons": [
+    "Top prototype match: procedural-guide (38).",
+    "Secondary prototype match: mixed (31.66).",
+    "Semantic baseline used chunked intake, section-label weighting, and prototype similarity instead of direct mode keywords alone."
+  ],
+  "suggestedCategories": [
+    "templates",
+    "generation-rules",
+    "prompt-assembly",
+    "probability-weighting",
+    "contradiction-avoidance"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "procedural-guide",
+      "score": 38
+    },
+    {
+      "researchKind": "mixed",
+      "score": 31.66
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 19.14
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 11.72
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 10
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 7.18
+    },
+    {
+      "researchKind": "material-reference",
+      "score": 6.25
+    }
+  ]
+}

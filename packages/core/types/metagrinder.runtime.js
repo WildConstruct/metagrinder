@@ -79,11 +79,34 @@ const MetagrinderSourceTypeSchema = z.enum([
   'research-brief'
 ]);
 
+const MetagrinderResearchKindSchema = z.enum([
+  'historical-scene-research',
+  'character-framework',
+  'material-reference',
+  'environment-observation',
+  'style-analysis',
+  'procedural-guide',
+  'mixed',
+  'unknown'
+]);
+
+const MetagrinderChunkKindSchema = z.enum([
+  'source-note',
+  'observation',
+  'concept-list',
+  'generation-rule',
+  'template',
+  'uncertainty',
+  'reference-table',
+  'unknown'
+]);
+
 const MetagrinderIngestChunkSchema = z.object({
   chunkId: z.string(),
   sourceInputId: z.string(),
   text: z.string().min(1),
   sectionLabel: z.string().optional(),
+  chunkKind: MetagrinderChunkKindSchema.default('unknown'),
   sequence: z.number().int().nonnegative(),
   tags: z.array(z.string()).default([])
 });
@@ -100,9 +123,66 @@ const MetagrinderIngestArtifactSchema = z.object({
   inputId: z.string(),
   title: z.string(),
   sourceType: MetagrinderSourceTypeSchema.default('plain-text'),
+  researchKind: MetagrinderResearchKindSchema.default('unknown'),
   createdAt: z.string().datetime().optional(),
   sourceInputs: z.array(MetagrinderSourceInputSchema).min(1).default([]),
   chunks: z.array(MetagrinderIngestChunkSchema).min(1)
+});
+
+const MetagrinderModeDetectionArtifactSchema = z.object({
+  inputId: z.string(),
+  researchKind: MetagrinderResearchKindSchema,
+  confidence: MetagrinderConfidenceLevelSchema,
+  reasons: z.array(z.string()).default([]),
+  suggestedCategories: z.array(z.string()).default([]),
+  candidateKinds: z.array(z.object({
+    researchKind: MetagrinderResearchKindSchema,
+    score: z.number().int().nonnegative()
+  })).default([])
+});
+
+const MetagrinderCategoryPrioritySchema = z.enum([
+  'primary',
+  'secondary',
+  'optional'
+]);
+
+const MetagrinderCategoryHypothesisEntrySchema = z.object({
+  categoryId: z.string(),
+  label: z.string(),
+  priority: MetagrinderCategoryPrioritySchema,
+  rationale: z.string()
+});
+
+const MetagrinderCategoryHypothesisArtifactSchema = z.object({
+  inputId: z.string(),
+  researchKind: MetagrinderResearchKindSchema,
+  categories: z.array(MetagrinderCategoryHypothesisEntrySchema).default([]),
+  recommendedFocus: z.array(z.string()).default([])
+});
+
+const MetagrinderReviewDecisionOptionSchema = z.enum([
+  'proceed-as-is',
+  'adjust-priorities',
+  'request-augmentation'
+]);
+
+const MetagrinderAssumptionReviewArtifactSchema = z.object({
+  inputId: z.string(),
+  researchKind: MetagrinderResearchKindSchema,
+  detectedChunkKinds: z.array(MetagrinderChunkKindSchema).default([]),
+  recommendedFocus: z.array(z.string()).default([]),
+  warnings: z.array(z.string()).default([]),
+  decisionOptions: z.array(MetagrinderReviewDecisionOptionSchema).default([])
+});
+
+const MetagrinderAugmentationPlanArtifactSchema = z.object({
+  inputId: z.string(),
+  researchKind: MetagrinderResearchKindSchema,
+  verificationTargets: z.array(z.string()).default([]),
+  missingSourceTypes: z.array(z.string()).default([]),
+  followUpResearchDirections: z.array(z.string()).default([]),
+  rationale: z.array(z.string()).default([])
 });
 
 const MetagrinderExtractedClaimSchema = z.object({
@@ -854,16 +934,25 @@ module.exports = {
   CameraQueryContractSchema,
   CanonicalUtdgRecordSchema,
   LumaAdapterContractSchema,
+  MetagrinderAssumptionReviewArtifactSchema,
+  MetagrinderAugmentationPlanArtifactSchema,
   MetagrinderClassifyArtifactSchema,
   MetagrinderConceptCandidateSchema,
   MetagrinderEvidenceSnippetSchema,
   MetagrinderExtractArtifactSchema,
   MetagrinderExtractedClaimSchema,
+  MetagrinderCategoryHypothesisArtifactSchema,
+  MetagrinderCategoryHypothesisEntrySchema,
+  MetagrinderCategoryPrioritySchema,
+  MetagrinderChunkKindSchema,
   MetagrinderIngestArtifactSchema,
   MetagrinderIngestChunkSchema,
+  MetagrinderModeDetectionArtifactSchema,
+  MetagrinderResearchKindSchema,
   MetagrinderSourceInputSchema,
   MetagrinderOpenQuestionSchema,
   MetagrinderPromptFragmentSchema,
+  MetagrinderReviewDecisionOptionSchema,
   MetagrinderReviewArtifactSchema,
   MetagrinderMutationArtifactSchema,
   MetagrinderMutationCompatibilityDecisionSchema,

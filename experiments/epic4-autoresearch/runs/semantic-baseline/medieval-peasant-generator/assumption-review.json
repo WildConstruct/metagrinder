@@ -1,0 +1,23 @@
+{
+  "inputId": "medieval-peasant-generator",
+  "researchKind": "character-framework",
+  "detectedChunkKinds": [
+    "observation",
+    "generation-rule",
+    "reference-table"
+  ],
+  "recommendedFocus": [
+    "physical-state",
+    "capabilities-and-flaws",
+    "behavior-and-presence"
+  ],
+  "warnings": [
+    "Generation-rule chunks were detected during structural intake. Confirm whether they should guide synthesis instead of concept extraction.",
+    "Reference-table chunks were detected. They may need restructuring before deeper extraction."
+  ],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

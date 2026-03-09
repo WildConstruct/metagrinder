@@ -1,0 +1,14 @@
+{
+  "inputId": "weeklyworldnews-blueprint",
+  "researchKind": "style-analysis",
+  "verificationTargets": [
+    "Confirm which generation rules should guide prompt assembly and which should remain advisory only."
+  ],
+  "missingSourceTypes": [],
+  "followUpResearchDirections": [
+    "Split assembly logic into a dedicated rule sheet for later prompt construction."
+  ],
+  "rationale": [
+    "Procedural guidance should be interpreted differently from observed or sourced material."
+  ]
+}

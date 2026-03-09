@@ -1,0 +1,17 @@
+{
+  "inputId": "canyon-foundry-surface-sheet",
+  "researchKind": "material-reference",
+  "detectedChunkKinds": [
+    "observation"
+  ],
+  "recommendedFocus": [
+    "materials",
+    "surface-response"
+  ],
+  "warnings": [],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

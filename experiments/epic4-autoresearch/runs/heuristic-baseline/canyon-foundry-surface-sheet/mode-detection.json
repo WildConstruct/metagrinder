@@ -1,0 +1,43 @@
+{
+  "inputId": "canyon-foundry-surface-sheet",
+  "researchKind": "material-reference",
+  "confidence": "medium",
+  "reasons": [
+    "Top detected mode: material-reference (7).",
+    "Secondary mode signal: environment-observation (4).",
+    "Matched mode signals: material, surface, metal.",
+    "Section labels contributed to mode detection across 4 chunks."
+  ],
+  "suggestedCategories": [
+    "materials",
+    "surface-response",
+    "wear-and-damage",
+    "environmental-effects"
+  ],
+  "candidateKinds": [
+    {
+      "researchKind": "material-reference",
+      "score": 7
+    },
+    {
+      "researchKind": "environment-observation",
+      "score": 4
+    },
+    {
+      "researchKind": "style-analysis",
+      "score": 1
+    },
+    {
+      "researchKind": "historical-scene-research",
+      "score": 0
+    },
+    {
+      "researchKind": "character-framework",
+      "score": 0
+    },
+    {
+      "researchKind": "procedural-guide",
+      "score": 0
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "inputId": "outlaw-press-brand-kit",
+  "researchKind": "style-analysis",
+  "detectedChunkKinds": [
+    "observation"
+  ],
+  "recommendedFocus": [
+    "visual-signifiers",
+    "prompt-implications",
+    "genre-context"
+  ],
+  "warnings": [
+    "This brief reads as analytical guidance rather than plain scene evidence. Review extraction priorities before proceeding."
+  ],
+  "decisionOptions": [
+    "proceed-as-is",
+    "adjust-priorities",
+    "request-augmentation"
+  ]
+}

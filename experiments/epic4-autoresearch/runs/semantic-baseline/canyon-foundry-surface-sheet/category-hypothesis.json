@@ -1,0 +1,35 @@
+{
+  "inputId": "canyon-foundry-surface-sheet",
+  "researchKind": "material-reference",
+  "categories": [
+    {
+      "categoryId": "surface-response",
+      "label": "surface-response",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: surface, highlight, satin, oxide."
+    },
+    {
+      "categoryId": "wear-and-damage",
+      "label": "wear-and-damage",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: wear, damage, abrasion, crack."
+    },
+    {
+      "categoryId": "materials",
+      "label": "materials",
+      "priority": "primary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: iron, steel, rubber, paint."
+    },
+    {
+      "categoryId": "environmental-effects",
+      "label": "environmental-effects",
+      "priority": "secondary",
+      "rationale": "Proposed from prototype similarity plus matched brief signals: grit, heat, dust, evaporates."
+    }
+  ],
+  "recommendedFocus": [
+    "surface-response",
+    "wear-and-damage",
+    "materials"
+  ]
+}
