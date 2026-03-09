@@ -1,0 +1,43 @@
+name: Epic
+description: Define a bounded multi-story workstream.
+title: "Epic: "
+labels:
+  - epic
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: State the user or product outcome this epic should achieve.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: In Scope
+      description: List the main capabilities or deliverables.
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out Of Scope
+      description: List what this epic should not absorb.
+  - type: textarea
+    id: success
+    attributes:
+      label: Success Criteria
+      description: Define how the epic will be considered complete.
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: true
+  - type: textarea
+    id: stories
+    attributes:
+      label: Planned Stories
+      description: Link or draft the expected stories.

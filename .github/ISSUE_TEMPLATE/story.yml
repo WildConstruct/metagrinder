@@ -1,0 +1,39 @@
+name: Story
+description: Track one bounded implementation slice under an epic.
+title: "Story: "
+labels:
+  - story
+body:
+  - type: input
+    id: epic
+    attributes:
+      label: Epic
+      description: Link the parent epic issue or doc.
+      placeholder: "#3"
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: State the exact behavior this story should add or change.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: List the checks that make the story complete.
+      placeholder: |
+        - ...
+        - ...
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification Plan
+      description: Name the tests, fixtures, or commands expected for completion.
+      placeholder: |
+        - pnpm test:metagrinder
+        - fixture: ...

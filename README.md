@@ -23,6 +23,7 @@ The current MVP covers:
 - deterministic concept extraction with provenance
 - cross-document corroboration and contradiction reporting
 - prompt-synthesis PSG generation
+- prompt-mutation generation and review
 - schema-backed package validation
 
 Primary implementation entrypoints:
@@ -58,6 +59,12 @@ Use the Broadway or greenhouse fixtures, then inspect:
 2. `prompt-synthesis.psg` for prompt family output
 3. `research-package.json` for final package wiring
 
+## Repository Workflow
+
+- use epic and story issues to define bounded work
+- keep changes small and test-backed
+- use [CONTRIBUTING.md](/mnt/c/Users/Owner/CascadeProjects/prompt-spaghetti-metagrinder-fork/CONTRIBUTING.md) for branch, commit, and PR expectations
+
 ## Next Planned Area
 
-Epic 3 is expected to focus on prompt mutation and controlled recombination, after continued parser hardening across broader subject domains.
+The next work should focus on operational hardening and the next bounded product epic, not widening the parser in an ad hoc way.
