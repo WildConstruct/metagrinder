@@ -5,6 +5,8 @@ const {
   MetagrinderClassifyArtifactSchema,
   MetagrinderExtractArtifactSchema,
   MetagrinderIngestArtifactSchema,
+  MetagrinderMutationArtifactSchema,
+  MetagrinderMutationReviewArtifactSchema,
   MetagrinderReviewArtifactSchema,
   MetagrinderScoreArtifactSchema,
   MetagrinderSynthesizeArtifactSchema,
@@ -846,6 +848,291 @@ function buildPromptSynthesisPsg({ ingestArtifact, synthesizeArtifact }) {
   };
 }
 
+function buildPromptMutationsPsg({ ingestArtifact, mutationArtifact }) {
+  const sourceInputIds = ingestArtifact.sourceInputs.map((source) => source.sourceInputId);
+  const variantNodes = mutationArtifact.variants.map((variant, index) => ({
+    id: variant.variantId,
+    type: 'TextBlock',
+    name: `Mutation Variant ${index + 1}`,
+    description: `Distinctiveness ${variant.distinctivenessScore}`,
+    x: 160,
+    y: 120 + (index * 160),
+    value: variant.text,
+    data: {
+      fragmentIds: variant.fragmentIds,
+      families: variant.families,
+      compatibilityDecisionIds: variant.compatibilityDecisionIds,
+      conceptIds: variant.conceptIds,
+      sourceInputIds: variant.sourceInputIds,
+      sourceChunkIds: variant.sourceChunkIds,
+      distinctivenessScore: variant.distinctivenessScore
+    }
+  }));
+
+  return {
+    version: '1.0.0',
+    name: `${ingestArtifact.title} Prompt Mutations`,
+    description: 'Metagrinder prompt-mutation variants generated from compatible prompt fragments.',
+    metadata: {
+      packageId: `${ingestArtifact.inputId}_research_package`,
+      collectionType: 'prompt-mutations',
+      sourceInputIds,
+      lineage: {
+        sourceInputIds
+      }
+    },
+    nodes: variantNodes,
+    edges: [],
+    regions: [
+      {
+        id: `${ingestArtifact.inputId}_prompt_mutations_region`,
+        name: 'Prompt Mutations',
+        nodes: variantNodes.map((node) => node.id)
+      }
+    ]
+  };
+}
+
+function normalizedFragmentText(text) {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function evaluateMutationCompatibility(leftFragment, rightFragment) {
+  const reasons = [];
+
+  if (leftFragment.family === rightFragment.family) {
+    reasons.push('same-family-fragments-cannot-be-recombined');
+  } else {
+    reasons.push('distinct-families');
+  }
+
+  if (leftFragment.sourceInputIds.length === 0 || rightFragment.sourceInputIds.length === 0) {
+    reasons.push('fragment-missing-source-input-lineage');
+  } else {
+    reasons.push('lineage-present');
+  }
+
+  if (leftFragment.sourceChunkIds.length === 0 || rightFragment.sourceChunkIds.length === 0) {
+    reasons.push('fragment-missing-source-chunk-lineage');
+  }
+
+  if (normalizedFragmentText(leftFragment.text) === normalizedFragmentText(rightFragment.text)) {
+    reasons.push('duplicate-fragment-text');
+  }
+
+  if (leftFragment.text.split(/\s+/).length < 3 || rightFragment.text.split(/\s+/).length < 3) {
+    reasons.push('fragment-text-too-thin-for-mutation');
+  }
+
+  const sharedConceptIds = leftFragment.conceptIds.filter((conceptId) =>
+    rightFragment.conceptIds.includes(conceptId)
+  );
+  const sharedSourceInputIds = leftFragment.sourceInputIds.filter((sourceInputId) =>
+    rightFragment.sourceInputIds.includes(sourceInputId)
+  );
+
+  const status = reasons.some((reason) =>
+    [
+      'same-family-fragments-cannot-be-recombined',
+      'fragment-missing-source-input-lineage',
+      'fragment-missing-source-chunk-lineage',
+      'duplicate-fragment-text',
+      'fragment-text-too-thin-for-mutation'
+    ].includes(reason)
+  ) ? 'incompatible' : 'compatible';
+
+  if (status === 'compatible' && sharedConceptIds.length > 0) {
+    reasons.push('shared-concept-lineage');
+  }
+  if (status === 'compatible' && sharedSourceInputIds.length > 0) {
+    reasons.push('shared-source-support');
+  }
+
+  return {
+    status,
+    reasons,
+    sharedConceptIds,
+    sharedSourceInputIds
+  };
+}
+
+const MUTATION_FAMILY_ORDER = ['atmosphere', 'wardrobe', 'crowd-behavior', 'lighting'];
+const MAX_MUTATION_VARIANTS = 12;
+
+function sortFragmentsForMutation(fragments) {
+  return [...fragments].sort((left, right) =>
+    MUTATION_FAMILY_ORDER.indexOf(left.family) - MUTATION_FAMILY_ORDER.indexOf(right.family)
+  );
+}
+
+function mergeMutationLineage(fragments, fieldName) {
+  return mergeUniqueStrings(fragments.flatMap((fragment) => fragment[fieldName]));
+}
+
+function scoreMutationDistinctiveness(fragments) {
+  const conceptCount = mergeMutationLineage(fragments, 'conceptIds').length;
+  const sourceCount = mergeMutationLineage(fragments, 'sourceInputIds').length;
+  const familyCount = mergeUniqueStrings(fragments.map((fragment) => fragment.family)).length;
+  return Math.min(
+    1,
+    Number(((conceptCount * 0.2) + (sourceCount * 0.15) + (familyCount * 0.2)).toFixed(2))
+  );
+}
+
+function buildMutationArtifact({ synthesizeArtifact }) {
+  const candidateFragments = synthesizeArtifact.promptFragments.map((fragment) => ({
+    fragmentId: fragment.fragmentId,
+    family: fragment.family,
+    text: fragment.text,
+    conceptIds: [...fragment.conceptIds],
+    sourceInputIds: [...fragment.sourceInputIds],
+    sourceChunkIds: [...fragment.sourceChunkIds]
+  }));
+
+  const compatibilityDecisions = [];
+  const variants = [];
+  const droppedVariants = [];
+  const seenVariantTexts = new Set();
+  let droppedDuplicateCount = 0;
+
+  for (let leftIndex = 0; leftIndex < candidateFragments.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < candidateFragments.length; rightIndex += 1) {
+      const leftFragment = candidateFragments[leftIndex];
+      const rightFragment = candidateFragments[rightIndex];
+      const compatibility = evaluateMutationCompatibility(leftFragment, rightFragment);
+      const decision = {
+        decisionId: `${synthesizeArtifact.inputId}_mutation_check_${String(compatibilityDecisions.length + 1).padStart(3, '0')}`,
+        leftFragmentId: leftFragment.fragmentId,
+        rightFragmentId: rightFragment.fragmentId,
+        status: compatibility.status,
+        reasons: compatibility.reasons,
+        sharedConceptIds: compatibility.sharedConceptIds,
+        sharedSourceInputIds: compatibility.sharedSourceInputIds
+      };
+      compatibilityDecisions.push(decision);
+
+      if (decision.status !== 'compatible' || variants.length >= MAX_MUTATION_VARIANTS) {
+        continue;
+      }
+
+      const orderedFragments = sortFragmentsForMutation([leftFragment, rightFragment]);
+      const variantText = orderedFragments.map((fragment) => fragment.text).join(', ');
+      const normalizedVariantKey = normalizedFragmentText(variantText);
+      if (seenVariantTexts.has(normalizedVariantKey)) {
+        droppedDuplicateCount += 1;
+        droppedVariants.push({
+          droppedVariantId: `${synthesizeArtifact.inputId}_mutation_dropped_${String(droppedVariants.length + 1).padStart(3, '0')}`,
+          text: variantText,
+          fragmentIds: orderedFragments.map((fragment) => fragment.fragmentId),
+          compatibilityDecisionIds: [decision.decisionId],
+          reason: 'duplicate-variant-text'
+        });
+        continue;
+      }
+
+      seenVariantTexts.add(normalizedVariantKey);
+      variants.push({
+        variantId: `${synthesizeArtifact.inputId}_mutation_variant_${String(variants.length + 1).padStart(3, '0')}`,
+        text: variantText,
+        fragmentIds: orderedFragments.map((fragment) => fragment.fragmentId),
+        families: orderedFragments.map((fragment) => fragment.family),
+        compatibilityDecisionIds: [decision.decisionId],
+        conceptIds: mergeMutationLineage(orderedFragments, 'conceptIds'),
+        sourceInputIds: mergeMutationLineage(orderedFragments, 'sourceInputIds'),
+        sourceChunkIds: mergeMutationLineage(orderedFragments, 'sourceChunkIds'),
+        distinctivenessScore: scoreMutationDistinctiveness(orderedFragments)
+      });
+    }
+  }
+
+  const compatiblePairCount = compatibilityDecisions.filter(
+    (decision) => decision.status === 'compatible'
+  ).length;
+  const incompatiblePairCount = compatibilityDecisions.length - compatiblePairCount;
+
+  return MetagrinderMutationArtifactSchema.parse({
+    inputId: synthesizeArtifact.inputId,
+    candidateFragments,
+    compatibilityDecisions,
+    variants,
+    droppedVariants,
+    generationSummary: {
+      maxVariants: MAX_MUTATION_VARIANTS,
+      compatiblePairCount,
+      incompatiblePairCount,
+      generatedVariantCount: variants.length,
+      droppedDuplicateCount
+    }
+  });
+}
+
+function buildMutationReviewArtifact({ mutationArtifact }) {
+  const promotableVariantIds = [];
+  const flaggedVariantIds = [];
+  const rejectedVariantIds = [];
+  const duplicateVariantIds = mutationArtifact.droppedVariants.map(
+    (variant) => variant.droppedVariantId
+  );
+  const weakVariantIds = [];
+  const incompatibilityWarnings = mutationArtifact.compatibilityDecisions
+    .filter((decision) => decision.status === 'incompatible')
+    .map((decision) =>
+      `${decision.leftFragmentId} + ${decision.rightFragmentId}: ${decision.reasons.join(', ')}`
+    );
+
+  mutationArtifact.variants.forEach((variant) => {
+    const isWeak = variant.distinctivenessScore < 0.55 || variant.sourceInputIds.length < 2;
+    const hasThinFragment = variant.text.split(/\s+/).length < 6;
+    if (isWeak) {
+      weakVariantIds.push(variant.variantId);
+    }
+
+    if (hasThinFragment) {
+      rejectedVariantIds.push(variant.variantId);
+      return;
+    }
+
+    if (isWeak) {
+      flaggedVariantIds.push(variant.variantId);
+      return;
+    }
+
+    promotableVariantIds.push(variant.variantId);
+  });
+
+  const recommendedActions = [];
+  if (promotableVariantIds.length > 0) {
+    recommendedActions.push('Review promotable mutation variants as candidates for downstream prompt package expansion.');
+  }
+  if (flaggedVariantIds.length > 0) {
+    recommendedActions.push('Inspect flagged mutation variants for weak distinctiveness or narrow source support before promotion.');
+  }
+  if (rejectedVariantIds.length > 0) {
+    recommendedActions.push('Keep rejected mutation variants out of downstream collections unless compatibility and distinctiveness rules are revised.');
+  }
+  if (duplicateVariantIds.length > 0) {
+    recommendedActions.push('Review dropped duplicate mutation variants if deduplication appears to be masking distinct but overly similar outputs.');
+  }
+  if (incompatibilityWarnings.length > 0) {
+    recommendedActions.push('Review incompatibility warnings to refine fragment compatibility rules before widening mutation generation.');
+  }
+
+  return MetagrinderMutationReviewArtifactSchema.parse({
+    inputId: mutationArtifact.inputId,
+    promotableVariantIds,
+    flaggedVariantIds,
+    rejectedVariantIds,
+    duplicateVariantIds,
+    weakVariantIds,
+    incompatibilityWarnings,
+    recommendedActions
+  });
+}
+
 function buildScoreArtifact({ ingestArtifact, extractArtifact, synthesizeArtifact }) {
   const inferredClaimCount = extractArtifact.claims.filter(
     (claim) => claim.attributionMode === 'inferred'
@@ -1113,25 +1400,36 @@ function buildConceptClustersPsg({ ingestArtifact, extractArtifact, classifyArti
   };
 }
 
-function buildResearchPackageManifest({ ingestArtifact, scoreArtifact }) {
+function buildResearchPackageManifest({ ingestArtifact, scoreArtifact, mutationArtifact }) {
   const sourceInputIds = ingestArtifact.sourceInputs.map((source) => source.sourceInputId);
+  const collections = [
+    { id: 'col_source', type: 'source-map', path: 'source-map.psg' },
+    { id: 'col_concepts', type: 'concept-clusters', path: 'concept-clusters.psg' },
+    { id: 'col_synthesis', type: 'prompt-synthesis', path: 'prompt-synthesis.psg' },
+    {
+      id: 'col_mutations',
+      type: 'prompt-mutations',
+      path: 'prompt-mutations.psg'
+    }
+  ];
+  const hasMutationSupport = Boolean(mutationArtifact);
+  const strategyVersion = hasMutationSupport
+    ? 'epic3-story4'
+    : ingestArtifact.sourceInputs.length > 1
+      ? 'epic2-story6'
+      : 'epic1-story5';
+
   return ResearchPackageManifestSchema.parse({
     packageId: `${ingestArtifact.inputId}_research_package`,
     packageType: 'research-package',
     title: ingestArtifact.title,
     createdAt: ingestArtifact.createdAt,
     parserVersion: '0.1.0',
-    strategyVersion: ingestArtifact.sourceInputs.length > 1
-      ? 'epic2-story6'
-      : 'epic1-story5',
+    strategyVersion,
     contributorId: 'local-metagrinder-mvp',
     sourceInputs: sourceInputIds,
     sourceInputIds: sourceInputIds,
-    collections: [
-      { id: 'col_source', type: 'source-map', path: 'source-map.psg' },
-      { id: 'col_concepts', type: 'concept-clusters', path: 'concept-clusters.psg' },
-      { id: 'col_synthesis', type: 'prompt-synthesis', path: 'prompt-synthesis.psg' }
-    ],
+    collections,
     lineage: {
       sourceInputIds
     },
@@ -1177,23 +1475,35 @@ function validatePackageArtifacts({
   extractArtifact,
   classifyArtifact,
   synthesizeArtifact,
+  mutationArtifact,
+  mutationReviewArtifact,
   scoreArtifact,
   reviewArtifact,
   sourceMapPsg,
   conceptClustersPsg,
   promptSynthesisPsg,
+  promptMutationsPsg,
   researchPackageManifest
 }) {
   MetagrinderIngestArtifactSchema.parse(ingestArtifact);
   MetagrinderExtractArtifactSchema.parse(extractArtifact);
   MetagrinderClassifyArtifactSchema.parse(classifyArtifact);
   MetagrinderSynthesizeArtifactSchema.parse(synthesizeArtifact);
+  if (mutationArtifact) {
+    MetagrinderMutationArtifactSchema.parse(mutationArtifact);
+  }
+  if (mutationReviewArtifact) {
+    MetagrinderMutationReviewArtifactSchema.parse(mutationReviewArtifact);
+  }
   MetagrinderScoreArtifactSchema.parse(scoreArtifact);
   MetagrinderReviewArtifactSchema.parse(reviewArtifact);
   ResearchPackageManifestSchema.parse(researchPackageManifest);
   validatePsgFile(sourceMapPsg, 'source-map.psg');
   validatePsgFile(conceptClustersPsg, 'concept-clusters.psg');
   validatePsgFile(promptSynthesisPsg, 'prompt-synthesis.psg');
+  if (promptMutationsPsg) {
+    validatePsgFile(promptMutationsPsg, 'prompt-mutations.psg');
+  }
 }
 
 function resolveInputPath(inputPath) {
@@ -1264,6 +1574,12 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
     ingestArtifact,
     extractArtifact
   });
+  const mutationArtifact = buildMutationArtifact({
+    synthesizeArtifact
+  });
+  const mutationReviewArtifact = buildMutationReviewArtifact({
+    mutationArtifact
+  });
   const scoreArtifact = buildScoreArtifact({
     ingestArtifact,
     extractArtifact,
@@ -1287,9 +1603,14 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
     ingestArtifact,
     synthesizeArtifact
   });
+  const promptMutationsPsg = buildPromptMutationsPsg({
+    ingestArtifact,
+    mutationArtifact
+  });
   const researchPackageManifest = buildResearchPackageManifest({
     ingestArtifact,
-    scoreArtifact
+    scoreArtifact,
+    mutationArtifact
   });
 
   validatePackageArtifacts({
@@ -1297,11 +1618,14 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
     extractArtifact,
     classifyArtifact,
     synthesizeArtifact,
+    mutationArtifact,
+    mutationReviewArtifact,
     scoreArtifact,
     reviewArtifact,
     sourceMapPsg,
     conceptClustersPsg,
     promptSynthesisPsg,
+    promptMutationsPsg,
     researchPackageManifest
   });
 
@@ -1310,11 +1634,14 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
   writeJson(path.join(resolvedOutputDir, 'extract.json'), extractArtifact);
   writeJson(path.join(resolvedOutputDir, 'classify.json'), classifyArtifact);
   writeJson(path.join(resolvedOutputDir, 'synthesize.json'), synthesizeArtifact);
+  writeJson(path.join(resolvedOutputDir, 'mutate.json'), mutationArtifact);
+  writeJson(path.join(resolvedOutputDir, 'mutation-review.json'), mutationReviewArtifact);
   writeJson(path.join(resolvedOutputDir, 'score.json'), scoreArtifact);
   writeJson(path.join(resolvedOutputDir, 'review.json'), reviewArtifact);
   writeJson(path.join(resolvedOutputDir, 'source-map.psg'), sourceMapPsg);
   writeJson(path.join(resolvedOutputDir, 'concept-clusters.psg'), conceptClustersPsg);
   writeJson(path.join(resolvedOutputDir, 'prompt-synthesis.psg'), promptSynthesisPsg);
+  writeJson(path.join(resolvedOutputDir, 'prompt-mutations.psg'), promptMutationsPsg);
   writeJson(path.join(resolvedOutputDir, 'research-package.json'), researchPackageManifest);
 
   return {
@@ -1325,11 +1652,14 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
     extractArtifact,
     classifyArtifact,
     synthesizeArtifact,
+    mutationArtifact,
+    mutationReviewArtifact,
     scoreArtifact,
     reviewArtifact,
     sourceMapPsg,
     conceptClustersPsg,
     promptSynthesisPsg,
+    promptMutationsPsg,
     researchPackageManifest
   };
 }
@@ -1339,7 +1669,10 @@ module.exports = {
   buildConceptClustersPsg,
   buildExtractArtifact,
   buildIngestArtifact,
+  buildMutationArtifact,
+  buildMutationReviewArtifact,
   buildMultiInputIngestArtifact,
+  buildPromptMutationsPsg,
   buildPromptSynthesisPsg,
   buildResearchPackageManifest,
   buildReviewArtifact,

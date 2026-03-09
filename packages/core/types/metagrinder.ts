@@ -235,6 +235,88 @@ export const MetagrinderSynthesizeArtifactSchema = z.object({
   promptFragments: z.array(MetagrinderPromptFragmentSchema).default([])
 });
 
+export const MetagrinderMutationCompatibilityStatusSchema = z.enum([
+  'compatible',
+  'incompatible'
+]);
+
+export const MetagrinderMutationInputFragmentSchema = z.object({
+  fragmentId: z.string(),
+  family: z.enum([
+    'atmosphere',
+    'wardrobe',
+    'crowd-behavior',
+    'lighting'
+  ]),
+  text: z.string(),
+  conceptIds: z.array(z.string()).default([]),
+  sourceInputIds: z.array(z.string()).min(1),
+  sourceChunkIds: z.array(z.string()).min(1)
+});
+
+export const MetagrinderMutationCompatibilityDecisionSchema = z.object({
+  decisionId: z.string(),
+  leftFragmentId: z.string(),
+  rightFragmentId: z.string(),
+  status: MetagrinderMutationCompatibilityStatusSchema,
+  reasons: z.array(z.string()).min(1),
+  sharedConceptIds: z.array(z.string()).default([]),
+  sharedSourceInputIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderPromptMutationVariantSchema = z.object({
+  variantId: z.string(),
+  text: z.string(),
+  fragmentIds: z.array(z.string()).min(2),
+  families: z.array(z.enum([
+    'atmosphere',
+    'wardrobe',
+    'crowd-behavior',
+    'lighting'
+  ])).min(2),
+  compatibilityDecisionIds: z.array(z.string()).min(1),
+  conceptIds: z.array(z.string()).default([]),
+  sourceInputIds: z.array(z.string()).min(1),
+  sourceChunkIds: z.array(z.string()).min(1),
+  distinctivenessScore: z.number().min(0).max(1)
+});
+
+export const MetagrinderMutationGenerationSummarySchema = z.object({
+  maxVariants: z.number().int().positive(),
+  compatiblePairCount: z.number().int().nonnegative(),
+  incompatiblePairCount: z.number().int().nonnegative(),
+  generatedVariantCount: z.number().int().nonnegative(),
+  droppedDuplicateCount: z.number().int().nonnegative()
+});
+
+export const MetagrinderDroppedMutationVariantSchema = z.object({
+  droppedVariantId: z.string(),
+  text: z.string(),
+  fragmentIds: z.array(z.string()).min(2),
+  compatibilityDecisionIds: z.array(z.string()).min(1),
+  reason: z.literal('duplicate-variant-text')
+});
+
+export const MetagrinderMutationArtifactSchema = z.object({
+  inputId: z.string(),
+  candidateFragments: z.array(MetagrinderMutationInputFragmentSchema).default([]),
+  compatibilityDecisions: z.array(MetagrinderMutationCompatibilityDecisionSchema).default([]),
+  variants: z.array(MetagrinderPromptMutationVariantSchema).default([]),
+  droppedVariants: z.array(MetagrinderDroppedMutationVariantSchema).default([]),
+  generationSummary: MetagrinderMutationGenerationSummarySchema
+});
+
+export const MetagrinderMutationReviewArtifactSchema = z.object({
+  inputId: z.string(),
+  promotableVariantIds: z.array(z.string()).default([]),
+  flaggedVariantIds: z.array(z.string()).default([]),
+  rejectedVariantIds: z.array(z.string()).default([]),
+  duplicateVariantIds: z.array(z.string()).default([]),
+  weakVariantIds: z.array(z.string()).default([]),
+  incompatibilityWarnings: z.array(z.string()).default([]),
+  recommendedActions: z.array(z.string()).default([])
+});
+
 export const MetagrinderScoreArtifactSchema = z.object({
   inputId: z.string(),
   corroboratedConceptIds: z.array(z.string()).default([]),
@@ -887,6 +969,27 @@ export type MetagrinderClassifiedBucket = z.infer<typeof MetagrinderClassifiedBu
 export type MetagrinderClassifyArtifact = z.infer<typeof MetagrinderClassifyArtifactSchema>;
 export type MetagrinderPromptFragment = z.infer<typeof MetagrinderPromptFragmentSchema>;
 export type MetagrinderSynthesizeArtifact = z.infer<typeof MetagrinderSynthesizeArtifactSchema>;
+export type MetagrinderMutationCompatibilityStatus = z.infer<
+  typeof MetagrinderMutationCompatibilityStatusSchema
+>;
+export type MetagrinderMutationInputFragment = z.infer<
+  typeof MetagrinderMutationInputFragmentSchema
+>;
+export type MetagrinderMutationCompatibilityDecision = z.infer<
+  typeof MetagrinderMutationCompatibilityDecisionSchema
+>;
+export type MetagrinderPromptMutationVariant = z.infer<
+  typeof MetagrinderPromptMutationVariantSchema
+>;
+export type MetagrinderMutationGenerationSummary = z.infer<
+  typeof MetagrinderMutationGenerationSummarySchema
+>;
+export type MetagrinderMutationArtifact = z.infer<
+  typeof MetagrinderMutationArtifactSchema
+>;
+export type MetagrinderMutationReviewArtifact = z.infer<
+  typeof MetagrinderMutationReviewArtifactSchema
+>;
 export type MetagrinderScoreArtifact = z.infer<typeof MetagrinderScoreArtifactSchema>;
 export type MetagrinderReviewArtifact = z.infer<typeof MetagrinderReviewArtifactSchema>;
 export type UtdgSubmissionManifest = z.infer<

@@ -8,11 +8,13 @@ import {
   CanonicalUtdgRecordSchema,
   LumaAdapterContractSchema,
   MetagrinderClassifyArtifactSchema,
-  MetagrinderExtractArtifactSchema,
-  MetagrinderIngestArtifactSchema,
-  MetagrinderReviewArtifactSchema,
-  MetagrinderScoreArtifactSchema,
-  MetagrinderSynthesizeArtifactSchema,
+    MetagrinderExtractArtifactSchema,
+    MetagrinderIngestArtifactSchema,
+    MetagrinderMutationArtifactSchema,
+    MetagrinderMutationReviewArtifactSchema,
+    MetagrinderReviewArtifactSchema,
+    MetagrinderScoreArtifactSchema,
+    MetagrinderSynthesizeArtifactSchema,
   MetaballManifestSchema,
   ModelConditioningPayloadSchema,
   GraphMatchReportSchema,
@@ -30,13 +32,16 @@ import {
 } from '../types/metagrinder';
 
 const {
-  buildClassifyArtifact,
-  buildConceptClustersPsg,
-  buildExtractArtifact,
-  buildIngestArtifact,
-  buildMultiInputIngestArtifact,
-  buildPromptSynthesisPsg,
-    buildResearchPackageManifest,
+      buildClassifyArtifact,
+      buildConceptClustersPsg,
+      buildExtractArtifact,
+      buildIngestArtifact,
+      buildMutationArtifact,
+      buildMutationReviewArtifact,
+      buildMultiInputIngestArtifact,
+      buildPromptMutationsPsg,
+      buildPromptSynthesisPsg,
+      buildResearchPackageManifest,
     buildReviewArtifact,
     buildScoreArtifact,
     buildSourceMapPsg,
@@ -160,6 +165,83 @@ describe('metagrinder schemas', () => {
 
     expect(result.promptFragments).toHaveLength(1);
     expect(result.promptFragments[0].family).toBe('lighting');
+  });
+
+  test('parses metagrinder mutation artifact', () => {
+    const result = MetagrinderMutationArtifactSchema.parse({
+      inputId: 'src_001',
+      candidateFragments: [
+        {
+          fragmentId: 'fragment_001',
+          family: 'lighting',
+          text: 'bright marquee glow',
+          conceptIds: ['concept_001'],
+          sourceInputIds: ['src_001'],
+          sourceChunkIds: ['src_001_chunk_001']
+        }
+      ],
+      compatibilityDecisions: [
+        {
+          decisionId: 'decision_001',
+          leftFragmentId: 'fragment_001',
+          rightFragmentId: 'fragment_002',
+          status: 'incompatible',
+          reasons: ['same-family-fragments-cannot-be-recombined'],
+          sharedConceptIds: [],
+          sharedSourceInputIds: ['src_001']
+        }
+      ],
+      variants: [
+        {
+          variantId: 'variant_001',
+          text: 'bright marquee glow, heavy evening overcoats',
+          fragmentIds: ['fragment_001', 'fragment_002'],
+          families: ['lighting', 'wardrobe'],
+          compatibilityDecisionIds: ['decision_002'],
+          conceptIds: ['concept_001', 'concept_002'],
+          sourceInputIds: ['src_001'],
+          sourceChunkIds: ['src_001_chunk_001', 'src_001_chunk_002'],
+          distinctivenessScore: 0.55
+        }
+      ],
+      droppedVariants: [
+        {
+          droppedVariantId: 'dropped_001',
+          text: 'bright marquee glow, heavy evening overcoats',
+          fragmentIds: ['fragment_001', 'fragment_002'],
+          compatibilityDecisionIds: ['decision_002'],
+          reason: 'duplicate-variant-text'
+        }
+      ],
+      generationSummary: {
+        maxVariants: 12,
+        compatiblePairCount: 1,
+        incompatiblePairCount: 1,
+        generatedVariantCount: 1,
+        droppedDuplicateCount: 0
+      }
+    });
+
+    expect(result.candidateFragments).toHaveLength(1);
+    expect(result.compatibilityDecisions[0].status).toBe('incompatible');
+    expect(result.variants[0].variantId).toBe('variant_001');
+    expect(result.droppedVariants[0].reason).toBe('duplicate-variant-text');
+  });
+
+  test('parses metagrinder mutation review artifact', () => {
+    const result = MetagrinderMutationReviewArtifactSchema.parse({
+      inputId: 'src_001',
+      promotableVariantIds: ['variant_001'],
+      flaggedVariantIds: ['variant_002'],
+      rejectedVariantIds: ['variant_003'],
+      duplicateVariantIds: ['variant_003'],
+      weakVariantIds: ['variant_002'],
+      incompatibilityWarnings: ['fragment_001 + fragment_004: same-family-fragments-cannot-be-recombined'],
+      recommendedActions: ['Inspect flagged mutation variants for weak distinctiveness.']
+    });
+
+    expect(result.promotableVariantIds).toContain('variant_001');
+    expect(result.rejectedVariantIds).toContain('variant_003');
   });
 
   test('parses metagrinder score artifact', () => {
@@ -700,6 +782,225 @@ describe('metagrinder schemas', () => {
     ).toBe(true);
   });
 
+  test('builds mutation artifact directly from synthesis output without reshaping', () => {
+    const rawText = readTextFixture('research-input-broadway.txt');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-broadway.txt',
+      rawText,
+      inputId: 'research-input-broadway',
+      title: '1950s New York Broadway audience on a cold evening',
+      createdAt: '2026-03-07T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({
+      ingestArtifact
+    });
+    const synthesizeArtifact = buildSynthesizeArtifact({
+      ingestArtifact,
+      extractArtifact
+    });
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact
+    });
+
+    expect(mutationArtifact.candidateFragments).toHaveLength(
+      synthesizeArtifact.promptFragments.length
+    );
+    expect(
+      mutationArtifact.candidateFragments.every(fragment => fragment.sourceInputIds.length > 0)
+    ).toBe(true);
+    expect(
+      mutationArtifact.candidateFragments.every(fragment => fragment.sourceChunkIds.length > 0)
+    ).toBe(true);
+    expect(mutationArtifact.compatibilityDecisions.length).toBeGreaterThan(0);
+    expect(
+      mutationArtifact.compatibilityDecisions.every(decision => decision.reasons.length > 0)
+    ).toBe(true);
+    expect(mutationArtifact.generationSummary.generatedVariantCount).toBe(
+      mutationArtifact.variants.length
+    );
+    expect(
+      mutationArtifact.variants.every(variant => variant.sourceChunkIds.length > 0)
+    ).toBe(true);
+  });
+
+  test('marks same-family fragment pairs as incompatible during mutation compatibility evaluation', () => {
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact: {
+        inputId: 'mutation-test',
+        promptFragments: [
+          {
+            fragmentId: 'fragment_001',
+            family: 'lighting',
+            text: 'bright sign glow over wet ground',
+            conceptIds: ['concept_001'],
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_001']
+          },
+          {
+            fragmentId: 'fragment_002',
+            family: 'lighting',
+            text: 'hard flood-lamp reflection on steel deck',
+            conceptIds: ['concept_002'],
+            sourceInputIds: ['src_002'],
+            sourceChunkIds: ['src_002_chunk_001']
+          },
+          {
+            fragmentId: 'fragment_003',
+            family: 'wardrobe',
+            text: 'heavy winter outerwear and gloves',
+            conceptIds: ['concept_003'],
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_002']
+          }
+        ]
+      }
+    });
+
+    const sameFamilyDecision = mutationArtifact.compatibilityDecisions.find(
+      decision =>
+        decision.leftFragmentId === 'fragment_001' &&
+        decision.rightFragmentId === 'fragment_002'
+    );
+    const crossFamilyDecision = mutationArtifact.compatibilityDecisions.find(
+      decision =>
+        decision.leftFragmentId === 'fragment_001' &&
+        decision.rightFragmentId === 'fragment_003'
+    );
+
+    expect(sameFamilyDecision?.status).toBe('incompatible');
+    expect(sameFamilyDecision?.reasons).toContain('same-family-fragments-cannot-be-recombined');
+    expect(crossFamilyDecision?.status).toBe('compatible');
+    expect(crossFamilyDecision?.reasons).toContain('distinct-families');
+  });
+
+  test('bounds mutation generation and suppresses duplicate variants deterministically', () => {
+    const promptFragments = [
+      {
+        fragmentId: 'fragment_001',
+        family: 'atmosphere',
+        text: 'humid dawn air around glass panes',
+        conceptIds: ['concept_001'],
+        sourceInputIds: ['src_001'],
+        sourceChunkIds: ['src_001_chunk_001']
+      },
+      {
+        fragmentId: 'fragment_002',
+        family: 'wardrobe',
+        text: 'workers in heavy canvas jackets',
+        conceptIds: ['concept_002'],
+        sourceInputIds: ['src_001'],
+        sourceChunkIds: ['src_001_chunk_002']
+      },
+      {
+        fragmentId: 'fragment_003',
+        family: 'crowd-behavior',
+        text: 'compact groups moving through the wind',
+        conceptIds: ['concept_003'],
+        sourceInputIds: ['src_002'],
+        sourceChunkIds: ['src_002_chunk_001']
+      },
+      {
+        fragmentId: 'fragment_004',
+        family: 'lighting',
+        text: 'hard flood-lamp reflections on steel deck',
+        conceptIds: ['concept_004'],
+        sourceInputIds: ['src_002'],
+        sourceChunkIds: ['src_002_chunk_002']
+      },
+      {
+        fragmentId: 'fragment_005',
+        family: 'lighting',
+        text: 'hard flood-lamp reflections on steel deck',
+        conceptIds: ['concept_005'],
+        sourceInputIds: ['src_003'],
+        sourceChunkIds: ['src_003_chunk_001']
+      },
+      {
+        fragmentId: 'fragment_006',
+        family: 'wardrobe',
+        text: 'workers in heavy canvas jackets',
+        conceptIds: ['concept_006'],
+        sourceInputIds: ['src_003'],
+        sourceChunkIds: ['src_003_chunk_002']
+      }
+    ];
+
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact: {
+        inputId: 'mutation-bounds',
+        promptFragments
+      }
+    });
+
+    expect(mutationArtifact.variants.length).toBeLessThanOrEqual(
+      mutationArtifact.generationSummary.maxVariants
+    );
+    expect(mutationArtifact.generationSummary.droppedDuplicateCount).toBeGreaterThanOrEqual(1);
+    expect(mutationArtifact.droppedVariants.length).toBeGreaterThanOrEqual(1);
+    expect(
+      mutationArtifact.variants.every(variant => variant.compatibilityDecisionIds.length > 0)
+    ).toBe(true);
+    expect(
+      mutationArtifact.variants.every(variant => variant.fragmentIds.length === 2)
+    ).toBe(true);
+  });
+
+  test('builds mutation review output with promotable, flagged, and rejected variants', () => {
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact: {
+        inputId: 'mutation-review-test',
+        promptFragments: [
+          {
+            fragmentId: 'fragment_001',
+            family: 'atmosphere',
+            text: 'humid dawn air around glass panes',
+            conceptIds: ['concept_001'],
+            sourceInputIds: ['src_001', 'src_002'],
+            sourceChunkIds: ['src_001_chunk_001']
+          },
+          {
+            fragmentId: 'fragment_002',
+            family: 'lighting',
+            text: 'soft reflected dawn light on wet tile',
+            conceptIds: ['concept_002'],
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_002']
+          },
+          {
+            fragmentId: 'fragment_003',
+            family: 'wardrobe',
+            text: 'workers in coats',
+            conceptIds: ['concept_003'],
+            sourceInputIds: ['src_001'],
+            sourceChunkIds: ['src_001_chunk_003']
+          },
+          {
+            fragmentId: 'fragment_004',
+            family: 'lighting',
+            text: 'soft reflected dawn light on wet tile',
+            conceptIds: ['concept_004'],
+            sourceInputIds: ['src_003'],
+            sourceChunkIds: ['src_003_chunk_001']
+          }
+        ]
+      }
+    });
+    const mutationReviewArtifact = buildMutationReviewArtifact({
+      mutationArtifact
+    });
+
+    expect(mutationReviewArtifact.promotableVariantIds.length).toBeGreaterThanOrEqual(1);
+    expect(mutationReviewArtifact.flaggedVariantIds.length).toBeGreaterThanOrEqual(1);
+    expect(mutationReviewArtifact.duplicateVariantIds.length).toBeGreaterThanOrEqual(1);
+    expect(mutationReviewArtifact.incompatibilityWarnings.length).toBeGreaterThanOrEqual(1);
+    expect(
+      mutationReviewArtifact.recommendedActions.some(action => action.includes('flagged mutation variants'))
+    ).toBe(true);
+    expect(
+      mutationReviewArtifact.recommendedActions.some(action => action.includes('dropped duplicate mutation variants'))
+    ).toBe(true);
+  });
+
   test('builds score artifact and package outputs from Broadway fixture', () => {
     const rawText = readTextFixture('research-input-broadway.txt');
     const ingestArtifact = buildIngestArtifact({
@@ -720,6 +1021,9 @@ describe('metagrinder schemas', () => {
       ingestArtifact,
       extractArtifact
     });
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact
+    });
     const scoreArtifact = buildScoreArtifact({
       ingestArtifact,
       extractArtifact,
@@ -739,9 +1043,14 @@ describe('metagrinder schemas', () => {
       extractArtifact,
       classifyArtifact
     });
+    const promptMutationsPsg = buildPromptMutationsPsg({
+      ingestArtifact,
+      mutationArtifact
+    });
     const researchPackageManifest = buildResearchPackageManifest({
       ingestArtifact,
-      scoreArtifact
+      scoreArtifact,
+      mutationArtifact
     });
 
     expect(scoreArtifact.confidenceSummary.provenance).toBe('high');
@@ -750,8 +1059,12 @@ describe('metagrinder schemas', () => {
     expect(reviewArtifact.unresolvedAmbiguities.length).toBeGreaterThanOrEqual(1);
     expect(sourceMapPsg.nodes).toHaveLength(3);
     expect(conceptClustersPsg.regions.some((region: any) => region.name === 'Unresolved')).toBe(true);
-    expect(researchPackageManifest.collections).toHaveLength(3);
+    expect(promptMutationsPsg.metadata.collectionType).toBe('prompt-mutations');
+    expect(researchPackageManifest.collections).toHaveLength(4);
     expect(researchPackageManifest.collections[0].path).toBe('source-map.psg');
+    expect(
+      researchPackageManifest.collections.some(collection => collection.path === 'prompt-mutations.psg')
+    ).toBe(true);
   });
 
   test('upgrades package manifest and collection metadata for multi-document input', () => {
@@ -787,6 +1100,9 @@ describe('metagrinder schemas', () => {
       ingestArtifact,
       extractArtifact
     });
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact
+    });
     const scoreArtifact = buildScoreArtifact({
       ingestArtifact,
       extractArtifact,
@@ -804,9 +1120,14 @@ describe('metagrinder schemas', () => {
       ingestArtifact,
       synthesizeArtifact
     });
+    const promptMutationsPsg = buildPromptMutationsPsg({
+      ingestArtifact,
+      mutationArtifact
+    });
     const researchPackageManifest = buildResearchPackageManifest({
       ingestArtifact,
-      scoreArtifact
+      scoreArtifact,
+      mutationArtifact
     });
 
     expect(researchPackageManifest.sourceInputs).toEqual([
@@ -821,7 +1142,7 @@ describe('metagrinder schemas', () => {
       'research-input-broadway',
       'research-input-costume-notes'
     ]);
-    expect(researchPackageManifest.strategyVersion).toBe('epic2-story6');
+    expect(researchPackageManifest.strategyVersion).toBe('epic3-story4');
     expect(sourceMapPsg.metadata.sourceInputIds).toEqual([
       'research-input-broadway',
       'research-input-costume-notes'
@@ -834,6 +1155,13 @@ describe('metagrinder schemas', () => {
       'research-input-broadway',
       'research-input-costume-notes'
     ]);
+    expect(promptMutationsPsg.metadata.sourceInputIds).toEqual([
+      'research-input-broadway',
+      'research-input-costume-notes'
+    ]);
+    expect(
+      researchPackageManifest.collections.some(collection => collection.type === 'prompt-mutations')
+    ).toBe(true);
   });
 
   test('runner throws on missing input files', () => {
@@ -845,6 +1173,88 @@ describe('metagrinder schemas', () => {
         outputDir
       })
     ).toThrow('Missing input file: does-not-exist.txt');
+  });
+
+  test('runner writes mutation artifacts and mutation PSG into the output package', () => {
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-mutation-package-'));
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-broadway.txt'
+    );
+
+    const result = runMetagrinderMvp({
+      inputPath,
+      outputDir
+    });
+
+    expect(fs.existsSync(path.join(outputDir, 'mutate.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'mutation-review.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'prompt-mutations.psg'))).toBe(true);
+    expect(
+      result.researchPackageManifest.collections.some(collection => collection.type === 'prompt-mutations')
+    ).toBe(true);
+    expect(result.promptMutationsPsg.nodes.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('keeps mutation collection in the manifest even when no variants are generated', () => {
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'single-family.txt',
+      rawText: '# Notes\n\nLamp glow on wet stone.\n\nMarquee spill on dark glass.',
+      inputId: 'single-family',
+      title: 'Single family fragments',
+      createdAt: '2026-03-07T12:00:00.000Z'
+    });
+    const scoreArtifact = buildScoreArtifact({
+      ingestArtifact,
+      extractArtifact: {
+        inputId: 'single-family',
+        claims: [],
+        conceptCandidates: [],
+        evidence: [],
+        openQuestions: [],
+        warnings: []
+      },
+      synthesizeArtifact: {
+        inputId: 'single-family',
+        promptFragments: []
+      }
+    });
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact: {
+        inputId: 'single-family',
+        promptFragments: [
+          {
+            fragmentId: 'fragment_001',
+            family: 'lighting',
+            text: 'lamp glow on wet stone',
+            conceptIds: ['concept_001'],
+            sourceInputIds: ['single-family'],
+            sourceChunkIds: ['single-family_chunk_001']
+          },
+          {
+            fragmentId: 'fragment_002',
+            family: 'lighting',
+            text: 'marquee spill on dark glass',
+            conceptIds: ['concept_002'],
+            sourceInputIds: ['single-family'],
+            sourceChunkIds: ['single-family_chunk_002']
+          }
+        ]
+      }
+    });
+    const researchPackageManifest = buildResearchPackageManifest({
+      ingestArtifact,
+      scoreArtifact,
+      mutationArtifact
+    });
+
+    expect(mutationArtifact.variants).toHaveLength(0);
+    expect(researchPackageManifest.strategyVersion).toBe('epic3-story4');
+    expect(
+      researchPackageManifest.collections.some(collection => collection.type === 'prompt-mutations')
+    ).toBe(true);
   });
 
   test('parses utdg submission fixture', () => {

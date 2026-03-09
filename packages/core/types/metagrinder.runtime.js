@@ -212,6 +212,88 @@ const MetagrinderSynthesizeArtifactSchema = z.object({
   promptFragments: z.array(MetagrinderPromptFragmentSchema).default([])
 });
 
+const MetagrinderMutationCompatibilityStatusSchema = z.enum([
+  'compatible',
+  'incompatible'
+]);
+
+const MetagrinderMutationInputFragmentSchema = z.object({
+  fragmentId: z.string(),
+  family: z.enum([
+    'atmosphere',
+    'wardrobe',
+    'crowd-behavior',
+    'lighting'
+  ]),
+  text: z.string(),
+  conceptIds: z.array(z.string()).default([]),
+  sourceInputIds: z.array(z.string()).min(1),
+  sourceChunkIds: z.array(z.string()).min(1)
+});
+
+const MetagrinderMutationCompatibilityDecisionSchema = z.object({
+  decisionId: z.string(),
+  leftFragmentId: z.string(),
+  rightFragmentId: z.string(),
+  status: MetagrinderMutationCompatibilityStatusSchema,
+  reasons: z.array(z.string()).min(1),
+  sharedConceptIds: z.array(z.string()).default([]),
+  sharedSourceInputIds: z.array(z.string()).default([])
+});
+
+const MetagrinderPromptMutationVariantSchema = z.object({
+  variantId: z.string(),
+  text: z.string(),
+  fragmentIds: z.array(z.string()).min(2),
+  families: z.array(z.enum([
+    'atmosphere',
+    'wardrobe',
+    'crowd-behavior',
+    'lighting'
+  ])).min(2),
+  compatibilityDecisionIds: z.array(z.string()).min(1),
+  conceptIds: z.array(z.string()).default([]),
+  sourceInputIds: z.array(z.string()).min(1),
+  sourceChunkIds: z.array(z.string()).min(1),
+  distinctivenessScore: z.number().min(0).max(1)
+});
+
+const MetagrinderMutationGenerationSummarySchema = z.object({
+  maxVariants: z.number().int().positive(),
+  compatiblePairCount: z.number().int().nonnegative(),
+  incompatiblePairCount: z.number().int().nonnegative(),
+  generatedVariantCount: z.number().int().nonnegative(),
+  droppedDuplicateCount: z.number().int().nonnegative()
+});
+
+const MetagrinderDroppedMutationVariantSchema = z.object({
+  droppedVariantId: z.string(),
+  text: z.string(),
+  fragmentIds: z.array(z.string()).min(2),
+  compatibilityDecisionIds: z.array(z.string()).min(1),
+  reason: z.literal('duplicate-variant-text')
+});
+
+const MetagrinderMutationArtifactSchema = z.object({
+  inputId: z.string(),
+  candidateFragments: z.array(MetagrinderMutationInputFragmentSchema).default([]),
+  compatibilityDecisions: z.array(MetagrinderMutationCompatibilityDecisionSchema).default([]),
+  variants: z.array(MetagrinderPromptMutationVariantSchema).default([]),
+  droppedVariants: z.array(MetagrinderDroppedMutationVariantSchema).default([]),
+  generationSummary: MetagrinderMutationGenerationSummarySchema
+});
+
+const MetagrinderMutationReviewArtifactSchema = z.object({
+  inputId: z.string(),
+  promotableVariantIds: z.array(z.string()).default([]),
+  flaggedVariantIds: z.array(z.string()).default([]),
+  rejectedVariantIds: z.array(z.string()).default([]),
+  duplicateVariantIds: z.array(z.string()).default([]),
+  weakVariantIds: z.array(z.string()).default([]),
+  incompatibilityWarnings: z.array(z.string()).default([]),
+  recommendedActions: z.array(z.string()).default([])
+});
+
 const MetagrinderScoreArtifactSchema = z.object({
   inputId: z.string(),
   corroboratedConceptIds: z.array(z.string()).default([]),
@@ -783,6 +865,13 @@ module.exports = {
   MetagrinderOpenQuestionSchema,
   MetagrinderPromptFragmentSchema,
   MetagrinderReviewArtifactSchema,
+  MetagrinderMutationArtifactSchema,
+  MetagrinderMutationCompatibilityDecisionSchema,
+  MetagrinderMutationGenerationSummarySchema,
+  MetagrinderMutationCompatibilityStatusSchema,
+  MetagrinderMutationInputFragmentSchema,
+  MetagrinderMutationReviewArtifactSchema,
+  MetagrinderPromptMutationVariantSchema,
   MetagrinderScoreArtifactSchema,
   MetagrinderSourceTypeSchema,
   MetagrinderSynthesizeArtifactSchema,
