@@ -848,6 +848,51 @@ function buildPromptSynthesisPsg({ ingestArtifact, synthesizeArtifact }) {
   };
 }
 
+function buildPromptMutationsPsg({ ingestArtifact, mutationArtifact }) {
+  const sourceInputIds = ingestArtifact.sourceInputs.map((source) => source.sourceInputId);
+  const variantNodes = mutationArtifact.variants.map((variant, index) => ({
+    id: variant.variantId,
+    type: 'TextBlock',
+    name: `Mutation Variant ${index + 1}`,
+    description: `Distinctiveness ${variant.distinctivenessScore}`,
+    x: 160,
+    y: 120 + (index * 160),
+    value: variant.text,
+    data: {
+      fragmentIds: variant.fragmentIds,
+      families: variant.families,
+      compatibilityDecisionIds: variant.compatibilityDecisionIds,
+      conceptIds: variant.conceptIds,
+      sourceInputIds: variant.sourceInputIds,
+      sourceChunkIds: variant.sourceChunkIds,
+      distinctivenessScore: variant.distinctivenessScore
+    }
+  }));
+
+  return {
+    version: '1.0.0',
+    name: `${ingestArtifact.title} Prompt Mutations`,
+    description: 'Metagrinder prompt-mutation variants generated from compatible prompt fragments.',
+    metadata: {
+      packageId: `${ingestArtifact.inputId}_research_package`,
+      collectionType: 'prompt-mutations',
+      sourceInputIds,
+      lineage: {
+        sourceInputIds
+      }
+    },
+    nodes: variantNodes,
+    edges: [],
+    regions: [
+      {
+        id: `${ingestArtifact.inputId}_prompt_mutations_region`,
+        name: 'Prompt Mutations',
+        nodes: variantNodes.map((node) => node.id)
+      }
+    ]
+  };
+}
+
 function normalizedFragmentText(text) {
   return text
     .toLowerCase()
@@ -1353,8 +1398,21 @@ function buildConceptClustersPsg({ ingestArtifact, extractArtifact, classifyArti
   };
 }
 
-function buildResearchPackageManifest({ ingestArtifact, scoreArtifact }) {
+function buildResearchPackageManifest({ ingestArtifact, scoreArtifact, mutationArtifact }) {
   const sourceInputIds = ingestArtifact.sourceInputs.map((source) => source.sourceInputId);
+  const collections = [
+    { id: 'col_source', type: 'source-map', path: 'source-map.psg' },
+    { id: 'col_concepts', type: 'concept-clusters', path: 'concept-clusters.psg' },
+    { id: 'col_synthesis', type: 'prompt-synthesis', path: 'prompt-synthesis.psg' }
+  ];
+  if (mutationArtifact && mutationArtifact.variants.length > 0) {
+    collections.push({
+      id: 'col_mutations',
+      type: 'prompt-mutations',
+      path: 'prompt-mutations.psg'
+    });
+  }
+
   return ResearchPackageManifestSchema.parse({
     packageId: `${ingestArtifact.inputId}_research_package`,
     packageType: 'research-package',
@@ -1363,15 +1421,13 @@ function buildResearchPackageManifest({ ingestArtifact, scoreArtifact }) {
     parserVersion: '0.1.0',
     strategyVersion: ingestArtifact.sourceInputs.length > 1
       ? 'epic2-story6'
-      : 'epic1-story5',
+      : mutationArtifact && mutationArtifact.variants.length > 0
+        ? 'epic3-story4'
+        : 'epic1-story5',
     contributorId: 'local-metagrinder-mvp',
     sourceInputs: sourceInputIds,
     sourceInputIds: sourceInputIds,
-    collections: [
-      { id: 'col_source', type: 'source-map', path: 'source-map.psg' },
-      { id: 'col_concepts', type: 'concept-clusters', path: 'concept-clusters.psg' },
-      { id: 'col_synthesis', type: 'prompt-synthesis', path: 'prompt-synthesis.psg' }
-    ],
+    collections,
     lineage: {
       sourceInputIds
     },
@@ -1417,23 +1473,35 @@ function validatePackageArtifacts({
   extractArtifact,
   classifyArtifact,
   synthesizeArtifact,
+  mutationArtifact,
+  mutationReviewArtifact,
   scoreArtifact,
   reviewArtifact,
   sourceMapPsg,
   conceptClustersPsg,
   promptSynthesisPsg,
+  promptMutationsPsg,
   researchPackageManifest
 }) {
   MetagrinderIngestArtifactSchema.parse(ingestArtifact);
   MetagrinderExtractArtifactSchema.parse(extractArtifact);
   MetagrinderClassifyArtifactSchema.parse(classifyArtifact);
   MetagrinderSynthesizeArtifactSchema.parse(synthesizeArtifact);
+  if (mutationArtifact) {
+    MetagrinderMutationArtifactSchema.parse(mutationArtifact);
+  }
+  if (mutationReviewArtifact) {
+    MetagrinderMutationReviewArtifactSchema.parse(mutationReviewArtifact);
+  }
   MetagrinderScoreArtifactSchema.parse(scoreArtifact);
   MetagrinderReviewArtifactSchema.parse(reviewArtifact);
   ResearchPackageManifestSchema.parse(researchPackageManifest);
   validatePsgFile(sourceMapPsg, 'source-map.psg');
   validatePsgFile(conceptClustersPsg, 'concept-clusters.psg');
   validatePsgFile(promptSynthesisPsg, 'prompt-synthesis.psg');
+  if (promptMutationsPsg) {
+    validatePsgFile(promptMutationsPsg, 'prompt-mutations.psg');
+  }
 }
 
 function resolveInputPath(inputPath) {
@@ -1504,6 +1572,12 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
     ingestArtifact,
     extractArtifact
   });
+  const mutationArtifact = buildMutationArtifact({
+    synthesizeArtifact
+  });
+  const mutationReviewArtifact = buildMutationReviewArtifact({
+    mutationArtifact
+  });
   const scoreArtifact = buildScoreArtifact({
     ingestArtifact,
     extractArtifact,
@@ -1527,9 +1601,14 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
     ingestArtifact,
     synthesizeArtifact
   });
+  const promptMutationsPsg = buildPromptMutationsPsg({
+    ingestArtifact,
+    mutationArtifact
+  });
   const researchPackageManifest = buildResearchPackageManifest({
     ingestArtifact,
-    scoreArtifact
+    scoreArtifact,
+    mutationArtifact
   });
 
   validatePackageArtifacts({
@@ -1537,11 +1616,14 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
     extractArtifact,
     classifyArtifact,
     synthesizeArtifact,
+    mutationArtifact,
+    mutationReviewArtifact,
     scoreArtifact,
     reviewArtifact,
     sourceMapPsg,
     conceptClustersPsg,
     promptSynthesisPsg,
+    promptMutationsPsg,
     researchPackageManifest
   });
 
@@ -1550,11 +1632,14 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
   writeJson(path.join(resolvedOutputDir, 'extract.json'), extractArtifact);
   writeJson(path.join(resolvedOutputDir, 'classify.json'), classifyArtifact);
   writeJson(path.join(resolvedOutputDir, 'synthesize.json'), synthesizeArtifact);
+  writeJson(path.join(resolvedOutputDir, 'mutate.json'), mutationArtifact);
+  writeJson(path.join(resolvedOutputDir, 'mutation-review.json'), mutationReviewArtifact);
   writeJson(path.join(resolvedOutputDir, 'score.json'), scoreArtifact);
   writeJson(path.join(resolvedOutputDir, 'review.json'), reviewArtifact);
   writeJson(path.join(resolvedOutputDir, 'source-map.psg'), sourceMapPsg);
   writeJson(path.join(resolvedOutputDir, 'concept-clusters.psg'), conceptClustersPsg);
   writeJson(path.join(resolvedOutputDir, 'prompt-synthesis.psg'), promptSynthesisPsg);
+  writeJson(path.join(resolvedOutputDir, 'prompt-mutations.psg'), promptMutationsPsg);
   writeJson(path.join(resolvedOutputDir, 'research-package.json'), researchPackageManifest);
 
   return {
@@ -1565,11 +1650,14 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
     extractArtifact,
     classifyArtifact,
     synthesizeArtifact,
+    mutationArtifact,
+    mutationReviewArtifact,
     scoreArtifact,
     reviewArtifact,
     sourceMapPsg,
     conceptClustersPsg,
     promptSynthesisPsg,
+    promptMutationsPsg,
     researchPackageManifest
   };
 }
@@ -1582,6 +1670,7 @@ module.exports = {
   buildMutationArtifact,
   buildMutationReviewArtifact,
   buildMultiInputIngestArtifact,
+  buildPromptMutationsPsg,
   buildPromptSynthesisPsg,
   buildResearchPackageManifest,
   buildReviewArtifact,

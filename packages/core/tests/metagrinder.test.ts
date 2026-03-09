@@ -39,6 +39,7 @@ const {
       buildMutationArtifact,
       buildMutationReviewArtifact,
       buildMultiInputIngestArtifact,
+      buildPromptMutationsPsg,
       buildPromptSynthesisPsg,
       buildResearchPackageManifest,
     buildReviewArtifact,
@@ -1005,6 +1006,9 @@ describe('metagrinder schemas', () => {
       ingestArtifact,
       extractArtifact
     });
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact
+    });
     const scoreArtifact = buildScoreArtifact({
       ingestArtifact,
       extractArtifact,
@@ -1024,9 +1028,14 @@ describe('metagrinder schemas', () => {
       extractArtifact,
       classifyArtifact
     });
+    const promptMutationsPsg = buildPromptMutationsPsg({
+      ingestArtifact,
+      mutationArtifact
+    });
     const researchPackageManifest = buildResearchPackageManifest({
       ingestArtifact,
-      scoreArtifact
+      scoreArtifact,
+      mutationArtifact
     });
 
     expect(scoreArtifact.confidenceSummary.provenance).toBe('high');
@@ -1035,8 +1044,12 @@ describe('metagrinder schemas', () => {
     expect(reviewArtifact.unresolvedAmbiguities.length).toBeGreaterThanOrEqual(1);
     expect(sourceMapPsg.nodes).toHaveLength(3);
     expect(conceptClustersPsg.regions.some((region: any) => region.name === 'Unresolved')).toBe(true);
-    expect(researchPackageManifest.collections).toHaveLength(3);
+    expect(promptMutationsPsg.metadata.collectionType).toBe('prompt-mutations');
+    expect(researchPackageManifest.collections).toHaveLength(4);
     expect(researchPackageManifest.collections[0].path).toBe('source-map.psg');
+    expect(
+      researchPackageManifest.collections.some(collection => collection.path === 'prompt-mutations.psg')
+    ).toBe(true);
   });
 
   test('upgrades package manifest and collection metadata for multi-document input', () => {
@@ -1072,6 +1085,9 @@ describe('metagrinder schemas', () => {
       ingestArtifact,
       extractArtifact
     });
+    const mutationArtifact = buildMutationArtifact({
+      synthesizeArtifact
+    });
     const scoreArtifact = buildScoreArtifact({
       ingestArtifact,
       extractArtifact,
@@ -1089,9 +1105,14 @@ describe('metagrinder schemas', () => {
       ingestArtifact,
       synthesizeArtifact
     });
+    const promptMutationsPsg = buildPromptMutationsPsg({
+      ingestArtifact,
+      mutationArtifact
+    });
     const researchPackageManifest = buildResearchPackageManifest({
       ingestArtifact,
-      scoreArtifact
+      scoreArtifact,
+      mutationArtifact
     });
 
     expect(researchPackageManifest.sourceInputs).toEqual([
@@ -1119,6 +1140,13 @@ describe('metagrinder schemas', () => {
       'research-input-broadway',
       'research-input-costume-notes'
     ]);
+    expect(promptMutationsPsg.metadata.sourceInputIds).toEqual([
+      'research-input-broadway',
+      'research-input-costume-notes'
+    ]);
+    expect(
+      researchPackageManifest.collections.some(collection => collection.type === 'prompt-mutations')
+    ).toBe(true);
   });
 
   test('runner throws on missing input files', () => {
@@ -1130,6 +1158,29 @@ describe('metagrinder schemas', () => {
         outputDir
       })
     ).toThrow('Missing input file: does-not-exist.txt');
+  });
+
+  test('runner writes mutation artifacts and mutation PSG into the output package', () => {
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-mutation-package-'));
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-broadway.txt'
+    );
+
+    const result = runMetagrinderMvp({
+      inputPath,
+      outputDir
+    });
+
+    expect(fs.existsSync(path.join(outputDir, 'mutate.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'mutation-review.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'prompt-mutations.psg'))).toBe(true);
+    expect(
+      result.researchPackageManifest.collections.some(collection => collection.type === 'prompt-mutations')
+    ).toBe(true);
+    expect(result.promptMutationsPsg.nodes.length).toBeGreaterThanOrEqual(1);
   });
 
   test('parses utdg submission fixture', () => {
