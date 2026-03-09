@@ -266,11 +266,20 @@ const MetagrinderMutationGenerationSummarySchema = z.object({
   droppedDuplicateCount: z.number().int().nonnegative()
 });
 
+const MetagrinderDroppedMutationVariantSchema = z.object({
+  droppedVariantId: z.string(),
+  text: z.string(),
+  fragmentIds: z.array(z.string()).min(2),
+  compatibilityDecisionIds: z.array(z.string()).min(1),
+  reason: z.literal('duplicate-variant-text')
+});
+
 const MetagrinderMutationArtifactSchema = z.object({
   inputId: z.string(),
   candidateFragments: z.array(MetagrinderMutationInputFragmentSchema).default([]),
   compatibilityDecisions: z.array(MetagrinderMutationCompatibilityDecisionSchema).default([]),
   variants: z.array(MetagrinderPromptMutationVariantSchema).default([]),
+  droppedVariants: z.array(MetagrinderDroppedMutationVariantSchema).default([]),
   generationSummary: MetagrinderMutationGenerationSummarySchema
 });
 

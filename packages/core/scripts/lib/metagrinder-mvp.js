@@ -995,6 +995,7 @@ function buildMutationArtifact({ synthesizeArtifact }) {
 
   const compatibilityDecisions = [];
   const variants = [];
+  const droppedVariants = [];
   const seenVariantTexts = new Set();
   let droppedDuplicateCount = 0;
 
@@ -1023,6 +1024,13 @@ function buildMutationArtifact({ synthesizeArtifact }) {
       const normalizedVariantKey = normalizedFragmentText(variantText);
       if (seenVariantTexts.has(normalizedVariantKey)) {
         droppedDuplicateCount += 1;
+        droppedVariants.push({
+          droppedVariantId: `${synthesizeArtifact.inputId}_mutation_dropped_${String(droppedVariants.length + 1).padStart(3, '0')}`,
+          text: variantText,
+          fragmentIds: orderedFragments.map((fragment) => fragment.fragmentId),
+          compatibilityDecisionIds: [decision.decisionId],
+          reason: 'duplicate-variant-text'
+        });
         continue;
       }
 
@@ -1051,6 +1059,7 @@ function buildMutationArtifact({ synthesizeArtifact }) {
     candidateFragments,
     compatibilityDecisions,
     variants,
+    droppedVariants,
     generationSummary: {
       maxVariants: MAX_MUTATION_VARIANTS,
       compatiblePairCount,
@@ -1065,7 +1074,9 @@ function buildMutationReviewArtifact({ mutationArtifact }) {
   const promotableVariantIds = [];
   const flaggedVariantIds = [];
   const rejectedVariantIds = [];
-  const duplicateVariantIds = [];
+  const duplicateVariantIds = mutationArtifact.droppedVariants.map(
+    (variant) => variant.droppedVariantId
+  );
   const weakVariantIds = [];
   const incompatibilityWarnings = mutationArtifact.compatibilityDecisions
     .filter((decision) => decision.status === 'incompatible')
@@ -1073,26 +1084,14 @@ function buildMutationReviewArtifact({ mutationArtifact }) {
       `${decision.leftFragmentId} + ${decision.rightFragmentId}: ${decision.reasons.join(', ')}`
     );
 
-  const normalizedVariantTextCounts = mutationArtifact.variants.reduce((counts, variant) => {
-    const key = normalizedFragmentText(variant.text);
-    counts.set(key, (counts.get(key) || 0) + 1);
-    return counts;
-  }, new Map());
-
   mutationArtifact.variants.forEach((variant) => {
-    const normalizedVariantKey = normalizedFragmentText(variant.text);
-    const isDuplicate = (normalizedVariantTextCounts.get(normalizedVariantKey) || 0) > 1;
     const isWeak = variant.distinctivenessScore < 0.55 || variant.sourceInputIds.length < 2;
     const hasThinFragment = variant.text.split(/\s+/).length < 6;
-
-    if (isDuplicate) {
-      duplicateVariantIds.push(variant.variantId);
-    }
     if (isWeak) {
       weakVariantIds.push(variant.variantId);
     }
 
-    if (isDuplicate || hasThinFragment) {
+    if (hasThinFragment) {
       rejectedVariantIds.push(variant.variantId);
       return;
     }
@@ -1114,6 +1113,9 @@ function buildMutationReviewArtifact({ mutationArtifact }) {
   }
   if (rejectedVariantIds.length > 0) {
     recommendedActions.push('Keep rejected mutation variants out of downstream collections unless compatibility and distinctiveness rules are revised.');
+  }
+  if (duplicateVariantIds.length > 0) {
+    recommendedActions.push('Review dropped duplicate mutation variants if deduplication appears to be masking distinct but overly similar outputs.');
   }
   if (incompatibilityWarnings.length > 0) {
     recommendedActions.push('Review incompatibility warnings to refine fragment compatibility rules before widening mutation generation.');
@@ -1403,15 +1405,19 @@ function buildResearchPackageManifest({ ingestArtifact, scoreArtifact, mutationA
   const collections = [
     { id: 'col_source', type: 'source-map', path: 'source-map.psg' },
     { id: 'col_concepts', type: 'concept-clusters', path: 'concept-clusters.psg' },
-    { id: 'col_synthesis', type: 'prompt-synthesis', path: 'prompt-synthesis.psg' }
-  ];
-  if (mutationArtifact && mutationArtifact.variants.length > 0) {
-    collections.push({
+    { id: 'col_synthesis', type: 'prompt-synthesis', path: 'prompt-synthesis.psg' },
+    {
       id: 'col_mutations',
       type: 'prompt-mutations',
       path: 'prompt-mutations.psg'
-    });
-  }
+    }
+  ];
+  const hasMutationSupport = Boolean(mutationArtifact);
+  const strategyVersion = hasMutationSupport
+    ? 'epic3-story4'
+    : ingestArtifact.sourceInputs.length > 1
+      ? 'epic2-story6'
+      : 'epic1-story5';
 
   return ResearchPackageManifestSchema.parse({
     packageId: `${ingestArtifact.inputId}_research_package`,
@@ -1419,11 +1425,7 @@ function buildResearchPackageManifest({ ingestArtifact, scoreArtifact, mutationA
     title: ingestArtifact.title,
     createdAt: ingestArtifact.createdAt,
     parserVersion: '0.1.0',
-    strategyVersion: ingestArtifact.sourceInputs.length > 1
-      ? 'epic2-story6'
-      : mutationArtifact && mutationArtifact.variants.length > 0
-        ? 'epic3-story4'
-        : 'epic1-story5',
+    strategyVersion,
     contributorId: 'local-metagrinder-mvp',
     sourceInputs: sourceInputIds,
     sourceInputIds: sourceInputIds,
