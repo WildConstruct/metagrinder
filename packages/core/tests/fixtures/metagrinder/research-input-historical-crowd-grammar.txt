@@ -1,0 +1,61 @@
+# Early twentieth-century public spectacle crowd scene grammar notes
+
+Source notes:
+The scene is a dense public spectacle crowd in an early twentieth-century American urban setting. The visible population is overwhelmingly adult men, roughly 82-90%, with adult women around 6-12% and children or teens around 2-6%. The dominant visual baseline is formal public daywear under heat and dust, with high silhouette uniformity and subtle variation rather than broad costume variety.
+
+Archetype weights:
+Middle-class spectator: adult male baseline, dark or mid-tone sack suit, waistcoat, white shirt, tie, leather shoes, straw boater or bowler. Behavior includes watching intently, standing with hands behind back, and clustering in respectable public rows. Weight: 50-60%.
+
+Heat-adjusted spectator: adult male, straw boater, white shirt, suspenders visible, jacket removed or carried, sleeves rolled, dark trousers, dusty shoes. Behavior includes leaning on a rail, squinting in bright daylight, and watching the central action. Weight: 20-30%.
+
+Working-class trackside spectator: adult male, flat cap or worn straw hat, rolled sleeves, suspenders, darker worn trousers, practical work boots. Behavior includes standing at the rail, smoking, peering around others, and clustering with other spectators. Weight: 10-15%.
+
+Affluent or club spectator: adult male, light linen suit, Panama hat or clean boater, polished shoes, gloves, cane or pocket watch. Weight: 5-10%. This archetype needs stronger behavior evidence before promotion.
+
+Female middle-class spectator: adult woman in shirtwaist blouse, long skirt, large hat, gloves, parasol, or structured handbag. Female spectators are sparse but visually important and should appear more often in grandstand and social viewing zones than at the rail. Weight: 5-8%.
+
+Child or teen spectator: boys in knee trousers, caps, shirts with suspenders; girls in light dresses, sailor collars, wide-brim hats, and dark stockings. They appear with adults and should not dominate. Weight: 2-6%.
+
+African American or otherwise underrepresented local community spectator: include sparse but present middle-class and working-class spectators with the same class variation, public dress, and spectator behavior as comparable attendees. Do not make Black characters only workers or service roles.
+
+Location-zone logic:
+If location zone is grandstand, increase adult women, children, middle-class spectators, affluent spectators, and complete outfits; decrease dirty workwear and pit crew cues.
+If location zone is rail, increase adult men, shirtsleeves, working-class and lower-middle-class spectators, jacket-removed heat states; decrease children and affluent women.
+If location zone is pit or official area, force worker, official, driver, mechanic, or press roles; increase dust coats, caps, goggles, armbands, clipboards, timing sheets, and work gloves; exclude casual viewer-only archetypes.
+If location zone is infield, allow a broader public mix, looser posture, seated grass groups, umbrellas, and casual public viewing.
+If location zone is walkway, bias toward walking groups, concession approaches, people carrying programs, and people pausing to watch.
+
+Wardrobe systems:
+Formal daywear includes sack suits, waistcoats, stiff collars, ties, leather shoes, straw boaters, bowlers, and subdued colors.
+Heat-adjusted daywear includes white shirts, suspenders, jacket removed, sleeves rolled, dusty shoes, and loosened ties.
+Female public daywear includes shirtwaist blouses, long skirts, large decorated hats, gloves, scarves, parasols, and practical laced shoes.
+Work or official wear includes dust coats, caps, goggles, gloves, armbands, timing sheets, and clipboards.
+
+Environmental modifiers:
+Heat state affects jacket use, sleeve state, posture, and sweat or fatigue.
+Dust soiling affects shoes, hems, trouser cuffs, lower skirts, and workwear.
+Bright daylight affects squinting, hat use, and hard visibility.
+Smoke or haze may come from dust, fuel, machinery, or nearby industrial activity.
+
+Visual reference notes:
+Visual reference caption: dense rows of male spectators in straw boaters and dark suits, high silhouette uniformity, wood or steel viewing structure, subdued fabric tones.
+Visual reference caption: shirtsleeves and suspenders near a rail, jackets carried over arms, dusty shoes, practical stance, bright daylight.
+Visual reference caption: sparse female spectators with large hats seated or standing behind denser male rows, useful for silhouette breaks and social viewing zones.
+
+Negative constraints:
+Avoid modern fan behavior, branded jerseys, modern T-shirts, shorts, baseball caps, modern sunglasses, bright synthetic colors, and contemporary camera-phone posture.
+Avoid making the scene too Victorian: no frock-coat baseline, no top-hat crowd baseline, no bustle silhouettes, and no theatrical retro-futurist goggles on ordinary spectators.
+Avoid randomizing too broadly. The crowd should have low variance, high consistency, and micro-variation inside tight archetype bands.
+Avoid incompatible wardrobe mixing, such as affluent Panama-hat cues with worn working-class suspenders, unless the source explicitly supports the exception.
+Avoid overpopulating women at the rail or controlled work zones without source support.
+Ethical constraint: do not reduce Black or underrepresented characters to worker-only roles; allow middle-class spectators, working-class spectators, family members, and worker roles where spatially logical.
+
+Research gaps:
+Some weight ranges are useful first-pass modeling assumptions but need stronger citations before promotion.
+Grandstand female and children distributions need stronger zone-specific support.
+Affluent spectator behavior is under-specified.
+Visual reference captions support hats and silhouettes but do not yet prove exact fabric textures.
+Negative constraints must be enforced by compatibility rules rather than remaining prose.
+
+Sample output:
+Adult male heat-adjusted spectator in a straw boater, white shirt, suspenders, dark trousers, jacket carried over one arm, dusty shoes, leaning near the rail and watching the central action.

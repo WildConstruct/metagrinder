@@ -7,18 +7,28 @@ import {
   CameraPassManifestSchema,
   CanonicalUtdgRecordSchema,
   LumaAdapterContractSchema,
+  MetagrinderAgentRunArtifactSchema,
   MetagrinderAssumptionReviewArtifactSchema,
   MetagrinderAugmentationPlanArtifactSchema,
   MetagrinderCategoryHypothesisArtifactSchema,
   MetagrinderClassifyArtifactSchema,
     MetagrinderExtractArtifactSchema,
+    MetagrinderGrammarRevisionArtifactSchema,
     MetagrinderIngestArtifactSchema,
     MetagrinderModeDetectionArtifactSchema,
     MetagrinderMutationArtifactSchema,
     MetagrinderMutationReviewArtifactSchema,
+    MetagrinderPlausibilityReviewArtifactSchema,
+    MetagrinderPsgV2FileSchema,
+    MetagrinderResearchGapArtifactSchema,
+    MetagrinderResearchQueryPlanSchema,
     MetagrinderReviewArtifactSchema,
+    MetagrinderSamplePromptsArtifactSchema,
     MetagrinderScoreArtifactSchema,
+    MetagrinderSceneGrammarArtifactSchema,
+    MetagrinderSceneGrammarEvaluationSchema,
     MetagrinderSynthesizeArtifactSchema,
+    MetagrinderWebResearchResultsSchema,
   MetaballManifestSchema,
   ModelConditioningPayloadSchema,
   GraphMatchReportSchema,
@@ -49,6 +59,18 @@ const {
       buildMultiInputIngestArtifact,
       buildPromptMutationsPsg,
       buildPromptSynthesisPsg,
+      buildAgentRunsArtifact,
+      buildSourceModeArtifact,
+      buildSceneGrammarArtifact,
+      buildResearchGapArtifact,
+      buildResearchQueryPlan,
+      buildWebResearchResults,
+      buildGrammarRevisionArtifact,
+      buildSamplePromptsArtifact,
+      buildSceneGrammarEvaluation,
+      buildPlausibilityReviewArtifact,
+      buildSceneGrammarPsg,
+      buildBranchSceneGrammarPsgs,
       preparseResearchBrief,
       buildResearchBriefReviewArtifacts,
       buildResearchPackageManifest,
@@ -897,6 +919,18 @@ describe('metagrinder schemas', () => {
       buildConceptClustersPsg,
       buildPromptSynthesisPsg,
       buildPromptMutationsPsg,
+      buildAgentRunsArtifact,
+      buildSourceModeArtifact,
+      buildSceneGrammarArtifact,
+      buildResearchGapArtifact,
+      buildResearchQueryPlan,
+      buildWebResearchResults,
+      buildGrammarRevisionArtifact,
+      buildSamplePromptsArtifact,
+      buildSceneGrammarEvaluation,
+      buildPlausibilityReviewArtifact,
+      buildSceneGrammarPsg,
+      buildBranchSceneGrammarPsgs,
       buildResearchPackageManifest,
       validatePackageArtifacts: researchPackageService.validatePackageArtifacts,
       now: () => exportedResult.ingestArtifact.createdAt
@@ -2718,6 +2752,15 @@ describe('metagrinder schemas', () => {
     expect(fs.existsSync(path.join(outputDir, 'mode-detection.json'))).toBe(true);
     expect(fs.existsSync(path.join(outputDir, 'mutation-review.json'))).toBe(true);
     expect(fs.existsSync(path.join(outputDir, 'prompt-mutations.psg'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'agent-runs.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'scene-grammar.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'research-gaps.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'research-query-plan.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'web-research-results.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'sample-prompts.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'scene-grammar-evaluation.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'plausibility-review.json'))).toBe(true);
+    expect(fs.existsSync(path.join(outputDir, 'scene-grammar.psg'))).toBe(true);
     expect(
       result.researchPackageManifest.collections.some(collection => collection.type === 'prompt-mutations')
     ).toBe(true);
@@ -2726,6 +2769,264 @@ describe('metagrinder schemas', () => {
     expect(result.assumptionReviewArtifact.decisionOptions).toContain('adjust-priorities');
     expect(result.modeDetectionArtifact.researchKind).toBeDefined();
     expect(result.categoryHypothesisArtifact.recommendedFocus.length).toBeGreaterThan(0);
+  });
+
+  test('parses scene grammar loop one artifact schemas', () => {
+    const agentRuns = MetagrinderAgentRunArtifactSchema.parse({
+      inputId: 'scene',
+      runs: [
+        {
+          runId: 'run_001',
+          passName: 'scene-grammar',
+          mode: 'deterministic',
+          strategyVersion: 'ralph-loop-1',
+          inputArtifactIds: ['ingest.json'],
+          outputArtifactIds: ['scene-grammar.json']
+        }
+      ]
+    });
+    const sceneGrammar = MetagrinderSceneGrammarArtifactSchema.parse({
+      inputId: 'scene',
+      sceneContext: {
+        contextId: 'scene_context',
+        title: 'Scene',
+        researchKind: 'historical-scene-research',
+        summary: 'Compiled scene grammar.',
+        sourceInputIds: ['src'],
+        sourceChunkIds: ['chunk']
+      },
+      populationModel: {
+        modelId: 'population',
+        label: 'Population',
+        baselineWeights: [
+          {
+            label: 'participant',
+            min: 50,
+            max: 60,
+            unit: 'percent',
+            confidence: 'medium',
+            sourceInputIds: ['src'],
+            sourceChunkIds: ['chunk']
+          }
+        ]
+      }
+    });
+    const gaps = MetagrinderResearchGapArtifactSchema.parse({
+      inputId: 'scene',
+      gaps: [
+        {
+          gapId: 'gap_001',
+          gapType: 'under-supported-distribution',
+          severity: 'medium',
+          question: 'What supports this distribution?'
+        }
+      ]
+    });
+    const queryPlan = MetagrinderResearchQueryPlanSchema.parse({
+      inputId: 'scene',
+      queries: [
+        {
+          queryId: 'query_001',
+          gapId: 'gap_001',
+          query: 'archive crowd photographs',
+          priority: 'medium'
+        }
+      ]
+    });
+    const webResults = MetagrinderWebResearchResultsSchema.parse({
+      inputId: 'scene',
+      adapterMode: 'mock',
+      results: []
+    });
+    const samples = MetagrinderSamplePromptsArtifactSchema.parse({
+      inputId: 'scene',
+      samples: [
+        {
+          sampleId: 'sample_001',
+          sampleMode: 'global-baseline',
+          selectedArchetypeIds: ['participant'],
+          generatedPrompt: 'source-supported participant',
+          grammarRefs: ['archetypes.participant'],
+          sourceChunkIds: ['chunk']
+        }
+      ]
+    });
+    const evaluation = MetagrinderSceneGrammarEvaluationSchema.parse({
+      inputId: 'scene',
+      distributionTests: [
+        {
+          testId: 'dist_001',
+          sampleCount: 1,
+          expected: { participant: '50-60%' },
+          observed: { participant: '100%' },
+          verdict: 'pass'
+        }
+      ]
+    });
+    const plausibility = MetagrinderPlausibilityReviewArtifactSchema.parse({
+      inputId: 'scene',
+      reviews: [
+        {
+          sampleId: 'sample_001',
+          generatedPrompt: 'source-supported participant',
+          scores: {
+            periodAccuracy: 0.9,
+            eventAttendancePlausibility: 0.9,
+            wardrobeCompatibility: 0.9,
+            locationCompatibility: 0.9,
+            ethicalConstraintCompliance: 1
+          },
+          verdict: 'plausible',
+          reasoningSummary: 'Within constraints.'
+        }
+      ]
+    });
+
+    expect(agentRuns.runs[0].passName).toBe('scene-grammar');
+    expect(sceneGrammar.populationModel.baselineWeights[0].label).toBe('participant');
+    expect(gaps.gaps[0].gapType).toBe('under-supported-distribution');
+    expect(queryPlan.webResearchMode).toBe('gaps-only');
+    expect(webResults.adapterMode).toBe('mock');
+    expect(samples.samples[0].grammarRefs).toContain('archetypes.participant');
+    expect(evaluation.distributionTests[0].verdict).toBe('pass');
+    expect(plausibility.reviews[0].verdict).toBe('plausible');
+  });
+
+  test('builds generic scene grammar artifacts from historical crowd fixture', () => {
+    const rawText = readTextFixture('research-input-historical-crowd-grammar.txt');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-historical-crowd-grammar.txt',
+      rawText,
+      inputId: 'research-input-historical-crowd-grammar',
+      title: 'Early twentieth-century public spectacle crowd scene grammar notes',
+      createdAt: '2026-05-02T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({ ingestArtifact });
+    const classifyArtifact = buildClassifyArtifact({ ingestArtifact, extractArtifact });
+    const synthesizeArtifact = buildSynthesizeArtifact({ ingestArtifact, extractArtifact });
+    const sourceModeArtifact = buildSourceModeArtifact({ ingestArtifact });
+    const sceneGrammarArtifact = buildSceneGrammarArtifact({
+      ingestArtifact,
+      extractArtifact,
+      classifyArtifact,
+      synthesizeArtifact,
+      sourceModeArtifact
+    });
+    const researchGapArtifact = buildResearchGapArtifact({ sceneGrammarArtifact });
+    const researchQueryPlan = buildResearchQueryPlan({ researchGapArtifact });
+    const webResearchResults = buildWebResearchResults({
+      researchQueryPlan,
+      researchGapArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+    const grammarRevisionArtifact = buildGrammarRevisionArtifact({
+      sceneGrammarArtifact,
+      researchGapArtifact,
+      webResearchResults
+    });
+    const samplePromptsArtifact = buildSamplePromptsArtifact({ sceneGrammarArtifact });
+    const sceneGrammarEvaluation = buildSceneGrammarEvaluation({
+      sceneGrammarArtifact,
+      samplePromptsArtifact,
+      grammarRevisionArtifact
+    });
+    const plausibilityReviewArtifact = buildPlausibilityReviewArtifact({
+      sceneGrammarArtifact,
+      samplePromptsArtifact
+    });
+    const sceneGrammarPsg = buildSceneGrammarPsg({
+      sceneGrammarArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+    const branchGraphPsgs = buildBranchSceneGrammarPsgs({
+      sceneGrammarArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+
+    expect(sourceModeArtifact.chunkModes.some((entry: any) => entry.modes.includes('ethical-constraint'))).toBe(true);
+    expect(sceneGrammarArtifact.archetypes.length).toBeGreaterThanOrEqual(5);
+    expect(sceneGrammarArtifact.populationModel.baselineWeights.length).toBeGreaterThanOrEqual(5);
+    expect(sceneGrammarArtifact.locationZones.length).toBeGreaterThanOrEqual(3);
+    expect(sceneGrammarArtifact.compatibilityRules.length).toBeGreaterThanOrEqual(4);
+    expect(sceneGrammarArtifact.negativeConstraints.length).toBeGreaterThanOrEqual(5);
+    expect(sceneGrammarArtifact.environmentalModifiers.length).toBeGreaterThanOrEqual(2);
+    expect(sceneGrammarArtifact.visualReferenceSets.length).toBeGreaterThanOrEqual(1);
+    expect(new Set(sceneGrammarArtifact.archetypes.map((archetype: any) =>
+      `${archetype.weightRange?.min}-${archetype.weightRange?.max}`
+    )).size).toBeGreaterThan(1);
+    expect(sceneGrammarArtifact.archetypes.some((archetype: any) =>
+      archetype.archetypeId === 'middle_class_spectator' &&
+        archetype.dominantAttributes.includes('straw boater')
+    )).toBe(true);
+    expect(
+      sceneGrammarArtifact.negativeConstraints.some(
+        (constraint: any) => constraint.constraintType.includes('ethical') &&
+          constraint.enforcedByRuleIds.includes('ethical_representation_not_worker_only')
+      )
+    ).toBe(true);
+    expect(sceneGrammarArtifact.archetypes.every((archetype: any) => archetype.sourceChunkIds.length > 0)).toBe(true);
+
+    expect(researchGapArtifact.gaps.some((gap: any) => gap.gapType === 'under-supported-distribution')).toBe(true);
+    expect(researchGapArtifact.gaps.some((gap: any) => gap.gapType === 'missing-behavior-model')).toBe(true);
+    expect(researchGapArtifact.gaps.some((gap: any) => gap.gapType === 'missing-location-distribution')).toBe(true);
+    expect(researchGapArtifact.gaps.some((gap: any) => gap.gapType === 'negative-constraint-not-enforced')).toBe(true);
+    expect(researchQueryPlan.queries.length).toBeGreaterThan(0);
+    expect(researchQueryPlan.queries.every((query: any) =>
+      query.gapId && query.purpose && query.allowedSourceTypes.length > 0 && query.maxResults === 5
+    )).toBe(true);
+    expect(webResearchResults.adapterMode).toBe('mock');
+    expect(webResearchResults.results.some((result: any) => result.sourceType === 'archival-photo')).toBe(true);
+    expect(webResearchResults.results.some((result: any) => result.sourceType === 'low-quality-source')).toBe(true);
+    expect(webResearchResults.results.every((result: any) =>
+      result.gapId && result.claimsExtracted.length > 0 && result.limitations.length > 0
+    )).toBe(true);
+    expect(grammarRevisionArtifact.revisions.length).toBeGreaterThan(0);
+    expect(grammarRevisionArtifact.revisions.every((revision: any) =>
+      revision.before && revision.after && revision.supportingResultIds.length > 0
+    )).toBe(true);
+    expect(grammarRevisionArtifact.revisions.every((revision: any) =>
+      revision.changeType !== 'flag-low-quality-source' || revision.confidence === 'low'
+    )).toBe(true);
+
+    expect(samplePromptsArtifact.samples.some((sample: any) => sample.sampleMode === 'global-baseline')).toBe(true);
+    expect(samplePromptsArtifact.samples.some((sample: any) => sample.sampleMode === 'location-zone')).toBe(true);
+    expect(samplePromptsArtifact.samples.some((sample: any) => sample.sampleMode === 'archetype')).toBe(true);
+    expect(samplePromptsArtifact.samples.some((sample: any) => sample.sampleMode === 'invalid-test')).toBe(true);
+    expect(samplePromptsArtifact.samples.some((sample: any) => sample.locationZone === 'rail' && /shirt|suspenders|rail/i.test(sample.generatedPrompt))).toBe(true);
+    expect(samplePromptsArtifact.samples.some((sample: any) => sample.locationZone === 'pit' && /worker|official|mechanic|driver|press/i.test(sample.generatedPrompt))).toBe(true);
+    expect(samplePromptsArtifact.samples.every((sample: any) => sample.grammarRefs.length > 0)).toBe(true);
+    expect(samplePromptsArtifact.samples.every((sample: any) => !/t-?shirt|jersey|baseball cap|shorts/i.test(sample.generatedPrompt))).toBe(true);
+    expect(sceneGrammarEvaluation.distributionTests[0].verdict).toBe('pass');
+    expect(sceneGrammarEvaluation.distributionTests.some((test: any) => test.testId.includes('rail_branch'))).toBe(true);
+    expect(sceneGrammarEvaluation.criticFlags.some((flag: any) => flag.code === 'ethical-stereotype-risk')).toBe(false);
+    expect(plausibilityReviewArtifact.reviews.some((review: any) => review.verdict === 'plausible')).toBe(true);
+    expect(plausibilityReviewArtifact.reviews.some((review: any) => review.verdict === 'fail')).toBe(true);
+    expect(plausibilityReviewArtifact.reviews.some((review: any) =>
+      review.failureReasons.some((reason: string) => reason.includes('Pit zone should force'))
+    )).toBe(true);
+    expect(sceneGrammarPsg.fileType).toBe('psg');
+    expect(sceneGrammarPsg.formatVersion).toBe('2.0.0');
+    expect(sceneGrammarPsg.graph.nodes.some((node: any) => node.type === 'WeightedChoice')).toBe(true);
+    expect(sceneGrammarPsg.graph.nodes.every((node: any) => node.id && node.position && node.data)).toBe(true);
+    const psgNodeIds = new Set(sceneGrammarPsg.graph.nodes.map((node: any) => node.id));
+    expect(psgNodeIds.size).toBe(sceneGrammarPsg.graph.nodes.length);
+    expect(sceneGrammarPsg.graph.edges.every((edge: any) => psgNodeIds.has(edge.source) && psgNodeIds.has(edge.target))).toBe(true);
+    expect(() => MetagrinderPsgV2FileSchema.parse(sceneGrammarPsg)).not.toThrow();
+    expect(Object.keys(branchGraphPsgs)).toEqual(expect.arrayContaining([
+      'scene-global-baseline.psg',
+      'scene-grandstand-branch.psg',
+      'scene-rail-branch.psg',
+      'scene-pit-branch.psg',
+      'scene-negative-constraints.psg',
+      'scene-specimen-reference-router.psg'
+    ]));
+    Object.values(branchGraphPsgs).forEach((graph: any) => {
+      expect(() => MetagrinderPsgV2FileSchema.parse(graph)).not.toThrow();
+      expect(graph.graph).toBeDefined();
+      expect(graph.nodes).toBeUndefined();
+    });
+    const pitChoice = branchGraphPsgs['scene-pit-branch.psg'].graph.nodes.find((node: any) => node.type === 'WeightedChoice');
+    expect(pitChoice.data.value.every((choice: any) => /worker|official|mechanic|driver|press/i.test(choice.text))).toBe(true);
   });
 
   test('keeps mutation collection in the manifest even when no variants are generated', () => {

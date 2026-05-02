@@ -38,7 +38,15 @@ export const MetagrinderCollectionTypeSchema = z.enum([
   'claims-and-evidence',
   'concept-clusters',
   'prompt-synthesis',
-  'prompt-mutations'
+  'prompt-mutations',
+  'scene-grammar',
+  'research-gaps',
+  'sample-prompts',
+  'scene-grammar-evaluation',
+  'plausibility-review',
+  'scene-grammar-psg',
+  'grammar-revisions',
+  'branch-graph'
 ]);
 
 export const MetagrinderEntityTypeSchema = z.enum([
@@ -116,7 +124,18 @@ export const MetagrinderChunkKindSchema = z.enum([
   'template',
   'uncertainty',
   'reference-table',
+  'visual-reference-caption',
+  'negative-constraint',
+  'ethical-constraint',
+  'sample-output',
   'unknown'
+]);
+
+export const MetagrinderAttributionModeSchema = z.enum([
+  'quoted',
+  'paraphrased',
+  'inferred',
+  'web-retrieved'
 ]);
 
 export const MetagrinderIngestChunkSchema = z.object({
@@ -205,12 +224,13 @@ export const MetagrinderAugmentationPlanArtifactSchema = z.object({
 
 export const MetagrinderPassSourceAttributionSchema = z.object({
   sourceChunkIds: z.array(z.string()).min(1),
-  attributionMode: z.enum(['quoted', 'paraphrased', 'inferred'])
+  attributionMode: MetagrinderAttributionModeSchema
 });
 
 export const MetagrinderExtractedClaimSchema = z.object({
   claimId: z.string(),
   text: z.string(),
+  claimType: z.string().optional(),
   category: z.enum([
     'wardrobe',
     'people-and-crowd',
@@ -224,7 +244,7 @@ export const MetagrinderExtractedClaimSchema = z.object({
   confidence: MetagrinderConfidenceLevelSchema,
   sourceInputIds: z.array(z.string()).min(1),
   sourceChunkIds: z.array(z.string()).min(1),
-  attributionMode: z.enum(['quoted', 'paraphrased', 'inferred'])
+  attributionMode: MetagrinderAttributionModeSchema
 });
 
 export const MetagrinderConceptCandidateSchema = z.object({
@@ -245,7 +265,7 @@ export const MetagrinderConceptCandidateSchema = z.object({
   confidence: MetagrinderConfidenceLevelSchema,
   sourceInputIds: z.array(z.string()).min(1),
   sourceChunkIds: z.array(z.string()).min(1),
-  attributionMode: z.enum(['quoted', 'paraphrased', 'inferred'])
+  attributionMode: MetagrinderAttributionModeSchema
 });
 
 export const MetagrinderEvidenceSnippetSchema = z.object({
@@ -253,7 +273,7 @@ export const MetagrinderEvidenceSnippetSchema = z.object({
   text: z.string(),
   sourceInputIds: z.array(z.string()).min(1),
   sourceChunkIds: z.array(z.string()).min(1),
-  attributionMode: z.enum(['quoted', 'paraphrased', 'inferred'])
+  attributionMode: MetagrinderAttributionModeSchema
 });
 
 export const MetagrinderOpenQuestionSchema = z.object({
@@ -963,6 +983,440 @@ export const LumaAdapterContractSchema = z.object({
   }).optional()
 });
 
+export const MetagrinderAgentRunRecordSchema = z.object({
+  runId: z.string(),
+  passName: z.string(),
+  mode: z.enum(['deterministic', 'agent-interface', 'mock-adapter']),
+  strategyVersion: z.string(),
+  inputArtifactIds: z.array(z.string()).default([]),
+  outputArtifactIds: z.array(z.string()).default([]),
+  warnings: z.array(z.string()).default([])
+});
+
+export const MetagrinderAgentRunArtifactSchema = z.object({
+  inputId: z.string(),
+  createdAt: z.string().datetime().optional(),
+  runs: z.array(MetagrinderAgentRunRecordSchema).default([])
+});
+
+export const MetagrinderWeightedRangeSchema = z.object({
+  label: z.string(),
+  min: z.number().min(0),
+  max: z.number().min(0),
+  unit: z.enum(['percent', 'weight']).default('percent'),
+  sourceInputIds: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([]),
+  confidence: MetagrinderConfidenceLevelSchema.default('medium')
+}).refine((value) => value.max >= value.min, {
+  message: 'weighted range max must be greater than or equal to min'
+});
+
+export const MetagrinderSceneContextSchema = z.object({
+  contextId: z.string(),
+  title: z.string(),
+  researchKind: MetagrinderResearchKindSchema,
+  summary: z.string(),
+  sourceInputIds: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderSceneEvidenceSchema = z.object({
+  evidenceId: z.string(),
+  text: z.string(),
+  claimType: z.string(),
+  attributionMode: MetagrinderAttributionModeSchema,
+  confidence: MetagrinderConfidenceLevelSchema,
+  sourceInputIds: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderPopulationModelSchema = z.object({
+  modelId: z.string(),
+  label: z.string(),
+  baselineWeights: z.array(MetagrinderWeightedRangeSchema).default([]),
+  notes: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderArchetypeSchema = z.object({
+  archetypeId: z.string(),
+  label: z.string(),
+  summary: z.string(),
+  role: z.string(),
+  genderPresentation: z.string(),
+  classBand: z.string(),
+  raceEthnicityContext: z.string().optional(),
+  weightRange: MetagrinderWeightedRangeSchema.optional(),
+  dominantAttributes: z.array(z.string()).default([]),
+  optionalAttributes: z.array(z.string()).default([]),
+  wardrobeRefs: z.array(z.string()).default([]),
+  behaviorRefs: z.array(z.string()).default([]),
+  locationZoneRefs: z.array(z.string()).default([]),
+  promptText: z.string(),
+  sourceInputIds: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([]),
+  confidence: MetagrinderConfidenceLevelSchema
+});
+
+export const MetagrinderDemographicDistributionSchema = z.object({
+  distributionId: z.string(),
+  label: z.string(),
+  entries: z.array(MetagrinderWeightedRangeSchema).default([]),
+  appliesToRefs: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderWardrobeSystemSchema = z.object({
+  wardrobeId: z.string(),
+  label: z.string(),
+  items: z.array(z.string()).default([]),
+  avoidItems: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderBehaviorStateSchema = z.object({
+  behaviorId: z.string(),
+  label: z.string(),
+  promptText: z.string(),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderEnvironmentalModifierSchema = z.object({
+  modifierId: z.string(),
+  label: z.string(),
+  promptText: z.string(),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderVisualReferenceSetSchema = z.object({
+  referenceId: z.string(),
+  kind: z.literal('image-reference'),
+  path: z.string().optional(),
+  caption: z.string(),
+  supports: z.array(z.string()).default([]),
+  linkedArchetypeIds: z.array(z.string()).default([]),
+  rightsProfile: MetagrinderRightsProfileSchema.default('reference-only'),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderLocationZoneSchema = z.object({
+  zoneId: z.string(),
+  label: z.string(),
+  promptText: z.string(),
+  demographicDistributionRefs: z.array(z.string()).default([]),
+  archetypeBiases: z.array(MetagrinderWeightedRangeSchema).default([]),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderRuleEffectSchema = z.object({
+  action: z.enum([
+    'force',
+    'allow',
+    'avoid',
+    'increase',
+    'decrease',
+    'exclude',
+    'requires',
+    'incompatible-with',
+    'bias-toward',
+    'bias-away-from'
+  ]),
+  target: z.string()
+});
+
+export const MetagrinderCompatibilityRuleSchema = z.object({
+  ruleId: z.string(),
+  label: z.string(),
+  condition: z.object({
+    field: z.string(),
+    operator: z.enum(['equals', 'not-equals', 'includes', 'exists']),
+    value: z.string()
+  }),
+  effects: z.array(MetagrinderRuleEffectSchema).min(1),
+  sourceChunkIds: z.array(z.string()).default([]),
+  confidence: MetagrinderConfidenceLevelSchema
+});
+
+export const MetagrinderNegativeConstraintSchema = z.object({
+  constraintId: z.string(),
+  label: z.string(),
+  text: z.string(),
+  constraintType: z.enum([
+    'negative',
+    'ethical-historical',
+    'ethical-historical-representation',
+    'modern-artifact-risk',
+    'compatibility'
+  ]),
+  appliesTo: z.array(z.string()).default([]),
+  enforcement: z.object({
+    avoid: z.array(z.string()).default([]),
+    allow: z.array(z.string()).default([]),
+    force: z.array(z.string()).default([]),
+    exclude: z.array(z.string()).default([])
+  }).optional(),
+  enforcedByRuleIds: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([]),
+  confidence: MetagrinderConfidenceLevelSchema
+});
+
+export const MetagrinderSceneGrammarArtifactSchema = z.object({
+  inputId: z.string(),
+  sceneContext: MetagrinderSceneContextSchema,
+  sourceLinks: z.array(z.object({
+    sourceInputId: z.string(),
+    title: z.string(),
+    path: z.string().optional()
+  })).default([]),
+  evidence: z.array(MetagrinderSceneEvidenceSchema).default([]),
+  populationModel: MetagrinderPopulationModelSchema,
+  archetypes: z.array(MetagrinderArchetypeSchema).default([]),
+  demographicDistributions: z.array(MetagrinderDemographicDistributionSchema).default([]),
+  wardrobeSystem: z.array(MetagrinderWardrobeSystemSchema).default([]),
+  groomingAndHair: z.array(MetagrinderWardrobeSystemSchema).default([]),
+  propsAndAccessories: z.array(MetagrinderWardrobeSystemSchema).default([]),
+  locationZones: z.array(MetagrinderLocationZoneSchema).default([]),
+  behaviorStates: z.array(MetagrinderBehaviorStateSchema).default([]),
+  environmentalModifiers: z.array(MetagrinderEnvironmentalModifierSchema).default([]),
+  visualReferenceSets: z.array(MetagrinderVisualReferenceSetSchema).default([]),
+  compatibilityRules: z.array(MetagrinderCompatibilityRuleSchema).default([]),
+  negativeConstraints: z.array(MetagrinderNegativeConstraintSchema).default([]),
+  uncertainties: z.array(z.string()).default([]),
+  reviewFlags: z.array(z.string()).default([])
+});
+
+export const MetagrinderResearchGapSchema = z.object({
+  gapId: z.string(),
+  gapType: z.enum([
+    'under-supported-distribution',
+    'missing-behavior-model',
+    'missing-location-distribution',
+    'visual-reference-without-support',
+    'negative-constraint-not-enforced',
+    'unsupported-weight',
+    'sampling-risk'
+  ]),
+  severity: z.enum(['low', 'medium', 'high']),
+  affectedGrammarRefs: z.array(z.string()).default([]),
+  question: z.string(),
+  currentSupport: z.array(z.string()).default([]),
+  missingSupport: z.array(z.string()).default([]),
+  recommendedSearches: z.array(z.string()).default([]),
+  reviewStatus: z.enum(['needs_research', 'needs_review', 'accepted']).default('needs_research')
+});
+
+export const MetagrinderResearchGapArtifactSchema = z.object({
+  inputId: z.string(),
+  gaps: z.array(MetagrinderResearchGapSchema).default([])
+});
+
+export const MetagrinderResearchQueryPlanSchema = z.object({
+  inputId: z.string(),
+  webResearchMode: z.enum(['off', 'gaps-only', 'standard', 'deep']).default('gaps-only'),
+  maxQueriesPerGap: z.number().int().positive().default(3),
+  maxSourcesPerGap: z.number().int().positive().default(5),
+  allowedSourceTypes: z.array(z.enum([
+    'archive',
+    'museum',
+    'library',
+    'scholarly',
+    'newspaper',
+    'high-quality-secondary'
+  ])).default([]),
+  requireCitationForGrammarRevision: z.boolean().default(true),
+  queries: z.array(z.object({
+    queryId: z.string(),
+    gapId: z.string(),
+    query: z.string(),
+    purpose: z.string().optional(),
+    allowedSourceTypes: z.array(z.enum([
+      'archive',
+      'museum',
+      'library',
+      'scholarly',
+      'newspaper',
+      'high-quality-secondary'
+    ])).default([]),
+    maxResults: z.number().int().positive().default(5),
+    priority: z.enum(['low', 'medium', 'high']).default('medium')
+  })).default([])
+});
+
+export const MetagrinderWebResearchResultsSchema = z.object({
+  inputId: z.string(),
+  adapterMode: z.enum(['mock', 'off', 'live']).default('mock'),
+  retrievedAt: z.string().datetime().optional(),
+  results: z.array(z.object({
+    resultId: z.string(),
+    gapId: z.string(),
+    sourceType: z.string(),
+    title: z.string(),
+    url: z.string(),
+    retrievedAt: z.string().datetime().optional(),
+    relevance: z.enum(['low', 'medium', 'high']),
+    sourceQuality: MetagrinderConfidenceLevelSchema,
+    claimsExtracted: z.array(z.object({
+      claim: z.string(),
+      supportsGrammarRefs: z.array(z.string()).default([]),
+      confidence: MetagrinderConfidenceLevelSchema
+    })).default([]),
+    limitations: z.array(z.string()).default([])
+  })).default([])
+});
+
+export const MetagrinderGrammarRevisionSchema = z.object({
+  revisionId: z.string(),
+  gapId: z.string(),
+  changeType: z.enum([
+    'adjust-weight-range',
+    'add-support-claim',
+    'tighten-constraint',
+    'add-compatibility-rule',
+    'flag-low-quality-source',
+    'no-op'
+  ]),
+  targetGrammarRef: z.string(),
+  before: z.string(),
+  after: z.string(),
+  reason: z.string(),
+  supportingResultIds: z.array(z.string()).default([]),
+  confidence: MetagrinderConfidenceLevelSchema,
+  reviewStatus: z.enum(['proposed', 'accepted', 'rejected', 'needs_review']).default('needs_review')
+});
+
+export const MetagrinderGrammarRevisionArtifactSchema = z.object({
+  inputId: z.string(),
+  revisions: z.array(MetagrinderGrammarRevisionSchema).default([])
+});
+
+export const MetagrinderSamplePromptSchema = z.object({
+  sampleId: z.string(),
+  sampleMode: z.enum(['global-baseline', 'location-zone', 'archetype', 'branch', 'invalid-test']),
+  locationZone: z.string().optional(),
+  selectedArchetypeIds: z.array(z.string()).default([]),
+  generatedPrompt: z.string(),
+  grammarRefs: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([])
+});
+
+export const MetagrinderSamplePromptsArtifactSchema = z.object({
+  inputId: z.string(),
+  samples: z.array(MetagrinderSamplePromptSchema).default([])
+});
+
+export const MetagrinderSceneGrammarEvaluationSchema = z.object({
+  inputId: z.string(),
+  distributionTests: z.array(z.object({
+    testId: z.string(),
+    sampleCount: z.number().int().nonnegative(),
+    expected: z.record(z.string()),
+    observed: z.record(z.string()),
+    verdict: z.enum(['pass', 'warn', 'fail'])
+  })).default([]),
+  criticFlags: z.array(z.object({
+    code: z.string(),
+    severity: z.enum(['low', 'medium', 'high']),
+    message: z.string(),
+    grammarRefs: z.array(z.string()).default([])
+  })).default([])
+});
+
+export const MetagrinderPlausibilityReviewArtifactSchema = z.object({
+  inputId: z.string(),
+  reviews: z.array(z.object({
+    sampleId: z.string(),
+    generatedPrompt: z.string(),
+    scores: z.object({
+      periodAccuracy: z.number().min(0).max(1),
+      eventAttendancePlausibility: z.number().min(0).max(1),
+      wardrobeCompatibility: z.number().min(0).max(1),
+      locationCompatibility: z.number().min(0).max(1),
+      roleCompatibility: z.number().min(0).max(1).optional(),
+      classRoleCoherence: z.number().min(0).max(1).optional(),
+      demographicPlacement: z.number().min(0).max(1).optional(),
+      behaviorPlausibility: z.number().min(0).max(1).optional(),
+      environmentalAdaptation: z.number().min(0).max(1).optional(),
+      modernArtifactAvoidance: z.number().min(0).max(1).optional(),
+      negativeConstraintCompliance: z.number().min(0).max(1).optional(),
+      ethicalConstraintCompliance: z.number().min(0).max(1)
+    }),
+    verdict: z.enum(['plausible', 'needs_review', 'fail']),
+    reasoningSummary: z.string(),
+    failureReasons: z.array(z.string()).default([]),
+    recommendedFixes: z.array(z.string()).default([])
+  })).default([])
+});
+
+const MetagrinderPsgV2EditStateSchema = z.object({
+  isEditing: z.boolean().default(false),
+  editBuffer: z.string().nullable().default(null),
+  lastEditTimestamp: z.string().datetime().optional(),
+  validationErrors: z.array(z.string()).default([]),
+  isDirty: z.boolean().default(false)
+});
+
+export const MetagrinderPsgV2NodeSchema = z.object({
+  id: z.string(),
+  type: z.enum([
+    'TextBlock',
+    'WeightedChoice',
+    'Concat',
+    'Output',
+    'Include',
+    'SetVariable',
+    'GetVariable'
+  ]),
+  position: z.object({
+    x: z.number(),
+    y: z.number()
+  }),
+  data: z.object({
+    value: z.union([
+      z.string(),
+      z.array(z.object({
+        id: z.string(),
+        text: z.string(),
+        weight: z.number()
+      })),
+      z.object({
+        separator: z.string().optional(),
+        trimInputs: z.boolean().optional()
+      })
+    ]),
+    editState: MetagrinderPsgV2EditStateSchema.optional()
+  }).passthrough(),
+  label: z.string().optional(),
+  description: z.string().optional(),
+  tags: z.array(z.string()).default([])
+});
+
+export const MetagrinderPsgV2EdgeSchema = z.object({
+  id: z.string(),
+  source: z.string(),
+  target: z.string(),
+  sourceHandle: z.string().optional(),
+  targetHandle: z.string().optional(),
+  type: z.string().optional(),
+  label: z.string().optional(),
+  data: z.record(z.unknown()).optional()
+});
+
+export const MetagrinderPsgV2FileSchema = z.object({
+  fileType: z.literal('psg'),
+  formatVersion: z.literal('2.0.0'),
+  metadata: z.object({
+    name: z.string(),
+    description: z.string().optional(),
+    createdAt: z.string().datetime(),
+    lastModified: z.string().datetime(),
+    author: z.string()
+  }).passthrough(),
+  graph: z.object({
+    nodes: z.array(MetagrinderPsgV2NodeSchema),
+    edges: z.array(MetagrinderPsgV2EdgeSchema)
+  })
+});
+
 export const MetaballManifestSchema = z.object({
   metaballId: z.string(),
   title: z.string(),
@@ -1081,6 +1535,28 @@ export type MetagrinderMutationReviewArtifact = z.infer<
 >;
 export type MetagrinderScoreArtifact = z.infer<typeof MetagrinderScoreArtifactSchema>;
 export type MetagrinderReviewArtifact = z.infer<typeof MetagrinderReviewArtifactSchema>;
+export type MetagrinderAgentRunArtifact = z.infer<typeof MetagrinderAgentRunArtifactSchema>;
+export type MetagrinderSceneGrammarArtifact = z.infer<typeof MetagrinderSceneGrammarArtifactSchema>;
+export type MetagrinderSceneContext = z.infer<typeof MetagrinderSceneContextSchema>;
+export type MetagrinderPopulationModel = z.infer<typeof MetagrinderPopulationModelSchema>;
+export type MetagrinderWeightedRange = z.infer<typeof MetagrinderWeightedRangeSchema>;
+export type MetagrinderArchetype = z.infer<typeof MetagrinderArchetypeSchema>;
+export type MetagrinderDemographicDistribution = z.infer<typeof MetagrinderDemographicDistributionSchema>;
+export type MetagrinderWardrobeSystem = z.infer<typeof MetagrinderWardrobeSystemSchema>;
+export type MetagrinderLocationZone = z.infer<typeof MetagrinderLocationZoneSchema>;
+export type MetagrinderBehaviorState = z.infer<typeof MetagrinderBehaviorStateSchema>;
+export type MetagrinderEnvironmentalModifier = z.infer<typeof MetagrinderEnvironmentalModifierSchema>;
+export type MetagrinderVisualReferenceSet = z.infer<typeof MetagrinderVisualReferenceSetSchema>;
+export type MetagrinderCompatibilityRule = z.infer<typeof MetagrinderCompatibilityRuleSchema>;
+export type MetagrinderNegativeConstraint = z.infer<typeof MetagrinderNegativeConstraintSchema>;
+export type MetagrinderResearchGapArtifact = z.infer<typeof MetagrinderResearchGapArtifactSchema>;
+export type MetagrinderResearchQueryPlan = z.infer<typeof MetagrinderResearchQueryPlanSchema>;
+export type MetagrinderWebResearchResults = z.infer<typeof MetagrinderWebResearchResultsSchema>;
+export type MetagrinderGrammarRevisionArtifact = z.infer<typeof MetagrinderGrammarRevisionArtifactSchema>;
+export type MetagrinderSamplePromptsArtifact = z.infer<typeof MetagrinderSamplePromptsArtifactSchema>;
+export type MetagrinderSceneGrammarEvaluation = z.infer<typeof MetagrinderSceneGrammarEvaluationSchema>;
+export type MetagrinderPlausibilityReviewArtifact = z.infer<typeof MetagrinderPlausibilityReviewArtifactSchema>;
+export type MetagrinderPsgV2File = z.infer<typeof MetagrinderPsgV2FileSchema>;
 export type UtdgSubmissionManifest = z.infer<
   typeof UtdgSubmissionManifestSchema
 >;

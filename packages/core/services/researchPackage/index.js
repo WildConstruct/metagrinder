@@ -1,16 +1,26 @@
 const {
+  MetagrinderAgentRunArtifactSchema,
   MetagrinderAssumptionReviewArtifactSchema,
   MetagrinderAugmentationPlanArtifactSchema,
   MetagrinderCategoryHypothesisArtifactSchema,
   MetagrinderClassifyArtifactSchema,
   MetagrinderExtractArtifactSchema,
+  MetagrinderGrammarRevisionArtifactSchema,
   MetagrinderIngestArtifactSchema,
   MetagrinderModeDetectionArtifactSchema,
   MetagrinderMutationArtifactSchema,
   MetagrinderMutationReviewArtifactSchema,
+  MetagrinderPlausibilityReviewArtifactSchema,
+  MetagrinderPsgV2FileSchema,
+  MetagrinderResearchGapArtifactSchema,
+  MetagrinderResearchQueryPlanSchema,
   MetagrinderReviewArtifactSchema,
+  MetagrinderSamplePromptsArtifactSchema,
   MetagrinderScoreArtifactSchema,
+  MetagrinderSceneGrammarArtifactSchema,
+  MetagrinderSceneGrammarEvaluationSchema,
   MetagrinderSynthesizeArtifactSchema,
+  MetagrinderWebResearchResultsSchema,
   ResearchPackageManifestSchema
 } = require('../../types/metagrinder.runtime.js');
 
@@ -271,7 +281,19 @@ function buildPromptMutationsPsg({ ingestArtifact, mutationArtifact }) {
   };
 }
 
-function buildResearchPackageManifest({ ingestArtifact, scoreArtifact, mutationArtifact }) {
+function buildResearchPackageManifest({
+  ingestArtifact,
+  scoreArtifact,
+  mutationArtifact,
+  sceneGrammarArtifact,
+  researchGapArtifact,
+  samplePromptsArtifact,
+  sceneGrammarEvaluation,
+  plausibilityReviewArtifact,
+  sceneGrammarPsg,
+  grammarRevisionArtifact,
+  branchGraphPsgs
+}) {
   const sourceInputIds = ingestArtifact.sourceInputs.map((source) => source.sourceInputId);
   const collections = [
     { id: 'col_source', type: 'source-map', path: 'source-map.psg' },
@@ -283,9 +305,40 @@ function buildResearchPackageManifest({ ingestArtifact, scoreArtifact, mutationA
       path: 'prompt-mutations.psg'
     }
   ];
+  if (sceneGrammarArtifact) {
+    collections.push({ id: 'col_scene_grammar', type: 'scene-grammar', path: 'scene-grammar.json' });
+  }
+  if (researchGapArtifact) {
+    collections.push({ id: 'col_research_gaps', type: 'research-gaps', path: 'research-gaps.json' });
+  }
+  if (samplePromptsArtifact) {
+    collections.push({ id: 'col_sample_prompts', type: 'sample-prompts', path: 'sample-prompts.json' });
+  }
+  if (sceneGrammarEvaluation) {
+    collections.push({ id: 'col_scene_grammar_evaluation', type: 'scene-grammar-evaluation', path: 'scene-grammar-evaluation.json' });
+  }
+  if (plausibilityReviewArtifact) {
+    collections.push({ id: 'col_plausibility_review', type: 'plausibility-review', path: 'plausibility-review.json' });
+  }
+  if (grammarRevisionArtifact) {
+    collections.push({ id: 'col_grammar_revisions', type: 'grammar-revisions', path: 'grammar-revisions.json' });
+  }
+  if (sceneGrammarPsg) {
+    collections.push({ id: 'col_scene_grammar_psg', type: 'scene-grammar-psg', path: 'scene-grammar.psg' });
+  }
+  Object.keys(branchGraphPsgs || {}).forEach((fileName, index) => {
+    collections.push({
+      id: `col_branch_graph_${String(index + 1).padStart(2, '0')}`,
+      type: 'branch-graph',
+      path: `branch-graphs/${fileName}`
+    });
+  });
   const hasMutationSupport = Boolean(mutationArtifact);
-  const strategyVersion = hasMutationSupport
-    ? 'epic3-story4'
+  const hasSceneGrammarSupport = Boolean(sceneGrammarArtifact);
+  const strategyVersion = hasSceneGrammarSupport
+    ? 'ralph-loop-1-scene-grammar'
+    : hasMutationSupport
+      ? 'epic3-story4'
     : ingestArtifact.sourceInputs.length > 1
       ? 'epic2-story6'
       : 'epic1-story5';
@@ -346,10 +399,20 @@ function validatePackageArtifacts({
   assumptionReviewArtifact,
   categoryHypothesisArtifact,
   modeDetectionArtifact,
+  agentRunsArtifact,
   ingestArtifact,
   extractArtifact,
   classifyArtifact,
   synthesizeArtifact,
+  sourceModeArtifact,
+  sceneGrammarArtifact,
+  researchGapArtifact,
+  researchQueryPlan,
+  webResearchResults,
+  grammarRevisionArtifact,
+  samplePromptsArtifact,
+  sceneGrammarEvaluation,
+  plausibilityReviewArtifact,
   mutationArtifact,
   mutationReviewArtifact,
   scoreArtifact,
@@ -358,16 +421,50 @@ function validatePackageArtifacts({
   conceptClustersPsg,
   promptSynthesisPsg,
   promptMutationsPsg,
+  sceneGrammarPsg,
+  branchGraphPsgs,
   researchPackageManifest
 }) {
   MetagrinderAugmentationPlanArtifactSchema.parse(augmentationPlanArtifact);
   MetagrinderAssumptionReviewArtifactSchema.parse(assumptionReviewArtifact);
   MetagrinderCategoryHypothesisArtifactSchema.parse(categoryHypothesisArtifact);
   MetagrinderModeDetectionArtifactSchema.parse(modeDetectionArtifact);
+  if (agentRunsArtifact) {
+    MetagrinderAgentRunArtifactSchema.parse(agentRunsArtifact);
+  }
   MetagrinderIngestArtifactSchema.parse(ingestArtifact);
   MetagrinderExtractArtifactSchema.parse(extractArtifact);
   MetagrinderClassifyArtifactSchema.parse(classifyArtifact);
   MetagrinderSynthesizeArtifactSchema.parse(synthesizeArtifact);
+  if (sourceModeArtifact) {
+    if (!sourceModeArtifact.inputId || !Array.isArray(sourceModeArtifact.chunkModes)) {
+      throw new Error('source-mode artifact must contain inputId and chunkModes.');
+    }
+  }
+  if (sceneGrammarArtifact) {
+    MetagrinderSceneGrammarArtifactSchema.parse(sceneGrammarArtifact);
+  }
+  if (researchGapArtifact) {
+    MetagrinderResearchGapArtifactSchema.parse(researchGapArtifact);
+  }
+  if (researchQueryPlan) {
+    MetagrinderResearchQueryPlanSchema.parse(researchQueryPlan);
+  }
+  if (webResearchResults) {
+    MetagrinderWebResearchResultsSchema.parse(webResearchResults);
+  }
+  if (grammarRevisionArtifact) {
+    MetagrinderGrammarRevisionArtifactSchema.parse(grammarRevisionArtifact);
+  }
+  if (samplePromptsArtifact) {
+    MetagrinderSamplePromptsArtifactSchema.parse(samplePromptsArtifact);
+  }
+  if (sceneGrammarEvaluation) {
+    MetagrinderSceneGrammarEvaluationSchema.parse(sceneGrammarEvaluation);
+  }
+  if (plausibilityReviewArtifact) {
+    MetagrinderPlausibilityReviewArtifactSchema.parse(plausibilityReviewArtifact);
+  }
   if (mutationArtifact) {
     MetagrinderMutationArtifactSchema.parse(mutationArtifact);
   }
@@ -383,6 +480,30 @@ function validatePackageArtifacts({
   if (promptMutationsPsg) {
     validatePsgFile(promptMutationsPsg, 'prompt-mutations.psg');
   }
+  if (sceneGrammarPsg) {
+    validatePsgV2File(sceneGrammarPsg, 'scene-grammar.psg');
+  }
+  Object.entries(branchGraphPsgs || {}).forEach(([fileName, graph]) => {
+    validatePsgV2File(graph, `branch-graphs/${fileName}`);
+  });
+}
+
+function validatePsgV2File(psgFile, fileLabel) {
+  const parsed = MetagrinderPsgV2FileSchema.parse(psgFile);
+  const nodeIds = new Set();
+
+  parsed.graph.nodes.forEach((node) => {
+    if (nodeIds.has(node.id)) {
+      throw new Error(`${fileLabel} contains duplicate node id ${node.id}.`);
+    }
+    nodeIds.add(node.id);
+  });
+
+  parsed.graph.edges.forEach((edge) => {
+    if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) {
+      throw new Error(`${fileLabel} edge ${edge.id} references a missing endpoint.`);
+    }
+  });
 }
 
 module.exports = {
@@ -391,5 +512,6 @@ module.exports = {
   buildPromptSynthesisPsg,
   buildResearchPackageManifest,
   buildSourceMapPsg,
-  validatePackageArtifacts
+  validatePackageArtifacts,
+  validatePsgV2File
 };
