@@ -1,0 +1,27 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "approvals": [
+    {
+      "candidateSelector": {
+        "canonicalUrl": "https://library.example.org/public/spectator-scene",
+        "queryId": "gap_middle_class_spectator_weight_support_query_01"
+      },
+      "approvalStatus": "approved",
+      "operatorNote": "Approve the inspected cached library candidate by canonical URL.",
+      "approvedSourceType": "library",
+      "approvedSourceQuality": "medium",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    },
+    {
+      "candidateSelector": {
+        "domain": "newspaper.example.org",
+        "titleContains": "grandstand"
+      },
+      "approvalStatus": "rejected",
+      "operatorNote": "Keep the second cached candidate inspectable but rejected for this proof.",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    }
+  ]
+}

@@ -1,4 +1,5 @@
 const {
+  MetagrinderAcceptedGrammarDeltasArtifactSchema,
   MetagrinderAgentRunArtifactSchema,
   MetagrinderAssumptionReviewArtifactSchema,
   MetagrinderAugmentationPlanArtifactSchema,
@@ -11,15 +12,44 @@ const {
   MetagrinderMutationArtifactSchema,
   MetagrinderMutationReviewArtifactSchema,
   MetagrinderPlausibilityReviewArtifactSchema,
+  MetagrinderPsgCompileDiffArtifactSchema,
   MetagrinderPsgV2FileSchema,
   MetagrinderResearchGapArtifactSchema,
   MetagrinderResearchQueryPlanSchema,
+  MetagrinderRetrievalPolicySchema,
+  MetagrinderRetrievalRunLogSchema,
+  MetagrinderRetrievalCandidatesArtifactSchema,
+  MetagrinderLiveProviderContractSchema,
+  MetagrinderProviderConfigAppliedSchema,
+  MetagrinderProviderPreflightReportSchema,
+  MetagrinderProviderRequestShapesSchema,
+  MetagrinderProviderResponseLogSchema,
+  MetagrinderLiveProviderPilotReportSchema,
+  MetagrinderRealEndpointProofReportSchema,
+  MetagrinderCandidateInspectionArtifactSchema,
+  MetagrinderSourceTypingReportSchema,
+  MetagrinderProviderErrorReportSchema,
+  MetagrinderLiveRetrievalPreflightSchema,
+  MetagrinderLiveRetrievalRequestsSchema,
+  MetagrinderLiveRetrievalCacheWriteSchema,
+  MetagrinderRetrievalCacheManifestSchema,
+  MetagrinderSourceIntakeApprovalSchema,
+  MetagrinderApprovedSourceResultsSchema,
+  MetagrinderRetrievalSafetyReportSchema,
+  MetagrinderRevisionReviewArtifactSchema,
+  MetagrinderRevisionStateAppliedSchema,
+  MetagrinderRevisionStateFileSchema,
   MetagrinderReviewArtifactSchema,
   MetagrinderSamplePromptsArtifactSchema,
   MetagrinderScoreArtifactSchema,
   MetagrinderSceneGrammarArtifactSchema,
   MetagrinderSceneGrammarEvaluationSchema,
+  MetagrinderSourceClaimsArtifactSchema,
+  MetagrinderSourceEvidenceArtifactSchema,
+  MetagrinderSourceClaimReviewArtifactSchema,
+  MetagrinderSourceRegistryArtifactSchema,
   MetagrinderSynthesizeArtifactSchema,
+  MetagrinderLiveRetrievalReadinessArtifactSchema,
   MetagrinderWebResearchResultsSchema,
   ResearchPackageManifestSchema
 } = require('../../types/metagrinder.runtime.js');
@@ -292,6 +322,40 @@ function buildResearchPackageManifest({
   plausibilityReviewArtifact,
   sceneGrammarPsg,
   grammarRevisionArtifact,
+  acceptedGrammarRevisionArtifact,
+  rejectedGrammarRevisionArtifact,
+  revisionStateArtifact,
+  revisionStateAppliedArtifact,
+  revisionReviewArtifact,
+  acceptedGrammarDeltasArtifact,
+  operatorReviewArtifact,
+  psgCompileDiffArtifact,
+  liveRetrievalReadinessArtifact,
+  liveProviderContractArtifact,
+  providerConfigAppliedArtifact,
+  providerPreflightReportArtifact,
+  providerRequestShapesArtifact,
+  providerResponseLogArtifact,
+  liveProviderPilotReportArtifact,
+  realEndpointProofReportArtifact,
+  candidateInspectionArtifact,
+  sourceTypingReportArtifact,
+  providerErrorReportArtifact,
+  liveRetrievalPreflightArtifact,
+  liveRetrievalRequestsArtifact,
+  liveRetrievalCacheWriteArtifact,
+  sourceRegistryArtifact,
+  sourceClaimsArtifact,
+  sourceEvidenceArtifact,
+  sourceClaimReviewArtifact,
+  retrievalPolicyArtifact,
+  retrievalRunLogArtifact,
+  retrievalCandidatesArtifact,
+  retrievalCacheManifestArtifact,
+  sourceIntakeApprovalArtifact,
+  approvedSourceResultsArtifact,
+  retrievalSafetyReportArtifact,
+  acceptedSceneGrammarArtifact,
   branchGraphPsgs
 }) {
   const sourceInputIds = ingestArtifact.sourceInputs.map((source) => source.sourceInputId);
@@ -322,6 +386,109 @@ function buildResearchPackageManifest({
   }
   if (grammarRevisionArtifact) {
     collections.push({ id: 'col_grammar_revisions', type: 'grammar-revisions', path: 'grammar-revisions.json' });
+  }
+  if (acceptedGrammarRevisionArtifact) {
+    collections.push({ id: 'col_accepted_grammar_revisions', type: 'accepted-grammar-revisions', path: 'accepted-grammar-revisions.json' });
+  }
+  if (rejectedGrammarRevisionArtifact) {
+    collections.push({ id: 'col_rejected_grammar_revisions', type: 'rejected-grammar-revisions', path: 'rejected-grammar-revisions.json' });
+  }
+  if (sourceRegistryArtifact) {
+    collections.push({ id: 'col_source_registry', type: 'source-registry', path: 'source-registry.json' });
+  }
+  if (sourceClaimsArtifact) {
+    collections.push({ id: 'col_source_claims', type: 'source-claims', path: 'source-claims.json' });
+  }
+  if (sourceEvidenceArtifact) {
+    collections.push({ id: 'col_source_evidence', type: 'source-evidence', path: 'source-evidence.json' });
+  }
+  if (sourceClaimReviewArtifact) {
+    collections.push({ id: 'col_source_claim_review', type: 'source-claim-review', path: 'source-claim-review.json' });
+  }
+  if (retrievalPolicyArtifact) {
+    collections.push({ id: 'col_retrieval_policy', type: 'retrieval-policy', path: 'retrieval-policy.json' });
+  }
+  if (retrievalRunLogArtifact) {
+    collections.push({ id: 'col_retrieval_run_log', type: 'retrieval-run-log', path: 'retrieval-run-log.json' });
+  }
+  if (retrievalCandidatesArtifact) {
+    collections.push({ id: 'col_retrieval_candidates', type: 'retrieval-candidates', path: 'retrieval-candidates.json' });
+  }
+  if (retrievalCacheManifestArtifact) {
+    collections.push({ id: 'col_retrieval_cache_manifest', type: 'retrieval-cache-manifest', path: 'retrieval-cache-manifest.json' });
+  }
+  if (sourceIntakeApprovalArtifact) {
+    collections.push({ id: 'col_source_intake_approval', type: 'source-intake-approval', path: 'source-intake-approval.json' });
+  }
+  if (approvedSourceResultsArtifact) {
+    collections.push({ id: 'col_approved_source_results', type: 'approved-source-results', path: 'approved-source-results.json' });
+  }
+  if (retrievalSafetyReportArtifact) {
+    collections.push({ id: 'col_retrieval_safety_report', type: 'retrieval-safety-report', path: 'retrieval-safety-report.json' });
+  }
+  if (revisionStateArtifact) {
+    collections.push({ id: 'col_revision_state', type: 'revision-state', path: 'revision-state.json' });
+  }
+  if (revisionStateAppliedArtifact) {
+    collections.push({ id: 'col_revision_state_applied', type: 'revision-state-applied', path: 'revision-state.applied.json' });
+  }
+  if (revisionReviewArtifact) {
+    collections.push({ id: 'col_revision_review', type: 'revision-review', path: 'revision-review.json' });
+  }
+  if (acceptedGrammarDeltasArtifact) {
+    collections.push({ id: 'col_accepted_grammar_deltas', type: 'accepted-grammar-deltas', path: 'accepted-grammar-deltas.json' });
+  }
+  if (operatorReviewArtifact) {
+    collections.push({ id: 'col_operator_review', type: 'operator-review', path: 'operator-review.md' });
+  }
+  if (psgCompileDiffArtifact) {
+    collections.push({ id: 'col_psg_compile_diff', type: 'psg-compile-diff', path: 'psg-compile-diff.json' });
+  }
+  if (liveRetrievalReadinessArtifact) {
+    collections.push({ id: 'col_live_retrieval_readiness', type: 'live-retrieval-readiness', path: 'live-retrieval-readiness.json' });
+  }
+  if (liveProviderContractArtifact) {
+    collections.push({ id: 'col_live_provider_contract', type: 'live-provider-contract', path: 'live-provider-contract.json' });
+  }
+  if (providerConfigAppliedArtifact) {
+    collections.push({ id: 'col_provider_config_applied', type: 'provider-config-applied', path: 'provider-config.applied.json' });
+  }
+  if (providerPreflightReportArtifact) {
+    collections.push({ id: 'col_provider_preflight_report', type: 'provider-preflight-report', path: 'provider-preflight-report.json' });
+  }
+  if (providerRequestShapesArtifact) {
+    collections.push({ id: 'col_provider_request_shapes', type: 'provider-request-shapes', path: 'provider-request-shapes.json' });
+  }
+  if (providerResponseLogArtifact) {
+    collections.push({ id: 'col_provider_response_log', type: 'provider-response-log', path: 'provider-response-log.json' });
+  }
+  if (liveProviderPilotReportArtifact) {
+    collections.push({ id: 'col_live_provider_pilot_report', type: 'live-provider-pilot-report', path: 'live-provider-pilot-report.json' });
+  }
+  if (realEndpointProofReportArtifact) {
+    collections.push({ id: 'col_real_endpoint_proof_report', type: 'real-endpoint-proof-report', path: 'real-endpoint-proof-report.json' });
+  }
+  if (candidateInspectionArtifact) {
+    collections.push({ id: 'col_candidate_inspection', type: 'candidate-inspection', path: 'candidate-inspection.json' });
+    collections.push({ id: 'col_candidate_inspection_md', type: 'candidate-inspection-markdown', path: 'candidate-inspection.md' });
+  }
+  if (sourceTypingReportArtifact) {
+    collections.push({ id: 'col_source_typing_report', type: 'source-typing-report', path: 'source-typing-report.json' });
+  }
+  if (providerErrorReportArtifact) {
+    collections.push({ id: 'col_provider_error_report', type: 'provider-error-report', path: 'provider-error-report.json' });
+  }
+  if (liveRetrievalPreflightArtifact) {
+    collections.push({ id: 'col_live_retrieval_preflight', type: 'live-retrieval-preflight', path: 'live-retrieval-preflight.json' });
+  }
+  if (liveRetrievalRequestsArtifact) {
+    collections.push({ id: 'col_live_retrieval_requests', type: 'live-retrieval-requests', path: 'live-retrieval-requests.json' });
+  }
+  if (liveRetrievalCacheWriteArtifact) {
+    collections.push({ id: 'col_live_retrieval_cache_write', type: 'live-retrieval-cache-write', path: 'live-retrieval-cache-write.json' });
+  }
+  if (acceptedSceneGrammarArtifact) {
+    collections.push({ id: 'col_accepted_scene_grammar', type: 'accepted-scene-grammar', path: 'accepted-scene-grammar.json' });
   }
   if (sceneGrammarPsg) {
     collections.push({ id: 'col_scene_grammar_psg', type: 'scene-grammar-psg', path: 'scene-grammar.psg' });
@@ -409,7 +576,40 @@ function validatePackageArtifacts({
   researchGapArtifact,
   researchQueryPlan,
   webResearchResults,
+  sourceRegistryArtifact,
+  sourceClaimsArtifact,
+  sourceEvidenceArtifact,
+  sourceClaimReviewArtifact,
+  retrievalPolicyArtifact,
+  retrievalRunLogArtifact,
+  retrievalCandidatesArtifact,
+  retrievalCacheManifestArtifact,
+  sourceIntakeApprovalArtifact,
+  approvedSourceResultsArtifact,
+  retrievalSafetyReportArtifact,
   grammarRevisionArtifact,
+  acceptedGrammarRevisionArtifact,
+  rejectedGrammarRevisionArtifact,
+  revisionStateArtifact,
+  revisionStateAppliedArtifact,
+  revisionReviewArtifact,
+  acceptedGrammarDeltasArtifact,
+  psgCompileDiffArtifact,
+  liveRetrievalReadinessArtifact,
+  liveProviderContractArtifact,
+  providerConfigAppliedArtifact,
+  providerPreflightReportArtifact,
+  providerRequestShapesArtifact,
+  providerResponseLogArtifact,
+  liveProviderPilotReportArtifact,
+  realEndpointProofReportArtifact,
+  candidateInspectionArtifact,
+  sourceTypingReportArtifact,
+  providerErrorReportArtifact,
+  liveRetrievalPreflightArtifact,
+  liveRetrievalRequestsArtifact,
+  liveRetrievalCacheWriteArtifact,
+  acceptedSceneGrammarArtifact,
   samplePromptsArtifact,
   sceneGrammarEvaluation,
   plausibilityReviewArtifact,
@@ -453,8 +653,107 @@ function validatePackageArtifacts({
   if (webResearchResults) {
     MetagrinderWebResearchResultsSchema.parse(webResearchResults);
   }
+  if (sourceRegistryArtifact) {
+    MetagrinderSourceRegistryArtifactSchema.parse(sourceRegistryArtifact);
+  }
+  if (sourceClaimsArtifact) {
+    MetagrinderSourceClaimsArtifactSchema.parse(sourceClaimsArtifact);
+  }
+  if (sourceEvidenceArtifact) {
+    MetagrinderSourceEvidenceArtifactSchema.parse(sourceEvidenceArtifact);
+  }
+  if (sourceClaimReviewArtifact) {
+    MetagrinderSourceClaimReviewArtifactSchema.parse(sourceClaimReviewArtifact);
+  }
+  if (retrievalPolicyArtifact) {
+    MetagrinderRetrievalPolicySchema.parse(retrievalPolicyArtifact);
+  }
+  if (retrievalRunLogArtifact) {
+    MetagrinderRetrievalRunLogSchema.parse(retrievalRunLogArtifact);
+  }
+  if (retrievalCandidatesArtifact) {
+    MetagrinderRetrievalCandidatesArtifactSchema.parse(retrievalCandidatesArtifact);
+  }
+  if (retrievalCacheManifestArtifact) {
+    MetagrinderRetrievalCacheManifestSchema.parse(retrievalCacheManifestArtifact);
+  }
+  if (sourceIntakeApprovalArtifact) {
+    MetagrinderSourceIntakeApprovalSchema.parse(sourceIntakeApprovalArtifact);
+  }
+  if (approvedSourceResultsArtifact) {
+    MetagrinderApprovedSourceResultsSchema.parse(approvedSourceResultsArtifact);
+  }
+  if (retrievalSafetyReportArtifact) {
+    MetagrinderRetrievalSafetyReportSchema.parse(retrievalSafetyReportArtifact);
+  }
   if (grammarRevisionArtifact) {
     MetagrinderGrammarRevisionArtifactSchema.parse(grammarRevisionArtifact);
+  }
+  if (acceptedGrammarRevisionArtifact) {
+    MetagrinderGrammarRevisionArtifactSchema.parse(acceptedGrammarRevisionArtifact);
+  }
+  if (rejectedGrammarRevisionArtifact) {
+    MetagrinderGrammarRevisionArtifactSchema.parse(rejectedGrammarRevisionArtifact);
+  }
+  if (revisionStateArtifact) {
+    MetagrinderRevisionStateFileSchema.parse(revisionStateArtifact);
+  }
+  if (revisionStateAppliedArtifact) {
+    MetagrinderRevisionStateAppliedSchema.parse(revisionStateAppliedArtifact);
+  }
+  if (revisionReviewArtifact) {
+    MetagrinderRevisionReviewArtifactSchema.parse(revisionReviewArtifact);
+  }
+  if (acceptedGrammarDeltasArtifact) {
+    MetagrinderAcceptedGrammarDeltasArtifactSchema.parse(acceptedGrammarDeltasArtifact);
+  }
+  if (psgCompileDiffArtifact) {
+    MetagrinderPsgCompileDiffArtifactSchema.parse(psgCompileDiffArtifact);
+  }
+  if (liveRetrievalReadinessArtifact) {
+    MetagrinderLiveRetrievalReadinessArtifactSchema.parse(liveRetrievalReadinessArtifact);
+  }
+  if (liveProviderContractArtifact) {
+    MetagrinderLiveProviderContractSchema.parse(liveProviderContractArtifact);
+  }
+  if (providerConfigAppliedArtifact) {
+    MetagrinderProviderConfigAppliedSchema.parse(providerConfigAppliedArtifact);
+  }
+  if (providerPreflightReportArtifact) {
+    MetagrinderProviderPreflightReportSchema.parse(providerPreflightReportArtifact);
+  }
+  if (providerRequestShapesArtifact) {
+    MetagrinderProviderRequestShapesSchema.parse(providerRequestShapesArtifact);
+  }
+  if (providerResponseLogArtifact) {
+    MetagrinderProviderResponseLogSchema.parse(providerResponseLogArtifact);
+  }
+  if (liveProviderPilotReportArtifact) {
+    MetagrinderLiveProviderPilotReportSchema.parse(liveProviderPilotReportArtifact);
+  }
+  if (realEndpointProofReportArtifact) {
+    MetagrinderRealEndpointProofReportSchema.parse(realEndpointProofReportArtifact);
+  }
+  if (candidateInspectionArtifact) {
+    MetagrinderCandidateInspectionArtifactSchema.parse(candidateInspectionArtifact);
+  }
+  if (sourceTypingReportArtifact) {
+    MetagrinderSourceTypingReportSchema.parse(sourceTypingReportArtifact);
+  }
+  if (providerErrorReportArtifact) {
+    MetagrinderProviderErrorReportSchema.parse(providerErrorReportArtifact);
+  }
+  if (liveRetrievalPreflightArtifact) {
+    MetagrinderLiveRetrievalPreflightSchema.parse(liveRetrievalPreflightArtifact);
+  }
+  if (liveRetrievalRequestsArtifact) {
+    MetagrinderLiveRetrievalRequestsSchema.parse(liveRetrievalRequestsArtifact);
+  }
+  if (liveRetrievalCacheWriteArtifact) {
+    MetagrinderLiveRetrievalCacheWriteSchema.parse(liveRetrievalCacheWriteArtifact);
+  }
+  if (acceptedSceneGrammarArtifact) {
+    MetagrinderSceneGrammarArtifactSchema.parse(acceptedSceneGrammarArtifact);
   }
   if (samplePromptsArtifact) {
     MetagrinderSamplePromptsArtifactSchema.parse(samplePromptsArtifact);
@@ -495,6 +794,16 @@ function validatePsgV2File(psgFile, fileLabel) {
   parsed.graph.nodes.forEach((node) => {
     if (nodeIds.has(node.id)) {
       throw new Error(`${fileLabel} contains duplicate node id ${node.id}.`);
+    }
+    if (node.type === 'WeightedChoice') {
+      if (!Array.isArray(node.data.choices)) {
+        throw new Error(`${fileLabel} WeightedChoice node ${node.id} is missing data.choices.`);
+      }
+      node.data.choices.forEach((choice, index) => {
+        if (typeof choice.text !== 'string' || typeof choice.weight !== 'number') {
+          throw new Error(`${fileLabel} WeightedChoice node ${node.id} choice ${index} must include text and weight.`);
+        }
+      });
     }
     nodeIds.add(node.id);
   });

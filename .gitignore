@@ -53,6 +53,10 @@ assets/generated/
 asset-gen
 # Generated Metagrinder test outputs
 packages/core/tests/output/
+tmp/
+# Local-only provider configs may contain endpoint secrets.
+*.local.json
+provider-config-*-real.local.json
 # Ignore stray Windows device filename artifact
 nul
 .vercel

@@ -1,0 +1,18 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "claimReviews": [
+    {
+      "sourceClaimId": "source_claim_001",
+      "evidenceIds": [
+        "source_evidence_001"
+      ],
+      "citationStatus": "rejected",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z",
+      "operatorNote": "Reject citation for blocked proof because the evidence should not support this material grammar change.",
+      "riskFlags": [
+        "weak-citation"
+      ]
+    }
+  ]
+}

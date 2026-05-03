@@ -1,0 +1,33 @@
+{
+  "providerId": "generic-http-search",
+  "endpoint": "https://example.invalid/search",
+  "requiresApiKey": false,
+  "apiKeyEnv": null,
+  "resultPath": "items",
+  "fieldMap": {
+    "title": "headline",
+    "url": "link",
+    "snippet": "summary",
+    "sourceType": "type"
+  },
+  "timeoutMs": 5000,
+  "maxRetries": 0,
+  "fakeResponses": {
+    "default": {
+      "items": [
+        {
+          "headline": "Public library record for early spectator scene",
+          "link": "https://library.example.org/public/spectator-scene",
+          "summary": "Public no-auth test result with library-style metadata.",
+          "type": "library"
+        },
+        {
+          "headline": "Newspaper archive note for grandstand crowd",
+          "link": "https://newspaper.example.org/archive/grandstand-crowd",
+          "summary": "Public no-auth test result with newspaper-style metadata.",
+          "type": "newspaper"
+        }
+      ]
+    }
+  }
+}

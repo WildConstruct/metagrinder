@@ -1,0 +1,23 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "approvals": [
+    {
+      "candidateId": "retrieval_candidate_live_001",
+      "approvalStatus": "approved",
+      "operatorNote": "Approve live-shaped cached archive candidate for replay proof.",
+      "approvedSourceType": "archive",
+      "approvedSourceQuality": "medium",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    },
+    {
+      "candidateId": "retrieval_candidate_live_002",
+      "approvalStatus": "rejected",
+      "operatorNote": "Reject second live-shaped candidate for replay proof.",
+      "approvedSourceType": "museum",
+      "approvedSourceQuality": "medium",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    }
+  ]
+}

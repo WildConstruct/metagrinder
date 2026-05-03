@@ -1,0 +1,53 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "candidates": [
+    {
+      "candidateId": "cache_candidate_001",
+      "queryId": "gap_middle_class_spectator_weight_support_query_01",
+      "gapId": "gap_middle_class_spectator_weight_support",
+      "title": "Cached archive evidence: middle-class spectator crowd",
+      "url": "cache://metagrinder/historical-crowd/middle-class-spectator",
+      "canonicalUrl": "cache://metagrinder/historical-crowd/middle-class-spectator",
+      "domain": "cache",
+      "snippet": "Cached candidate evidence for middle-class spectator crowd weighting.",
+      "sourceTypeHypothesis": "archive",
+      "sourceQualityHypothesis": "medium",
+      "relevance": "high",
+      "retrievalMode": "cache-replay",
+      "reviewStatus": "candidate",
+      "canCreateSourceClaim": false
+    },
+    {
+      "candidateId": "cache_candidate_002",
+      "queryId": "gap_middle_class_spectator_weight_support_query_01",
+      "gapId": "gap_middle_class_spectator_weight_support",
+      "title": "Cached secondary note: broad spectator mix",
+      "url": "cache://metagrinder/historical-crowd/secondary-note",
+      "canonicalUrl": "cache://metagrinder/historical-crowd/secondary-note",
+      "domain": "cache",
+      "snippet": "Cached secondary candidate requiring rejection in approval fixture.",
+      "sourceTypeHypothesis": "high-quality-secondary",
+      "sourceQualityHypothesis": "medium",
+      "relevance": "medium",
+      "retrievalMode": "cache-replay",
+      "reviewStatus": "candidate",
+      "canCreateSourceClaim": false
+    },
+    {
+      "candidateId": "cache_candidate_003",
+      "queryId": "gap_middle_class_spectator_weight_support_query_01",
+      "gapId": "gap_middle_class_spectator_weight_support",
+      "title": "Cached museum note: spectator clothing",
+      "url": "cache://metagrinder/historical-crowd/museum-note",
+      "canonicalUrl": "cache://metagrinder/historical-crowd/museum-note",
+      "domain": "cache",
+      "snippet": "Cached museum candidate left pending by approval fixture.",
+      "sourceTypeHypothesis": "museum",
+      "sourceQualityHypothesis": "medium",
+      "relevance": "medium",
+      "retrievalMode": "cache-replay",
+      "reviewStatus": "candidate",
+      "canCreateSourceClaim": false
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "revisionStates": [
+    {
+      "revisionId": "research-input-historical-crowd-grammar_grammar_revision_001",
+      "reviewStatus": "accepted",
+      "operatorNote": "Accept material weight adjustment for test proof.",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    },
+    {
+      "revisionId": "research-input-historical-crowd-grammar_grammar_revision_002",
+      "reviewStatus": "accepted",
+      "operatorNote": "Accept confirmation-only corroboration to prove non-mutating accepted deltas are distinguished.",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    },
+    {
+      "revisionId": "research-input-historical-crowd-grammar_grammar_revision_003",
+      "reviewStatus": "rejected",
+      "operatorNote": "Reject this material-capable revision to prove it does not alter accepted grammar.",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    },
+    {
+      "revisionId": "research-input-historical-crowd-grammar_grammar_revision_004",
+      "reviewStatus": "pending",
+      "operatorNote": "Leave pending to prove pending revisions do not alter accepted grammar.",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    }
+  ]
+}

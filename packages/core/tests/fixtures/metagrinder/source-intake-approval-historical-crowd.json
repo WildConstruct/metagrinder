@@ -1,0 +1,32 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "approvals": [
+    {
+      "candidateId": "retrieval_candidate_001",
+      "approvalStatus": "approved",
+      "operatorNote": "Approve cached archive-style evidence for this gap.",
+      "approvedSourceType": "archive",
+      "approvedSourceQuality": "medium",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    },
+    {
+      "candidateId": "retrieval_candidate_002",
+      "approvalStatus": "rejected",
+      "operatorNote": "Reject this candidate for the controlled intake proof.",
+      "approvedSourceType": "high-quality-secondary",
+      "approvedSourceQuality": "medium",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    },
+    {
+      "candidateId": "retrieval_candidate_003",
+      "approvalStatus": "pending",
+      "operatorNote": "Leave pending to prove no automatic source claim creation.",
+      "approvedSourceType": "museum",
+      "approvedSourceQuality": "medium",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    }
+  ]
+}

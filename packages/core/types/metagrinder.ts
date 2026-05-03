@@ -19,6 +19,8 @@ export const MetagrinderConfidenceLevelSchema = z.enum([
 ]);
 
 export const MetagrinderRightsProfileSchema = z.enum([
+  'unknown',
+  'public-domain',
   'unrestricted',
   'attribution-required',
   'non-commercial',
@@ -46,6 +48,41 @@ export const MetagrinderCollectionTypeSchema = z.enum([
   'plausibility-review',
   'scene-grammar-psg',
   'grammar-revisions',
+  'accepted-grammar-revisions',
+  'rejected-grammar-revisions',
+  'source-registry',
+  'source-claims',
+  'source-evidence',
+  'source-claim-review',
+  'accepted-scene-grammar',
+  'revision-state',
+  'revision-state-applied',
+  'revision-review',
+  'accepted-grammar-deltas',
+  'operator-review',
+  'psg-compile-diff',
+  'live-retrieval-readiness',
+  'live-provider-pilot-report',
+  'real-endpoint-proof-report',
+  'candidate-inspection',
+  'candidate-inspection-markdown',
+  'live-retrieval-preflight',
+  'live-retrieval-requests',
+  'live-retrieval-cache-write',
+  'live-provider-contract',
+  'provider-config-applied',
+  'provider-preflight-report',
+  'provider-request-shapes',
+  'provider-response-log',
+  'source-typing-report',
+  'provider-error-report',
+  'retrieval-policy',
+  'retrieval-run-log',
+  'retrieval-candidates',
+  'retrieval-cache-manifest',
+  'source-intake-approval',
+  'approved-source-results',
+  'retrieval-safety-report',
   'branch-graph'
 ]);
 
@@ -1264,11 +1301,564 @@ export const MetagrinderWebResearchResultsSchema = z.object({
   })).default([])
 });
 
+export const MetagrinderResearchSourceTypeSchema = z.enum([
+  'archive',
+  'museum',
+  'library',
+  'scholarly',
+  'newspaper',
+  'high-quality-secondary',
+  'low-quality-source',
+  'stock-photo',
+  'blog',
+  'forum',
+  'unknown',
+  'archival-photo',
+  'user-provided'
+]);
+
+export const MetagrinderRetrievalModeSchema = z.enum([
+  'off',
+  'mock',
+  'dry-run',
+  'cache-replay',
+  'live-candidate-only'
+]);
+
+export const MetagrinderRetrievalPolicySchema = z.object({
+  inputId: z.string(),
+  mode: MetagrinderRetrievalModeSchema.default('mock'),
+  allowLiveRetrieval: z.boolean().default(false),
+  maxQueriesTotal: z.number().int().positive().default(10),
+  maxQueriesPerGap: z.number().int().positive().default(2),
+  maxResultsPerQuery: z.number().int().positive().default(5),
+  allowedSourceTypes: z.array(MetagrinderResearchSourceTypeSchema).default([
+    'archive',
+    'museum',
+    'library',
+    'scholarly',
+    'newspaper',
+    'high-quality-secondary'
+  ]),
+  blockedSourceTypes: z.array(MetagrinderResearchSourceTypeSchema).default([]),
+  blockedDomains: z.array(z.string()).default([]),
+  allowedDomains: z.array(z.string()).default([]),
+  requireOperatorApprovalForSourceClaims: z.boolean().default(true),
+  allowLowQualitySources: z.boolean().default(false),
+  failOnProviderError: z.boolean().default(false),
+  cache: z.object({
+    enabled: z.boolean().default(true),
+    readFromCache: z.boolean().default(true),
+    writeToCache: z.boolean().default(true),
+    cacheDir: z.string().default('tmp/metagrinder-retrieval-cache')
+  }).default({})
+});
+
+export const MetagrinderRetrievalRunLogSchema = z.object({
+  inputId: z.string(),
+  mode: MetagrinderRetrievalModeSchema,
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime(),
+  queryAttempts: z.array(z.object({
+    queryAttemptId: z.string(),
+    queryId: z.string(),
+    gapId: z.string(),
+    query: z.string(),
+    mode: MetagrinderRetrievalModeSchema,
+    wouldExecute: z.boolean(),
+    executed: z.boolean(),
+    reason: z.string(),
+    resultCount: z.number().int().nonnegative()
+  })).default([]),
+  budgetUse: z.object({
+    queriesPlanned: z.number().int().nonnegative(),
+    queriesAllowed: z.number().int().nonnegative(),
+    queriesExecuted: z.number().int().nonnegative(),
+    queriesSkippedByBudget: z.number().int().nonnegative()
+  }),
+  warnings: z.array(z.string()).default([])
+});
+
+export const MetagrinderRetrievalCandidateSchema = z.object({
+  candidateId: z.string(),
+  queryId: z.string(),
+  gapId: z.string(),
+  title: z.string(),
+  url: z.string(),
+  canonicalUrl: z.string(),
+  domain: z.string(),
+  snippet: z.string(),
+  sourceTypeHypothesis: z.string(),
+  sourceQualityHypothesis: MetagrinderConfidenceLevelSchema,
+  relevance: z.enum(['low', 'medium', 'high']),
+  retrievalMode: MetagrinderRetrievalModeSchema,
+  reviewStatus: z.enum(['candidate', 'approved', 'rejected', 'pending']).default('candidate'),
+  canCreateSourceClaim: z.boolean().default(false)
+});
+
+export const MetagrinderRetrievalCandidatesArtifactSchema = z.object({
+  inputId: z.string(),
+  candidates: z.array(MetagrinderRetrievalCandidateSchema).default([])
+});
+
+export const MetagrinderLiveProviderContractSchema = z.object({
+  inputId: z.string(),
+  providers: z.array(z.object({
+    providerId: z.string(),
+    providerKind: z.enum(['search', 'fixture', 'unavailable']),
+    status: z.enum(['disabled', 'unavailable', 'fixture-only', 'available']),
+    requiresNetwork: z.boolean(),
+    requiresApiKey: z.boolean(),
+    requiresEnvVars: z.array(z.string()).default([]),
+    supportedModes: z.array(MetagrinderRetrievalModeSchema).default([]),
+    candidateOnly: z.boolean(),
+    autoPromotionAllowed: z.boolean(),
+    maxQueryLength: z.number().int().positive(),
+    supportsDomainFilters: z.boolean(),
+    supportsSourceTypeFilters: z.boolean(),
+    supportsResultSnippets: z.boolean(),
+    supportsCacheWrite: z.boolean()
+  })).default([]),
+  defaultProvider: z.string()
+});
+
+export const MetagrinderProviderPreflightReportSchema = z.object({
+  inputId: z.string(),
+  providerId: z.string(),
+  mode: MetagrinderRetrievalModeSchema,
+  status: z.enum(['allowed', 'blocked']),
+  checks: z.array(z.object({
+    checkId: z.string(),
+    passed: z.boolean(),
+    message: z.string().optional()
+  })).default([]),
+  networkAllowed: z.boolean(),
+  verdict: z.enum(['allowed', 'blocked'])
+});
+
+export const MetagrinderProviderConfigAppliedSchema = z.object({
+  providerId: z.string(),
+  endpointConfigured: z.boolean(),
+  apiKeyConfigured: z.boolean(),
+  timeoutMs: z.number().int().positive(),
+  maxRetries: z.number().int().nonnegative(),
+  redaction: z.object({
+    redactedEnvVars: z.array(z.string()).default([]),
+    redactAuthorizationHeaders: z.boolean()
+  }),
+  networkEnabled: z.boolean(),
+  warnings: z.array(z.string()).default([]),
+  configSource: z.string().optional(),
+  sanitizedConfig: z.unknown().optional()
+});
+
+export const MetagrinderProviderRequestShapesSchema = z.object({
+  inputId: z.string(),
+  requests: z.array(z.object({
+    requestShapeId: z.string(),
+    providerId: z.string(),
+    queryId: z.string(),
+    gapId: z.string(),
+    method: z.literal('search'),
+    query: z.string(),
+    maxResults: z.number().int().nonnegative(),
+    allowedDomains: z.array(z.string()).default([]),
+    blockedDomains: z.array(z.string()).default([]),
+    allowedSourceTypes: z.array(z.string()).default([]),
+    blockedSourceTypes: z.array(z.string()).default([]),
+    wouldExecute: z.boolean(),
+    reason: z.string()
+  })).default([])
+});
+
+export const MetagrinderProviderResponseEntrySchema = z.object({
+  responseId: z.string(),
+  providerId: z.string(),
+  requestId: z.string(),
+  queryId: z.string(),
+  gapId: z.string(),
+  status: z.enum(['success', 'timeout', 'rate-limited', 'provider-error', 'parse-error', 'blocked']),
+  httpStatus: z.number().int().optional(),
+  durationMs: z.number().nonnegative(),
+  rawResultCount: z.number().int().nonnegative(),
+  normalizedCandidateCount: z.number().int().nonnegative(),
+  payloadHash: z.string(),
+  cacheWriteIds: z.array(z.string()).default([]),
+  warnings: z.array(z.string()).default([])
+});
+
+export const MetagrinderProviderResponseLogSchema = z.object({
+  inputId: z.string(),
+  responses: z.array(MetagrinderProviderResponseEntrySchema).default([])
+});
+
+export const MetagrinderLiveProviderPilotReportSchema = z.object({
+  inputId: z.string(),
+  providerId: z.string(),
+  mode: MetagrinderRetrievalModeSchema,
+  networkAttempted: z.boolean(),
+  networkSucceeded: z.boolean(),
+  queryBudget: z.object({
+    maxQueriesTotal: z.number().int().nonnegative(),
+    queriesExecuted: z.number().int().nonnegative(),
+    maxResultsPerQuery: z.number().int().nonnegative()
+  }),
+  candidateCount: z.number().int().nonnegative(),
+  sourceClaimsCreated: z.number().int().nonnegative(),
+  grammarRevisionsCreated: z.number().int().nonnegative(),
+  cacheWriteCount: z.number().int().nonnegative(),
+  autoPromotionBlocked: z.boolean(),
+  verdict: z.enum(['safe', 'safe-failed-provider', 'unsafe'])
+});
+
+export const MetagrinderRealEndpointProofReportSchema = z.object({
+  inputId: z.string(),
+  providerId: z.string(),
+  configPath: z.string().optional(),
+  configPresent: z.boolean(),
+  networkAttempted: z.boolean(),
+  networkSucceeded: z.boolean(),
+  queriesExecuted: z.number().int().nonnegative(),
+  candidateCount: z.number().int().nonnegative(),
+  sourceClaimsCreated: z.number().int().nonnegative(),
+  grammarRevisionsCreated: z.number().int().nonnegative(),
+  cacheWriteCount: z.number().int().nonnegative(),
+  candidateInspectionCreated: z.boolean(),
+  verdict: z.enum(['safe', 'safe-failed-provider', 'skipped-no-provider-config', 'unsafe'])
+});
+
+export const MetagrinderCandidateInspectionEntrySchema = z.object({
+  candidateId: z.string(),
+  queryId: z.string(),
+  gapId: z.string(),
+  title: z.string(),
+  url: z.string(),
+  canonicalUrl: z.string(),
+  domain: z.string(),
+  snippet: z.string(),
+  sourceTypeHypothesis: z.string(),
+  sourceQualityHypothesis: MetagrinderConfidenceLevelSchema,
+  sourceTypingReasons: z.array(z.string()).default([]),
+  riskFlags: z.array(z.string()).default([]),
+  cacheRecordId: z.string().optional(),
+  payloadHash: z.string().optional(),
+  canCreateSourceClaim: z.boolean(),
+  recommendedAction: z.string()
+});
+
+export const MetagrinderCandidateInspectionArtifactSchema = z.object({
+  inputId: z.string(),
+  candidates: z.array(MetagrinderCandidateInspectionEntrySchema).default([])
+});
+
+export const MetagrinderSourceTypingReportSchema = z.object({
+  inputId: z.string(),
+  candidateClassifications: z.array(z.object({
+    candidateId: z.string(),
+    url: z.string(),
+    domain: z.string(),
+    sourceTypeHypothesis: z.string(),
+    sourceTypeConfidence: MetagrinderConfidenceLevelSchema,
+    sourceQualityHypothesis: MetagrinderConfidenceLevelSchema,
+    qualityReasons: z.array(z.string()).default([]),
+    riskFlags: z.array(z.string()).default([]),
+    promotionRecommendation: z.enum(['needs_operator_review', 'block', 'allow_with_approval'])
+  })).default([])
+});
+
+export const MetagrinderProviderErrorReportSchema = z.object({
+  inputId: z.string(),
+  errors: z.array(z.object({
+    providerId: z.string(),
+    queryId: z.string().optional(),
+    errorType: z.string(),
+    message: z.string(),
+    fatal: z.boolean()
+  })).default([])
+});
+
+export const MetagrinderLiveRetrievalPreflightSchema = z.object({
+  inputId: z.string(),
+  mode: MetagrinderRetrievalModeSchema,
+  enabledByCli: z.boolean(),
+  enabledByEnv: z.boolean(),
+  networkAllowed: z.boolean(),
+  provider: z.string(),
+  queryBudget: z.object({
+    maxQueriesTotal: z.number().int().nonnegative(),
+    maxResultsPerQuery: z.number().int().nonnegative()
+  }),
+  allowlist: z.object({
+    sourceTypes: z.array(z.string()).default([]),
+    allowedDomains: z.array(z.string()).default([]),
+    blockedDomains: z.array(z.string()).default([])
+  }),
+  verdict: z.enum(['allowed', 'blocked']),
+  warnings: z.array(z.string()).default([])
+});
+
+export const MetagrinderLiveRetrievalRequestEntrySchema = z.object({
+  requestId: z.string(),
+  queryId: z.string(),
+  gapId: z.string(),
+  query: z.string(),
+  provider: z.string(),
+  executed: z.boolean(),
+  startedAt: z.string().datetime(),
+  completedAt: z.string().datetime(),
+  resultCount: z.number().int().nonnegative(),
+  cacheWriteIds: z.array(z.string()).default([]),
+  warnings: z.array(z.string()).default([])
+});
+
+export const MetagrinderLiveRetrievalRequestsSchema = z.object({
+  inputId: z.string(),
+  requests: z.array(MetagrinderLiveRetrievalRequestEntrySchema).default([])
+});
+
+export const MetagrinderLiveRetrievalCacheWriteEntrySchema = z.object({
+  cacheRecordId: z.string(),
+  candidateId: z.string(),
+  queryId: z.string(),
+  gapId: z.string(),
+  payloadHash: z.string(),
+  writtenAt: z.string().datetime(),
+  cachePath: z.string(),
+  providerId: z.string().optional(),
+  providerRequestShapeId: z.string().optional(),
+  providerResponseId: z.string().optional(),
+  rawCandidatePayload: z.unknown().optional(),
+  normalizedCandidatePayload: z.unknown().optional(),
+  candidate: MetagrinderRetrievalCandidateSchema.optional()
+});
+
+export const MetagrinderLiveRetrievalCacheWriteSchema = z.object({
+  inputId: z.string(),
+  cacheWrites: z.array(MetagrinderLiveRetrievalCacheWriteEntrySchema).default([])
+});
+
+export const MetagrinderRetrievalCacheManifestSchema = z.object({
+  inputId: z.string(),
+  cacheDir: z.string(),
+  cacheMode: MetagrinderRetrievalModeSchema.optional(),
+  cacheSource: z.string().optional(),
+  mode: MetagrinderRetrievalModeSchema,
+  cacheHit: z.boolean(),
+  candidateCount: z.number().int().nonnegative(),
+  cacheRecords: z.array(z.object({
+    cacheRecordId: z.string(),
+    candidateId: z.string(),
+    queryId: z.string(),
+    gapId: z.string(),
+    payloadHash: z.string(),
+    title: z.string(),
+    url: z.string(),
+    createdFromFixture: z.boolean(),
+    providerId: z.string().optional(),
+    providerRequestShapeId: z.string().optional(),
+    providerResponseId: z.string().optional(),
+    rawCandidatePayload: z.unknown().optional(),
+    normalizedCandidatePayload: z.unknown().optional(),
+    createdAt: z.string().datetime().optional(),
+    candidate: MetagrinderRetrievalCandidateSchema.optional()
+  })).default([]),
+  warnings: z.array(z.string()).default([])
+});
+
+export const MetagrinderSourceIntakeApprovalEntrySchema = z.object({
+  candidateId: z.string().optional(),
+  candidateSelector: z.object({
+    canonicalUrl: z.string().optional(),
+    queryId: z.string().optional(),
+    domain: z.string().optional(),
+    titleContains: z.string().optional()
+  }).optional(),
+  approvalStatus: z.enum(['approved', 'rejected', 'pending']),
+  operatorNote: z.string().optional(),
+  approvedSourceType: MetagrinderResearchSourceTypeSchema.optional(),
+  approvedSourceQuality: MetagrinderConfidenceLevelSchema.optional(),
+  reviewedBy: z.string().optional(),
+  reviewedAt: z.string().datetime().optional(),
+  approvalMatchMode: z.enum(['candidateId', 'canonicalUrl', 'selector']).optional()
+});
+
+export const MetagrinderSourceIntakeApprovalSchema = z.object({
+  inputId: z.string(),
+  approvals: z.array(MetagrinderSourceIntakeApprovalEntrySchema).default([])
+});
+
+export const MetagrinderApprovedSourceResultsSchema = z.object({
+  inputId: z.string(),
+  approvedResults: z.array(z.object({
+    approvedResultId: z.string(),
+    candidateId: z.string(),
+    gapId: z.string(),
+    title: z.string(),
+    url: z.string(),
+    sourceType: MetagrinderResearchSourceTypeSchema,
+    sourceQuality: MetagrinderConfidenceLevelSchema,
+    operatorApprovalStatus: z.literal('approved'),
+    approvalMatchMode: z.enum(['candidateId', 'canonicalUrl', 'selector']).optional()
+  })).default([]),
+  warnings: z.array(z.string()).default([])
+});
+
+export const MetagrinderSourceEvidenceRecordSchema = z.object({
+  evidenceId: z.string(),
+  sourceId: z.string(),
+  candidateId: z.string().optional(),
+  sourceKind: z.string(),
+  evidenceType: z.enum(['text-excerpt', 'image-caption', 'metadata-field', 'source-snippet', 'operator-note']),
+  excerptText: z.string(),
+  normalizedExcerpt: z.string(),
+  locator: z.object({
+    url: z.string().optional(),
+    canonicalUrl: z.string().optional(),
+    page: z.union([z.string(), z.number()]).nullable().optional(),
+    selector: z.string().nullable().optional(),
+    lineStart: z.number().int().nullable().optional(),
+    lineEnd: z.number().int().nullable().optional(),
+    paragraphIndex: z.number().int().nullable().optional(),
+    imageRegion: z.record(z.unknown()).nullable().optional(),
+    cacheRecordId: z.string().nullable().optional(),
+    accessDate: z.string()
+  }),
+  reviewStatus: z.enum(['accepted', 'rejected', 'needs_review']).default('needs_review'),
+  confidence: MetagrinderConfidenceLevelSchema
+});
+
+export const MetagrinderSourceEvidenceArtifactSchema = z.object({
+  inputId: z.string(),
+  evidence: z.array(MetagrinderSourceEvidenceRecordSchema).default([])
+});
+
+export const MetagrinderSourceClaimReviewEntrySchema = z.object({
+  sourceClaimId: z.string(),
+  evidenceIds: z.array(z.string()).default([]),
+  citationStatus: z.enum(['accepted', 'rejected', 'needs_review']),
+  reviewedBy: z.string().optional(),
+  reviewedAt: z.string().datetime().optional(),
+  operatorNote: z.string().optional(),
+  riskFlags: z.array(z.string()).default([])
+});
+
+export const MetagrinderSourceClaimReviewArtifactSchema = z.object({
+  inputId: z.string(),
+  claimReviews: z.array(MetagrinderSourceClaimReviewEntrySchema).default([])
+});
+
+export const MetagrinderRetrievalSafetyReportSchema = z.object({
+  inputId: z.string(),
+  mode: MetagrinderRetrievalModeSchema,
+  candidateCount: z.number().int().nonnegative(),
+  approvedCandidateCount: z.number().int().nonnegative(),
+  sourceClaimsCreatedFromLiveCandidates: z.number().int().nonnegative(),
+  blockedAutoPromotion: z.boolean(),
+  warnings: z.array(z.string()).default([]),
+  verdict: z.enum(['safe', 'blocked', 'unsafe'])
+});
+
+export const MetagrinderSourceRegistryArtifactSchema = z.object({
+  inputId: z.string(),
+  sources: z.array(z.object({
+    sourceId: z.string(),
+    sourceKind: z.enum(['original-input', 'web-result', 'visual-reference', 'manual-note']),
+    title: z.string(),
+    url: z.string().optional(),
+    canonicalUrl: z.string().optional(),
+    domain: z.string().optional(),
+    retrievedAt: z.string().datetime().optional(),
+    sourceType: MetagrinderResearchSourceTypeSchema,
+    sourceQuality: MetagrinderConfidenceLevelSchema,
+    rightsProfile: MetagrinderRightsProfileSchema.default('unknown'),
+    limitations: z.array(z.string()).default([]),
+    dedupeKey: z.string(),
+    mergedFromResultIds: z.array(z.string()).default([]),
+    sourceInputIds: z.array(z.string()).default([]),
+    sourceChunkIds: z.array(z.string()).default([]),
+    reviewStatus: z.enum(['needs_review', 'accepted', 'rejected']).default('needs_review')
+  })).default([])
+});
+
+export const MetagrinderSourceClaimsArtifactSchema = z.object({
+  inputId: z.string(),
+  claims: z.array(z.object({
+    sourceClaimId: z.string(),
+    sourceId: z.string(),
+    gapId: z.string(),
+    claim: z.string(),
+    claimType: z.string(),
+    supportsGrammarRefs: z.array(z.string()).default([]),
+    attributionMode: z.enum(['web-retrieved', 'original-source', 'manual-note']).default('web-retrieved'),
+    confidence: MetagrinderConfidenceLevelSchema,
+    evidenceIds: z.array(z.string()).default([]),
+    evidenceReviewStatus: z.enum(['accepted', 'rejected', 'needs_review']).default('needs_review'),
+    evidenceText: z.string(),
+    evidenceLocator: z.object({
+      url: z.string().optional(),
+      page: z.union([z.string(), z.number()]).nullable().optional(),
+      selector: z.string().nullable().optional(),
+      accessDate: z.string()
+    }),
+    limitations: z.array(z.string()).default([]),
+    reviewStatus: z.enum(['needs_review', 'accepted', 'rejected']).default('needs_review')
+  })).default([])
+});
+
+export const MetagrinderRevisionReviewStatusSchema = z.enum([
+  'accepted',
+  'rejected',
+  'needs_review',
+  'pending'
+]);
+
+export const MetagrinderRevisionStateEntrySchema = z.object({
+  revisionId: z.string(),
+  reviewStatus: MetagrinderRevisionReviewStatusSchema,
+  operatorNote: z.string().optional(),
+  overrideCitationReview: z.boolean().default(false),
+  reviewedBy: z.string().optional(),
+  reviewedAt: z.string().datetime().optional()
+});
+
+export const MetagrinderRevisionStateFileSchema = z.object({
+  inputId: z.string(),
+  revisionStates: z.array(MetagrinderRevisionStateEntrySchema).default([])
+}).superRefine((value, context) => {
+  const seen = new Set<string>();
+  value.revisionStates.forEach((entry, index) => {
+    if (seen.has(entry.revisionId)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['revisionStates', index, 'revisionId'],
+        message: `Duplicate revision state entry for ${entry.revisionId}`
+      });
+    }
+    seen.add(entry.revisionId);
+  });
+});
+
+export const MetagrinderRevisionStateAppliedSchema = z.object({
+  inputId: z.string(),
+  revisionStateFile: z.string().optional(),
+  appliedRevisionIds: z.array(z.string()).default([]),
+  rejectedRevisionIds: z.array(z.string()).default([]),
+  skippedRevisionIds: z.array(z.string()).default([]),
+  unknownRevisionIds: z.array(z.string()).default([]),
+  warnings: z.array(z.string()).default([])
+});
+
 export const MetagrinderGrammarRevisionSchema = z.object({
   revisionId: z.string(),
   gapId: z.string(),
   changeType: z.enum([
+    'confirm-weight-range',
     'adjust-weight-range',
+    'adjust-location-distribution',
+    'add-compatibility-effect',
+    'tighten-negative-constraint',
+    'add-source-support',
+    'adjust-confidence',
     'add-support-claim',
     'tighten-constraint',
     'add-compatibility-rule',
@@ -1280,6 +1870,7 @@ export const MetagrinderGrammarRevisionSchema = z.object({
   after: z.string(),
   reason: z.string(),
   supportingResultIds: z.array(z.string()).default([]),
+  sourceClaimIds: z.array(z.string()).min(1),
   confidence: MetagrinderConfidenceLevelSchema,
   reviewStatus: z.enum(['proposed', 'accepted', 'rejected', 'needs_review']).default('needs_review')
 });
@@ -1287,6 +1878,86 @@ export const MetagrinderGrammarRevisionSchema = z.object({
 export const MetagrinderGrammarRevisionArtifactSchema = z.object({
   inputId: z.string(),
   revisions: z.array(MetagrinderGrammarRevisionSchema).default([])
+});
+
+export const MetagrinderRevisionReviewArtifactSchema = z.object({
+  inputId: z.string(),
+  proposedRevisionCount: z.number().int().nonnegative(),
+  acceptedCount: z.number().int().nonnegative(),
+  rejectedCount: z.number().int().nonnegative(),
+  pendingCount: z.number().int().nonnegative(),
+  unknownRevisionIds: z.array(z.string()).default([]),
+  sourceClaimsSupportingAcceptedRevisions: z.array(z.string()).default([]),
+  lowQualitySourceWarnings: z.array(z.string()).default([]),
+  affectedGrammarRefs: z.array(z.string()).default([]),
+  materialDeltaCount: z.number().int().nonnegative().default(0),
+  confirmationCount: z.number().int().nonnegative().default(0),
+  appliedMutationCount: z.number().int().nonnegative().default(0),
+  skippedMutationCount: z.number().int().nonnegative().default(0),
+  acceptedRevisionIdsWithNoMaterialEffect: z.array(z.string()).default([]),
+  baseVsAcceptedPsgMaterialDifferences: z.boolean().default(false),
+  citationStatusCounts: z.record(z.number().int().nonnegative()).default({}),
+  citationWarnings: z.array(z.string()).default([]),
+  compileGrammarTarget: z.enum(['base', 'accepted']),
+  warnings: z.array(z.string()).default([])
+});
+
+export const MetagrinderAcceptedSceneGrammarArtifactSchema = MetagrinderSceneGrammarArtifactSchema;
+
+export const MetagrinderAcceptedGrammarDeltaSchema = z.object({
+  deltaId: z.string(),
+  revisionId: z.string(),
+  targetGrammarRef: z.string(),
+  changeType: z.string(),
+  before: z.unknown(),
+  after: z.unknown(),
+  materialChange: z.boolean(),
+  applied: z.boolean(),
+  effect: z.string().optional(),
+  supportingSourceClaimIds: z.array(z.string()).default([]),
+  evidenceIds: z.array(z.string()).default([]),
+  citationStatus: z.enum(['accepted', 'rejected', 'needs_review', 'mixed', 'none']).default('none'),
+  riskFlags: z.array(z.string()).default([]),
+  warnings: z.array(z.string()).default([])
+});
+
+export const MetagrinderAcceptedGrammarDeltasArtifactSchema = z.object({
+  inputId: z.string(),
+  deltas: z.array(MetagrinderAcceptedGrammarDeltaSchema).default([])
+});
+
+export const MetagrinderPsgCompileDiffChoiceSchema = z.object({
+  id: z.string().optional(),
+  text: z.string(),
+  weight: z.number()
+});
+
+export const MetagrinderPsgCompileDiffChangedNodeSchema = z.object({
+  graphPath: z.string(),
+  nodeId: z.string(),
+  changeType: z.literal('weighted-choice-delta'),
+  beforeChoices: z.array(MetagrinderPsgCompileDiffChoiceSchema).default([]),
+  afterChoices: z.array(MetagrinderPsgCompileDiffChoiceSchema).default([])
+});
+
+export const MetagrinderPsgCompileDiffArtifactSchema = z.object({
+  inputId: z.string(),
+  baseGraphPath: z.string(),
+  acceptedGraphPath: z.string(),
+  changedNodes: z.array(MetagrinderPsgCompileDiffChangedNodeSchema).default([]),
+  materialDifference: z.boolean()
+});
+
+export const MetagrinderLiveRetrievalReadinessArtifactSchema = z.object({
+  inputId: z.string(),
+  ready: z.boolean(),
+  checks: z.array(z.object({
+    id: z.string(),
+    label: z.string(),
+    exists: z.boolean(),
+    note: z.string().optional()
+  })).default([]),
+  missingPrerequisites: z.array(z.string()).default([])
 });
 
 export const MetagrinderSamplePromptSchema = z.object({
@@ -1551,6 +2222,48 @@ export type MetagrinderCompatibilityRule = z.infer<typeof MetagrinderCompatibili
 export type MetagrinderNegativeConstraint = z.infer<typeof MetagrinderNegativeConstraintSchema>;
 export type MetagrinderResearchGapArtifact = z.infer<typeof MetagrinderResearchGapArtifactSchema>;
 export type MetagrinderResearchQueryPlan = z.infer<typeof MetagrinderResearchQueryPlanSchema>;
+export type MetagrinderResearchSourceType = z.infer<typeof MetagrinderResearchSourceTypeSchema>;
+export type MetagrinderRetrievalMode = z.infer<typeof MetagrinderRetrievalModeSchema>;
+export type MetagrinderRetrievalPolicy = z.infer<typeof MetagrinderRetrievalPolicySchema>;
+export type MetagrinderRetrievalRunLog = z.infer<typeof MetagrinderRetrievalRunLogSchema>;
+export type MetagrinderRetrievalCandidate = z.infer<typeof MetagrinderRetrievalCandidateSchema>;
+export type MetagrinderRetrievalCandidatesArtifact = z.infer<typeof MetagrinderRetrievalCandidatesArtifactSchema>;
+export type MetagrinderLiveProviderContract = z.infer<typeof MetagrinderLiveProviderContractSchema>;
+export type MetagrinderProviderConfigApplied = z.infer<typeof MetagrinderProviderConfigAppliedSchema>;
+export type MetagrinderProviderPreflightReport = z.infer<typeof MetagrinderProviderPreflightReportSchema>;
+export type MetagrinderProviderRequestShapes = z.infer<typeof MetagrinderProviderRequestShapesSchema>;
+export type MetagrinderProviderResponseEntry = z.infer<typeof MetagrinderProviderResponseEntrySchema>;
+export type MetagrinderProviderResponseLog = z.infer<typeof MetagrinderProviderResponseLogSchema>;
+export type MetagrinderLiveProviderPilotReport = z.infer<typeof MetagrinderLiveProviderPilotReportSchema>;
+export type MetagrinderRealEndpointProofReport = z.infer<typeof MetagrinderRealEndpointProofReportSchema>;
+export type MetagrinderCandidateInspectionEntry = z.infer<typeof MetagrinderCandidateInspectionEntrySchema>;
+export type MetagrinderCandidateInspectionArtifact = z.infer<typeof MetagrinderCandidateInspectionArtifactSchema>;
+export type MetagrinderSourceTypingReport = z.infer<typeof MetagrinderSourceTypingReportSchema>;
+export type MetagrinderProviderErrorReport = z.infer<typeof MetagrinderProviderErrorReportSchema>;
+export type MetagrinderLiveRetrievalPreflight = z.infer<typeof MetagrinderLiveRetrievalPreflightSchema>;
+export type MetagrinderLiveRetrievalRequestEntry = z.infer<typeof MetagrinderLiveRetrievalRequestEntrySchema>;
+export type MetagrinderLiveRetrievalRequests = z.infer<typeof MetagrinderLiveRetrievalRequestsSchema>;
+export type MetagrinderLiveRetrievalCacheWriteEntry = z.infer<typeof MetagrinderLiveRetrievalCacheWriteEntrySchema>;
+export type MetagrinderLiveRetrievalCacheWrite = z.infer<typeof MetagrinderLiveRetrievalCacheWriteSchema>;
+export type MetagrinderRetrievalCacheManifest = z.infer<typeof MetagrinderRetrievalCacheManifestSchema>;
+export type MetagrinderSourceIntakeApproval = z.infer<typeof MetagrinderSourceIntakeApprovalSchema>;
+export type MetagrinderApprovedSourceResults = z.infer<typeof MetagrinderApprovedSourceResultsSchema>;
+export type MetagrinderSourceEvidenceRecord = z.infer<typeof MetagrinderSourceEvidenceRecordSchema>;
+export type MetagrinderSourceEvidenceArtifact = z.infer<typeof MetagrinderSourceEvidenceArtifactSchema>;
+export type MetagrinderSourceClaimReviewEntry = z.infer<typeof MetagrinderSourceClaimReviewEntrySchema>;
+export type MetagrinderSourceClaimReviewArtifact = z.infer<typeof MetagrinderSourceClaimReviewArtifactSchema>;
+export type MetagrinderRetrievalSafetyReport = z.infer<typeof MetagrinderRetrievalSafetyReportSchema>;
+export type MetagrinderRevisionStateEntry = z.infer<typeof MetagrinderRevisionStateEntrySchema>;
+export type MetagrinderRevisionStateFile = z.infer<typeof MetagrinderRevisionStateFileSchema>;
+export type MetagrinderRevisionStateApplied = z.infer<typeof MetagrinderRevisionStateAppliedSchema>;
+export type MetagrinderRevisionReviewArtifact = z.infer<typeof MetagrinderRevisionReviewArtifactSchema>;
+export type MetagrinderAcceptedSceneGrammarArtifact = z.infer<typeof MetagrinderAcceptedSceneGrammarArtifactSchema>;
+export type MetagrinderAcceptedGrammarDelta = z.infer<typeof MetagrinderAcceptedGrammarDeltaSchema>;
+export type MetagrinderAcceptedGrammarDeltasArtifact = z.infer<typeof MetagrinderAcceptedGrammarDeltasArtifactSchema>;
+export type MetagrinderPsgCompileDiffArtifact = z.infer<typeof MetagrinderPsgCompileDiffArtifactSchema>;
+export type MetagrinderLiveRetrievalReadinessArtifact = z.infer<typeof MetagrinderLiveRetrievalReadinessArtifactSchema>;
+export type MetagrinderSourceRegistryArtifact = z.infer<typeof MetagrinderSourceRegistryArtifactSchema>;
+export type MetagrinderSourceClaimsArtifact = z.infer<typeof MetagrinderSourceClaimsArtifactSchema>;
 export type MetagrinderWebResearchResults = z.infer<typeof MetagrinderWebResearchResultsSchema>;
 export type MetagrinderGrammarRevisionArtifact = z.infer<typeof MetagrinderGrammarRevisionArtifactSchema>;
 export type MetagrinderSamplePromptsArtifact = z.infer<typeof MetagrinderSamplePromptsArtifactSchema>;

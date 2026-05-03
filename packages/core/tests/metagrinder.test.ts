@@ -7,6 +7,7 @@ import {
   CameraPassManifestSchema,
   CanonicalUtdgRecordSchema,
   LumaAdapterContractSchema,
+  MetagrinderAcceptedGrammarDeltasArtifactSchema,
   MetagrinderAgentRunArtifactSchema,
   MetagrinderAssumptionReviewArtifactSchema,
   MetagrinderAugmentationPlanArtifactSchema,
@@ -19,14 +20,43 @@ import {
     MetagrinderMutationArtifactSchema,
     MetagrinderMutationReviewArtifactSchema,
     MetagrinderPlausibilityReviewArtifactSchema,
+    MetagrinderPsgCompileDiffArtifactSchema,
     MetagrinderPsgV2FileSchema,
     MetagrinderResearchGapArtifactSchema,
     MetagrinderResearchQueryPlanSchema,
+    MetagrinderRetrievalPolicySchema,
+    MetagrinderRetrievalRunLogSchema,
+    MetagrinderRetrievalCandidatesArtifactSchema,
+    MetagrinderLiveProviderContractSchema,
+    MetagrinderProviderConfigAppliedSchema,
+    MetagrinderProviderPreflightReportSchema,
+    MetagrinderProviderRequestShapesSchema,
+    MetagrinderProviderResponseLogSchema,
+    MetagrinderLiveProviderPilotReportSchema,
+    MetagrinderRealEndpointProofReportSchema,
+    MetagrinderCandidateInspectionArtifactSchema,
+    MetagrinderSourceTypingReportSchema,
+    MetagrinderProviderErrorReportSchema,
+    MetagrinderLiveRetrievalPreflightSchema,
+    MetagrinderLiveRetrievalRequestsSchema,
+    MetagrinderLiveRetrievalCacheWriteSchema,
+    MetagrinderRetrievalCacheManifestSchema,
+    MetagrinderSourceIntakeApprovalSchema,
+    MetagrinderApprovedSourceResultsSchema,
+    MetagrinderRetrievalSafetyReportSchema,
+    MetagrinderRevisionReviewArtifactSchema,
+    MetagrinderRevisionStateAppliedSchema,
+    MetagrinderRevisionStateFileSchema,
     MetagrinderReviewArtifactSchema,
+    MetagrinderLiveRetrievalReadinessArtifactSchema,
     MetagrinderSamplePromptsArtifactSchema,
     MetagrinderScoreArtifactSchema,
     MetagrinderSceneGrammarArtifactSchema,
     MetagrinderSceneGrammarEvaluationSchema,
+    MetagrinderSourceClaimsArtifactSchema,
+    MetagrinderSourceEvidenceArtifactSchema,
+    MetagrinderSourceClaimReviewArtifactSchema,
+    MetagrinderSourceRegistryArtifactSchema,
     MetagrinderSynthesizeArtifactSchema,
     MetagrinderWebResearchResultsSchema,
   MetaballManifestSchema,
@@ -65,7 +95,14 @@ const {
       buildResearchGapArtifact,
       buildResearchQueryPlan,
       buildWebResearchResults,
+      buildSourceRegistryArtifact,
+      buildSourceClaimsArtifact,
       buildGrammarRevisionArtifact,
+      applyRevisionStateFile,
+      applyAcceptedGrammarRevisions,
+      applyAcceptedGrammarRevisionsWithDeltas,
+      splitGrammarRevisionArtifact,
+      buildRevisionReviewArtifact,
       buildSamplePromptsArtifact,
       buildSceneGrammarEvaluation,
       buildPlausibilityReviewArtifact,
@@ -89,6 +126,8 @@ const researchPipelineService = require('../services/researchPipeline/index.js')
 const researchReviewService = require('../services/researchReview/index.js');
 const researchScoreService = require('../services/researchScore/index.js');
 const researchSynthesizeService = require('../services/researchSynthesize/index.js');
+const researchWebResearchService = require('../services/researchWebResearch/index.js');
+const { buildApprovedSourceResultsArtifact } = require('../services/researchSourceIntakeApproval/index.js');
 
 const readFixture = (name: string) => {
   const fixturePath = path.join(
@@ -925,7 +964,13 @@ describe('metagrinder schemas', () => {
       buildResearchGapArtifact,
       buildResearchQueryPlan,
       buildWebResearchResults,
+      buildSourceRegistryArtifact,
+      buildSourceClaimsArtifact,
       buildGrammarRevisionArtifact,
+      applyRevisionStateFile,
+      splitGrammarRevisionArtifact,
+      applyAcceptedGrammarRevisions,
+      buildRevisionReviewArtifact,
       buildSamplePromptsArtifact,
       buildSceneGrammarEvaluation,
       buildPlausibilityReviewArtifact,
@@ -2838,6 +2883,67 @@ describe('metagrinder schemas', () => {
       adapterMode: 'mock',
       results: []
     });
+    const sourceRegistry = MetagrinderSourceRegistryArtifactSchema.parse({
+      inputId: 'scene',
+      sources: [
+        {
+          sourceId: 'source_loc_001',
+          sourceKind: 'web-result',
+          title: 'Archive crowd photograph',
+          url: 'https://archive.example/source',
+          canonicalUrl: 'https://archive.example/source',
+          domain: 'archive.example',
+          sourceType: 'archive',
+          sourceQuality: 'medium',
+          rightsProfile: 'reference-only',
+          limitations: ['Comparable scene, not event-specific.'],
+          dedupeKey: 'archive.example/source',
+          mergedFromResultIds: ['result_001'],
+          reviewStatus: 'needs_review'
+        }
+      ]
+    });
+    const sourceClaims = MetagrinderSourceClaimsArtifactSchema.parse({
+      inputId: 'scene',
+      claims: [
+        {
+          sourceClaimId: 'source_claim_001',
+          sourceId: 'source_loc_001',
+          gapId: 'gap_001',
+          claim: 'Comparable crowd source supports the distribution.',
+          claimType: 'demographic-distribution',
+          supportsGrammarRefs: ['archetypes.participant.weightRange'],
+          attributionMode: 'web-retrieved',
+          confidence: 'medium',
+          evidenceText: 'Comparable crowd source supports the distribution.',
+          evidenceLocator: {
+            url: 'https://archive.example/source',
+            page: null,
+            selector: null,
+            accessDate: '2026-05-02'
+          },
+          limitations: ['Comparable scene, not event-specific.'],
+          reviewStatus: 'needs_review'
+        }
+      ]
+    });
+    const grammarRevisions = MetagrinderGrammarRevisionArtifactSchema.parse({
+      inputId: 'scene',
+      revisions: [
+        {
+          revisionId: 'revision_001',
+          gapId: 'gap_001',
+          changeType: 'adjust-weight-range',
+          targetGrammarRef: 'archetypes.participant.weightRange',
+          before: 'first-pass range',
+          after: 'accepted support note',
+          reason: 'Supported by source claim.',
+          sourceClaimIds: ['source_claim_001'],
+          confidence: 'medium',
+          reviewStatus: 'needs_review'
+        }
+      ]
+    });
     const samples = MetagrinderSamplePromptsArtifactSchema.parse({
       inputId: 'scene',
       samples: [
@@ -2887,6 +2993,9 @@ describe('metagrinder schemas', () => {
     expect(gaps.gaps[0].gapType).toBe('under-supported-distribution');
     expect(queryPlan.webResearchMode).toBe('gaps-only');
     expect(webResults.adapterMode).toBe('mock');
+    expect(sourceRegistry.sources[0].dedupeKey).toBe('archive.example/source');
+    expect(sourceClaims.claims[0].sourceId).toBe('source_loc_001');
+    expect(grammarRevisions.revisions[0].sourceClaimIds).toContain('source_claim_001');
     expect(samples.samples[0].grammarRefs).toContain('archetypes.participant');
     expect(evaluation.distributionTests[0].verdict).toBe('pass');
     expect(plausibility.reviews[0].verdict).toBe('plausible');
@@ -2919,10 +3028,20 @@ describe('metagrinder schemas', () => {
       researchGapArtifact,
       now: () => '2026-05-02T12:00:00.000Z'
     });
+    const sourceRegistryArtifact = buildSourceRegistryArtifact({
+      ingestArtifact,
+      webResearchResults
+    });
+    const sourceClaimsArtifact = buildSourceClaimsArtifact({
+      sourceRegistryArtifact,
+      webResearchResults,
+      researchGapArtifact
+    });
     const grammarRevisionArtifact = buildGrammarRevisionArtifact({
       sceneGrammarArtifact,
       researchGapArtifact,
-      webResearchResults
+      webResearchResults,
+      sourceClaimsArtifact
     });
     const samplePromptsArtifact = buildSamplePromptsArtifact({ sceneGrammarArtifact });
     const sceneGrammarEvaluation = buildSceneGrammarEvaluation({
@@ -2980,9 +3099,13 @@ describe('metagrinder schemas', () => {
     expect(webResearchResults.results.every((result: any) =>
       result.gapId && result.claimsExtracted.length > 0 && result.limitations.length > 0
     )).toBe(true);
+    expect(sourceRegistryArtifact.sources.some((source: any) => source.sourceKind === 'web-result')).toBe(true);
+    expect(sourceClaimsArtifact.claims.every((claim: any) =>
+      claim.sourceId && claim.evidenceText && claim.evidenceLocator.accessDate
+    )).toBe(true);
     expect(grammarRevisionArtifact.revisions.length).toBeGreaterThan(0);
     expect(grammarRevisionArtifact.revisions.every((revision: any) =>
-      revision.before && revision.after && revision.supportingResultIds.length > 0
+      revision.before && revision.after && revision.sourceClaimIds.length > 0
     )).toBe(true);
     expect(grammarRevisionArtifact.revisions.every((revision: any) =>
       revision.changeType !== 'flag-low-quality-source' || revision.confidence === 'low'
@@ -3027,6 +3150,1807 @@ describe('metagrinder schemas', () => {
     });
     const pitChoice = branchGraphPsgs['scene-pit-branch.psg'].graph.nodes.find((node: any) => node.type === 'WeightedChoice');
     expect(pitChoice.data.value.every((choice: any) => /worker|official|mechanic|driver|press/i.test(choice.text))).toBe(true);
+  });
+
+  test('extracts generic scene grammar from medieval market fixture', () => {
+    const rawText = readTextFixture('research-input-medieval-market-scene-grammar.txt');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-medieval-market-scene-grammar.txt',
+      rawText,
+      inputId: 'research-input-medieval-market-scene-grammar',
+      title: 'Medieval Market Scene Grammar',
+      createdAt: '2026-05-02T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({ ingestArtifact });
+    const classifyArtifact = buildClassifyArtifact({ ingestArtifact, extractArtifact });
+    const synthesizeArtifact = buildSynthesizeArtifact({ ingestArtifact, extractArtifact });
+    const sourceModeArtifact = buildSourceModeArtifact({ ingestArtifact });
+    const sceneGrammarArtifact = buildSceneGrammarArtifact({
+      ingestArtifact,
+      extractArtifact,
+      classifyArtifact,
+      synthesizeArtifact,
+      sourceModeArtifact
+    });
+    const researchGapArtifact = buildResearchGapArtifact({ sceneGrammarArtifact });
+    const samplePromptsArtifact = buildSamplePromptsArtifact({ sceneGrammarArtifact });
+    const sceneGrammarPsg = buildSceneGrammarPsg({
+      sceneGrammarArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+    const branchGraphPsgs = buildBranchSceneGrammarPsgs({
+      sceneGrammarArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+
+    expect(sceneGrammarArtifact.archetypes.length).toBeGreaterThanOrEqual(3);
+    expect(sceneGrammarArtifact.locationZones.length).toBeGreaterThanOrEqual(2);
+    expect(sceneGrammarArtifact.compatibilityRules.length).toBeGreaterThanOrEqual(2);
+    expect(sceneGrammarArtifact.negativeConstraints.length).toBeGreaterThanOrEqual(2);
+    expect(sceneGrammarArtifact.visualReferenceSets.length).toBeGreaterThanOrEqual(1);
+    expect(researchGapArtifact.gaps.length).toBeGreaterThan(0);
+    expect(samplePromptsArtifact.samples.length).toBeGreaterThan(0);
+    expect(() => MetagrinderPsgV2FileSchema.parse(sceneGrammarPsg)).not.toThrow();
+    Object.values(branchGraphPsgs).forEach((graph: any) => {
+      expect(() => MetagrinderPsgV2FileSchema.parse(graph)).not.toThrow();
+      graph.graph.nodes
+        .filter((node: any) => node.type === 'WeightedChoice')
+        .forEach((node: any) => {
+          expect(node.data.choices.every((choice: any) =>
+            typeof choice.text === 'string' && typeof choice.weight === 'number'
+          )).toBe(true);
+        });
+    });
+  });
+
+  test('extracts historical crowd constraints from perturbed wording', () => {
+    const rawText = `
+# Perturbed historical crowd grammar
+
+Middle-class spectator: adult male baseline, dark suit, white shirt, tie, leather shoes, straw boater or bowler. This group makes up roughly half to three-fifths of the visible crowd.
+
+Heat-adjusted spectator: adult male with straw boater, white shirt, suspenders visible, jacket removed or carried, sleeves rolled, dark trousers, dusty shoes. This group is about one-fifth to one-third of the visible crowd.
+
+Female middle-class spectator: adult woman in shirtwaist blouse, long skirt, large hat, gloves, parasol, or structured handbag. Female spectators are rare in number but visually significant and should appear more often in grandstand and social viewing zones than near the rail.
+
+African American or otherwise underrepresented local community spectator: include middle-class and working-class spectators with the same public dress and spectator behavior as comparable attendees. Avoid reducing African American figures to labor roles only.
+
+Location-zone logic:
+Near the rail, bias the generated people toward adult men, shirtsleeves, working-class and lower-middle-class spectators, and jacket-removed heat states; reduce children and affluent women.
+Grandstand seating should bias toward adult women, children, family groups, middle-class spectators, and complete outfits.
+Pit or official area should force worker, official, driver, mechanic, or press roles and exclude casual viewer-only archetypes.
+
+Wardrobe systems:
+Formal daywear includes sack suits, waistcoats, stiff collars, ties, leather shoes, straw boaters, bowlers, and subdued colors.
+Heat-adjusted daywear includes white shirts, suspenders, jacket removed, sleeves rolled, dusty shoes, and loosened ties.
+Female public daywear includes shirtwaist blouses, long skirts, large decorated hats, gloves, scarves, parasols, and practical laced shoes.
+
+Visual reference notes:
+Visual reference caption: dense rows of male spectators in straw boaters and dark suits with high silhouette uniformity.
+
+Negative constraints:
+Avoid modern T-shirts, shorts, baseball caps, and modern sunglasses.
+Ethical constraint: avoid reducing African American figures to labor roles only; allow spectator and family-member variants where spatially logical.
+`;
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'perturbed-historical-crowd.txt',
+      rawText,
+      inputId: 'perturbed-historical-crowd',
+      title: 'Perturbed Historical Crowd',
+      createdAt: '2026-05-02T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({ ingestArtifact });
+    const classifyArtifact = buildClassifyArtifact({ ingestArtifact, extractArtifact });
+    const synthesizeArtifact = buildSynthesizeArtifact({ ingestArtifact, extractArtifact });
+    const sourceModeArtifact = buildSourceModeArtifact({ ingestArtifact });
+    const sceneGrammarArtifact = buildSceneGrammarArtifact({
+      ingestArtifact,
+      extractArtifact,
+      classifyArtifact,
+      synthesizeArtifact,
+      sourceModeArtifact
+    });
+
+    const middleClass = sceneGrammarArtifact.archetypes.find((archetype: any) =>
+      archetype.archetypeId === 'middle_class_spectator'
+    );
+    expect(middleClass?.weightRange?.min).toBe(50);
+    expect(middleClass?.weightRange?.max).toBe(60);
+    expect(sceneGrammarArtifact.archetypes.some((archetype: any) =>
+      archetype.archetypeId === 'female_middle_class_spectator' &&
+        archetype.weightRange?.min === 5 &&
+        archetype.weightRange?.max === 8
+    )).toBe(true);
+    expect(sceneGrammarArtifact.compatibilityRules.some((rule: any) =>
+      rule.ruleId === 'rail_bias_rule' &&
+        rule.effects.some((effect: any) => effect.target === 'shirtsleeves')
+    )).toBe(true);
+    expect(sceneGrammarArtifact.negativeConstraints.some((constraint: any) =>
+      constraint.constraintType.includes('ethical') &&
+        constraint.text.includes('underrepresented groups')
+    )).toBe(true);
+  });
+
+  test('enforces sampler, evaluator, PSG v2, and mock web adapter contracts', () => {
+    const rawText = readTextFixture('research-input-historical-crowd-grammar.txt');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-historical-crowd-grammar.txt',
+      rawText,
+      inputId: 'research-input-historical-crowd-grammar',
+      title: 'Early twentieth-century public spectacle crowd scene grammar notes',
+      createdAt: '2026-05-02T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({ ingestArtifact });
+    const classifyArtifact = buildClassifyArtifact({ ingestArtifact, extractArtifact });
+    const synthesizeArtifact = buildSynthesizeArtifact({ ingestArtifact, extractArtifact });
+    const sourceModeArtifact = buildSourceModeArtifact({ ingestArtifact });
+    const sceneGrammarArtifact = buildSceneGrammarArtifact({
+      ingestArtifact,
+      extractArtifact,
+      classifyArtifact,
+      synthesizeArtifact,
+      sourceModeArtifact
+    });
+    const researchGapArtifact = buildResearchGapArtifact({ sceneGrammarArtifact });
+    const researchQueryPlan = buildResearchQueryPlan({ researchGapArtifact });
+    const webResearchResults = researchWebResearchService.createMockWebResearchAdapter({
+      now: () => '2026-05-02T12:00:00.000Z'
+    }).retrieve({ researchQueryPlan, researchGapArtifact });
+    const sourceRegistryArtifact = buildSourceRegistryArtifact({
+      ingestArtifact,
+      webResearchResults
+    });
+    const sourceClaimsArtifact = buildSourceClaimsArtifact({
+      sourceRegistryArtifact,
+      webResearchResults,
+      researchGapArtifact
+    });
+    const samplePromptsArtifact = buildSamplePromptsArtifact({ sceneGrammarArtifact });
+    const grammarRevisionArtifact = buildGrammarRevisionArtifact({
+      sceneGrammarArtifact,
+      researchGapArtifact,
+      webResearchResults,
+      sourceClaimsArtifact
+    });
+    const sceneGrammarEvaluation = buildSceneGrammarEvaluation({
+      sceneGrammarArtifact,
+      samplePromptsArtifact,
+      grammarRevisionArtifact
+    });
+    const plausibilityReviewArtifact = buildPlausibilityReviewArtifact({
+      sceneGrammarArtifact,
+      samplePromptsArtifact
+    });
+    const branchGraphPsgs = buildBranchSceneGrammarPsgs({
+      sceneGrammarArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+
+    const pitSample = samplePromptsArtifact.samples.find((sample: any) => sample.locationZone === 'pit');
+    expect(pitSample.generatedPrompt).toMatch(/worker|official|driver|mechanic|press/i);
+    expect(pitSample.generatedPrompt).toMatch(/not a casual viewer/i);
+
+    const railSample = samplePromptsArtifact.samples.find((sample: any) => sample.locationZone === 'rail');
+    expect(railSample.selectedArchetypeIds).not.toEqual(expect.arrayContaining(['female_middle_class_spectator', 'child_or_teen_spectator']));
+
+    const grandstandSamples = samplePromptsArtifact.samples.filter((sample: any) => sample.locationZone === 'grandstand');
+    expect(grandstandSamples.some((sample: any) =>
+      /female|child|family|social viewing/i.test(sample.generatedPrompt)
+    )).toBe(true);
+
+    expect(samplePromptsArtifact.samples.some((sample: any) =>
+      sample.sampleMode === 'invalid-test' &&
+        /Female spectator/i.test(sample.generatedPrompt) &&
+        /mechanic coat|goggles/i.test(sample.generatedPrompt)
+    )).toBe(true);
+    expect(plausibilityReviewArtifact.reviews.some((review: any) =>
+      review.verdict === 'fail' &&
+        review.failureReasons.some((reason: string) => reason.includes('Female spectator cues conflict'))
+    )).toBe(true);
+
+    const ethicalConstraint = sceneGrammarArtifact.negativeConstraints.find((constraint: any) =>
+      constraint.constraintType.includes('ethical')
+    );
+    expect(ethicalConstraint.enforcement.allow).toEqual(expect.arrayContaining([
+      'middle_class_spectator',
+      'working_class_spectator',
+      'worker',
+      'family_member'
+    ]));
+    expect(sceneGrammarEvaluation.criticFlags.some((flag: any) =>
+      flag.code === 'negative-constraint-detected-but-not-enforced'
+    )).toBe(false);
+
+    Object.values(branchGraphPsgs).forEach((graph: any) => {
+      expect(graph.fileType).toBe('psg');
+      expect(graph.formatVersion).toBe('2.0.0');
+      expect(graph.graph).toBeDefined();
+      expect(graph.nodes).toBeUndefined();
+      const nodeIds = new Set(graph.graph.nodes.map((node: any) => node.id));
+      const edgeIds = new Set(graph.graph.edges.map((edge: any) => edge.id));
+      expect(nodeIds.size).toBe(graph.graph.nodes.length);
+      expect(edgeIds.size).toBe(graph.graph.edges.length);
+      graph.graph.nodes.forEach((node: any) => {
+        expect(node.id).toBeTruthy();
+        expect(node.type).toBeTruthy();
+        expect(node.position).toBeTruthy();
+        expect(node.data).toBeTruthy();
+        if (node.type === 'WeightedChoice') {
+          expect(node.data.choices.every((choice: any) =>
+            typeof choice.text === 'string' && typeof choice.weight === 'number'
+          )).toBe(true);
+        }
+      });
+      graph.graph.edges.forEach((edge: any) => {
+        expect(edge.id).toBeTruthy();
+        expect(nodeIds.has(edge.source)).toBe(true);
+        expect(nodeIds.has(edge.target)).toBe(true);
+      });
+    });
+
+    expect(webResearchResults.adapterMode).toBe('mock');
+    expect(() => researchWebResearchService.createLiveWebResearchAdapter()).toThrow(/not implemented/);
+  });
+
+  test('builds a canonical source registry and source claims from duplicated retrieval results', () => {
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'source-registry-audit.txt',
+      rawText: '# Source Registry Audit\n\nOriginal crowd source notes.',
+      inputId: 'source-registry-audit',
+      title: 'Source Registry Audit',
+      createdAt: '2026-05-02T12:00:00.000Z'
+    });
+    const webResearchResults = MetagrinderWebResearchResultsSchema.parse({
+      inputId: ingestArtifact.inputId,
+      adapterMode: 'mock',
+      retrievedAt: '2026-05-02T12:00:00.000Z',
+      results: [
+        {
+          resultId: 'result_001',
+          gapId: 'gap_grandstand',
+          sourceType: 'archive',
+          title: '1910s Baseball Crowd Grandstand Photograph',
+          url: 'http://www.example.com/source?utm_source=test#caption',
+          retrievedAt: '2026-05-02T12:00:00.000Z',
+          relevance: 'high',
+          sourceQuality: 'medium',
+          claimsExtracted: [
+            {
+              claim: 'Women are visible in seated grandstand areas but remain a minority of the visible crowd.',
+              supportsGrammarRefs: [
+                'locationZones.grandstand.demographicDistribution',
+                'archetypes.female_middle_class_spectator.weightRange'
+              ],
+              confidence: 'medium'
+            }
+          ],
+          limitations: ['Different sport and city.']
+        },
+        {
+          resultId: 'result_002',
+          gapId: 'gap_grandstand',
+          sourceType: 'museum',
+          title: '1910s Baseball Crowd Grandstand Photograph',
+          url: 'https://example.com/source',
+          retrievedAt: '2026-05-02T12:00:00.000Z',
+          relevance: 'medium',
+          sourceQuality: 'high',
+          claimsExtracted: [
+            {
+              claim: 'Grandstand viewers include family and social viewing variants.',
+              supportsGrammarRefs: ['locationZones.grandstand'],
+              confidence: 'high'
+            }
+          ],
+          limitations: ['Still needs operator acceptance.']
+        },
+        {
+          resultId: 'result_003',
+          gapId: 'gap_grandstand',
+          sourceType: 'low-quality-source',
+          title: '1910s Baseball Crowd Grandstand Photograph',
+          url: 'https://example.com/source?utm_medium=social',
+          retrievedAt: '2026-05-02T12:00:00.000Z',
+          relevance: 'low',
+          sourceQuality: 'low',
+          claimsExtracted: [
+            {
+              claim: 'Weak source should not upgrade confidence.',
+              supportsGrammarRefs: ['locationZones.grandstand'],
+              confidence: 'high'
+            }
+          ],
+          limitations: ['Low-quality source.']
+        }
+      ]
+    });
+    const sourceRegistryArtifact = buildSourceRegistryArtifact({
+      ingestArtifact,
+      webResearchResults
+    });
+    const sourceClaimsArtifact = buildSourceClaimsArtifact({
+      sourceRegistryArtifact,
+      webResearchResults,
+      researchGapArtifact: {
+        inputId: ingestArtifact.inputId,
+        gaps: [
+          {
+            gapId: 'gap_grandstand',
+            gapType: 'under-supported-distribution',
+            severity: 'medium',
+            affectedGrammarRefs: ['locationZones.grandstand.demographicDistribution'],
+            question: 'What supports grandstand distribution?',
+            currentSupport: [],
+            missingSupport: [],
+            recommendedSearches: []
+          }
+        ]
+      }
+    });
+
+    const webSources = sourceRegistryArtifact.sources.filter((source: any) =>
+      source.sourceKind === 'web-result'
+    );
+    expect(webSources).toHaveLength(1);
+    expect(webSources[0].canonicalUrl).toBe('https://example.com/source');
+    expect(webSources[0].sourceQuality).toBe('high');
+    expect(webSources[0].mergedFromResultIds).toEqual(expect.arrayContaining([
+      'result_001',
+      'result_002',
+      'result_003'
+    ]));
+    expect(sourceClaimsArtifact.claims).toHaveLength(3);
+    expect(new Set(sourceClaimsArtifact.claims.map((claim: any) => claim.sourceId)).size).toBe(1);
+    expect(sourceClaimsArtifact.claims[0].supportsGrammarRefs).toEqual(expect.arrayContaining([
+      'locationZones.grandstand.demographicDistribution',
+      'archetypes.female_middle_class_spectator.weightRange'
+    ]));
+    expect(sourceClaimsArtifact.claims.find((claim: any) =>
+      claim.claim.includes('Weak source')
+    )?.confidence).toBe('low');
+  });
+
+  test('links grammar revisions to source claims and applies only accepted revisions', () => {
+    const rawText = readTextFixture('research-input-historical-crowd-grammar.txt');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'research-input-historical-crowd-grammar.txt',
+      rawText,
+      inputId: 'research-input-historical-crowd-grammar',
+      title: 'Early twentieth-century public spectacle crowd scene grammar notes',
+      createdAt: '2026-05-02T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({ ingestArtifact });
+    const classifyArtifact = buildClassifyArtifact({ ingestArtifact, extractArtifact });
+    const synthesizeArtifact = buildSynthesizeArtifact({ ingestArtifact, extractArtifact });
+    const sourceModeArtifact = buildSourceModeArtifact({ ingestArtifact });
+    const sceneGrammarArtifact = buildSceneGrammarArtifact({
+      ingestArtifact,
+      extractArtifact,
+      classifyArtifact,
+      synthesizeArtifact,
+      sourceModeArtifact
+    });
+    const researchGapArtifact = buildResearchGapArtifact({ sceneGrammarArtifact });
+    const researchQueryPlan = buildResearchQueryPlan({ researchGapArtifact });
+    const webResearchResults = buildWebResearchResults({
+      researchQueryPlan,
+      researchGapArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+    const sourceRegistryArtifact = buildSourceRegistryArtifact({
+      ingestArtifact,
+      webResearchResults
+    });
+    const sourceClaimsArtifact = buildSourceClaimsArtifact({
+      sourceRegistryArtifact,
+      webResearchResults,
+      researchGapArtifact
+    });
+    const grammarRevisionArtifact = buildGrammarRevisionArtifact({
+      sceneGrammarArtifact,
+      researchGapArtifact,
+      webResearchResults,
+      sourceClaimsArtifact
+    });
+    const reviewedRevisionArtifact = {
+      inputId: grammarRevisionArtifact.inputId,
+      revisions: grammarRevisionArtifact.revisions.slice(0, 3).map((revision: any, index: number) => ({
+        ...revision,
+        reviewStatus: index === 0 ? 'accepted' : index === 1 ? 'rejected' : 'needs_review'
+      }))
+    };
+    const { acceptedGrammarRevisionArtifact, rejectedGrammarRevisionArtifact } = splitGrammarRevisionArtifact({
+      grammarRevisionArtifact: reviewedRevisionArtifact
+    });
+    const acceptedSceneGrammarArtifact = applyAcceptedGrammarRevisions({
+      sceneGrammarArtifact,
+      grammarRevisionArtifact: acceptedGrammarRevisionArtifact
+    });
+    const baseSceneGrammarPsg = buildSceneGrammarPsg({
+      sceneGrammarArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+    const acceptedSceneGrammarPsg = buildSceneGrammarPsg({
+      sceneGrammarArtifact: acceptedSceneGrammarArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+
+    expect(grammarRevisionArtifact.revisions.every((revision: any) =>
+      revision.sourceClaimIds.length > 0 &&
+        revision.supportingResultIds.length === 0
+    )).toBe(true);
+    const lowOnlyRevisionArtifact = buildGrammarRevisionArtifact({
+      sceneGrammarArtifact,
+      researchGapArtifact: {
+        inputId: researchGapArtifact.inputId,
+        gaps: [researchGapArtifact.gaps[0]]
+      },
+      webResearchResults,
+      sourceClaimsArtifact: {
+        inputId: sourceClaimsArtifact.inputId,
+        claims: [
+          {
+            ...sourceClaimsArtifact.claims.find((claim: any) =>
+              claim.gapId === researchGapArtifact.gaps[0].gapId
+            ),
+            confidence: 'low'
+          }
+        ]
+      }
+    });
+    expect(lowOnlyRevisionArtifact.revisions[0].changeType).toBe('flag-low-quality-source');
+    expect(lowOnlyRevisionArtifact.revisions[0].confidence).toBe('low');
+    expect(() => MetagrinderGrammarRevisionArtifactSchema.parse({
+      inputId: 'bad',
+      revisions: [
+        {
+          revisionId: 'bad_revision',
+          gapId: 'gap',
+          changeType: 'no-op',
+          targetGrammarRef: 'sceneGrammar',
+          before: 'before',
+          after: 'after',
+          reason: 'missing source claims',
+          sourceClaimIds: [],
+          confidence: 'medium',
+          reviewStatus: 'needs_review'
+        }
+      ]
+    })).toThrow();
+    expect(acceptedGrammarRevisionArtifact.revisions).toHaveLength(1);
+    expect(rejectedGrammarRevisionArtifact.revisions).toHaveLength(1);
+    expect(acceptedSceneGrammarArtifact.reviewFlags).toContain(
+      `accepted-revision:${acceptedGrammarRevisionArtifact.revisions[0].revisionId}`
+    );
+    expect(acceptedSceneGrammarArtifact.reviewFlags).not.toContain(
+      `accepted-revision:${rejectedGrammarRevisionArtifact.revisions[0].revisionId}`
+    );
+    expect(acceptedSceneGrammarArtifact.populationModel.notes.length).toBeGreaterThan(
+      sceneGrammarArtifact.populationModel.notes.length
+    );
+    expect(baseSceneGrammarPsg.metadata.name).toContain(sceneGrammarArtifact.sceneContext.title);
+    expect(acceptedSceneGrammarPsg.graph.nodes.length).toBe(baseSceneGrammarPsg.graph.nodes.length);
+  });
+
+  test('parses revision state files and rejects duplicate revision entries', () => {
+    const revisionState = MetagrinderRevisionStateFileSchema.parse(
+      readFixture('revision-state-historical-crowd.json')
+    );
+    expect(revisionState.revisionStates[0].reviewStatus).toBe('accepted');
+    expect(revisionState.revisionStates[1].reviewStatus).toBe('rejected');
+    expect(() => MetagrinderRevisionStateFileSchema.parse({
+      inputId: 'scene',
+      revisionStates: [
+        {
+          revisionId: 'revision_001',
+          reviewStatus: 'accepted'
+        },
+        {
+          revisionId: 'revision_001',
+          reviewStatus: 'rejected'
+        }
+      ]
+    })).toThrow(/Duplicate revision state entry/);
+  });
+
+  test('applies accepted material grammar deltas and records confirmations', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-delta-unit-'));
+    const baseResult = runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'RALPH 6 Delta Unit',
+      compileGrammar: 'base'
+    });
+    const claimId = baseResult.sourceClaimsArtifact.claims[0].sourceClaimId;
+    const ruleId = baseResult.sceneGrammarArtifact.compatibilityRules[0].ruleId;
+    const constraintId = baseResult.sceneGrammarArtifact.negativeConstraints[0].constraintId;
+    const distributionId = baseResult.sceneGrammarArtifact.demographicDistributions[0].distributionId;
+    const referenceId = baseResult.sceneGrammarArtifact.visualReferenceSets[0].referenceId;
+    const distributionBefore = baseResult.sceneGrammarArtifact.demographicDistributions[0].entries;
+    const referenceSupportsBefore = baseResult.sceneGrammarArtifact.visualReferenceSets[0].supports;
+    const middleClassBefore = baseResult.sceneGrammarArtifact.archetypes.find((entry: any) =>
+      entry.archetypeId === 'middle_class_spectator'
+    ).weightRange;
+    const heatAdjustedBefore = baseResult.sceneGrammarArtifact.archetypes.find((entry: any) =>
+      entry.archetypeId === 'heat_adjusted_spectator'
+    ).weightRange;
+    const rejectedBefore = baseResult.sceneGrammarArtifact.archetypes.find((entry: any) =>
+      entry.archetypeId === 'working_class_trackside'
+    ).weightRange;
+    const pendingBefore = baseResult.sceneGrammarArtifact.archetypes.find((entry: any) =>
+      entry.archetypeId === 'female_middle_class_spectator'
+    ).weightRange;
+
+    const grammarRevisionArtifact = MetagrinderGrammarRevisionArtifactSchema.parse({
+      inputId: baseResult.sceneGrammarArtifact.inputId,
+      revisions: [
+        {
+          revisionId: 'revision_material_weight',
+          gapId: 'gap_middle_class_spectator_weight_support',
+          changeType: 'adjust-weight-range',
+          targetGrammarRef: 'archetypes.middle_class_spectator.weightRange',
+          before: 'base range',
+          after: 'source-supported range',
+          reason: 'Test material weight mutation.',
+          sourceClaimIds: [claimId],
+          confidence: 'medium',
+          reviewStatus: 'accepted'
+        },
+        {
+          revisionId: 'revision_confirm_weight',
+          gapId: 'gap_heat_adjusted_spectator_weight_support',
+          changeType: 'confirm-weight-range',
+          targetGrammarRef: 'archetypes.heat_adjusted_spectator.weightRange',
+          before: 'base range',
+          after: 'same range with corroboration',
+          reason: 'Test confirmation without mutation.',
+          sourceClaimIds: [claimId],
+          confidence: 'medium',
+          reviewStatus: 'accepted'
+        },
+        {
+          revisionId: 'revision_rejected_weight',
+          gapId: 'gap_working_class_trackside_weight_support',
+          changeType: 'adjust-weight-range',
+          targetGrammarRef: 'archetypes.working_class_trackside.weightRange',
+          before: 'base range',
+          after: 'should not apply',
+          reason: 'Rejected material mutation.',
+          sourceClaimIds: [claimId],
+          confidence: 'medium',
+          reviewStatus: 'rejected'
+        },
+        {
+          revisionId: 'revision_pending_weight',
+          gapId: 'gap_female_middle_class_spectator_weight_support',
+          changeType: 'adjust-weight-range',
+          targetGrammarRef: 'archetypes.female_middle_class_spectator.weightRange',
+          before: 'base range',
+          after: 'should not apply',
+          reason: 'Pending material mutation.',
+          sourceClaimIds: [claimId],
+          confidence: 'medium',
+          reviewStatus: 'needs_review'
+        },
+        {
+          revisionId: 'revision_compatibility_effect',
+          gapId: 'gap_rule_effect',
+          changeType: 'add-compatibility-effect',
+          targetGrammarRef: `compatibilityRules.${ruleId}.effects`,
+          before: 'current effects',
+          after: 'additional source-supported effect',
+          reason: 'Test compatibility effect mutation.',
+          sourceClaimIds: [claimId],
+          confidence: 'medium',
+          reviewStatus: 'accepted'
+        },
+        {
+          revisionId: 'revision_tighten_constraint',
+          gapId: 'gap_constraint_enforcement',
+          changeType: 'tighten-negative-constraint',
+          targetGrammarRef: `negativeConstraints.${constraintId}.enforcement`,
+          before: 'current enforcement',
+          after: 'sampler/evaluator enforcement',
+          reason: 'Test negative constraint enforcement mutation.',
+          sourceClaimIds: [claimId],
+          confidence: 'medium',
+          reviewStatus: 'accepted'
+        },
+        {
+          revisionId: 'revision_location_distribution',
+          gapId: 'gap_location_distribution',
+          changeType: 'adjust-location-distribution',
+          targetGrammarRef: `demographicDistributions.${distributionId}.entries`,
+          before: 'current distribution entries',
+          after: 'sourced distribution entries',
+          reason: 'Test location distribution mutation.',
+          sourceClaimIds: [claimId],
+          confidence: 'medium',
+          reviewStatus: 'accepted'
+        },
+        {
+          revisionId: 'revision_visual_support',
+          gapId: 'gap_visual_reference_support',
+          changeType: 'add-source-support',
+          targetGrammarRef: `visualReferenceSets.${referenceId}.supports`,
+          before: 'current visual support refs',
+          after: 'source-claim support refs',
+          reason: 'Test visual reference support mutation.',
+          sourceClaimIds: [claimId],
+          confidence: 'medium',
+          reviewStatus: 'accepted'
+        }
+      ]
+    });
+
+    const { acceptedSceneGrammarArtifact, acceptedGrammarDeltasArtifact } =
+      applyAcceptedGrammarRevisionsWithDeltas({
+        sceneGrammarArtifact: baseResult.sceneGrammarArtifact,
+        grammarRevisionArtifact
+      });
+
+    const middleClassAfter = acceptedSceneGrammarArtifact.archetypes.find((entry: any) =>
+      entry.archetypeId === 'middle_class_spectator'
+    ).weightRange;
+    const heatAdjustedAfter = acceptedSceneGrammarArtifact.archetypes.find((entry: any) =>
+      entry.archetypeId === 'heat_adjusted_spectator'
+    ).weightRange;
+    const rejectedAfter = acceptedSceneGrammarArtifact.archetypes.find((entry: any) =>
+      entry.archetypeId === 'working_class_trackside'
+    ).weightRange;
+    const pendingAfter = acceptedSceneGrammarArtifact.archetypes.find((entry: any) =>
+      entry.archetypeId === 'female_middle_class_spectator'
+    ).weightRange;
+    const compatibilityAfter = acceptedSceneGrammarArtifact.compatibilityRules.find((entry: any) =>
+      entry.ruleId === ruleId
+    );
+    const constraintAfter = acceptedSceneGrammarArtifact.negativeConstraints.find((entry: any) =>
+      entry.constraintId === constraintId
+    );
+    const distributionAfter = acceptedSceneGrammarArtifact.demographicDistributions.find((entry: any) =>
+      entry.distributionId === distributionId
+    ).entries;
+    const referenceAfter = acceptedSceneGrammarArtifact.visualReferenceSets.find((entry: any) =>
+      entry.referenceId === referenceId
+    );
+
+    expect(middleClassAfter.min).toBe(middleClassBefore.min + 2);
+    expect(middleClassAfter.max).toBe(middleClassBefore.max + 2);
+    expect(heatAdjustedAfter).toEqual(heatAdjustedBefore);
+    expect(rejectedAfter).toEqual(rejectedBefore);
+    expect(pendingAfter).toEqual(pendingBefore);
+    expect(compatibilityAfter.effects.length).toBe(
+      baseResult.sceneGrammarArtifact.compatibilityRules[0].effects.length + 1
+    );
+    expect(constraintAfter.enforcement.avoid).toContain('unsupported_exception_without_source');
+    expect(distributionAfter[0].min).toBe(distributionBefore[0].min + 1);
+    expect(referenceAfter.supports).toEqual([
+      ...referenceSupportsBefore,
+      `source-claim:${claimId}`
+    ]);
+    expect(acceptedGrammarDeltasArtifact.deltas).toHaveLength(6);
+    expect(acceptedGrammarDeltasArtifact.deltas.find((delta: any) =>
+      delta.revisionId === 'revision_material_weight'
+    )).toMatchObject({
+      materialChange: true,
+      before: middleClassBefore,
+      after: middleClassAfter,
+      supportingSourceClaimIds: [claimId]
+    });
+    expect(acceptedGrammarDeltasArtifact.deltas.find((delta: any) =>
+      delta.revisionId === 'revision_confirm_weight'
+    )).toMatchObject({
+      materialChange: false,
+      before: heatAdjustedBefore,
+      after: heatAdjustedBefore,
+      supportingSourceClaimIds: [claimId]
+    });
+    expect(() => MetagrinderAcceptedGrammarDeltasArtifactSchema.parse(acceptedGrammarDeltasArtifact)).not.toThrow();
+  });
+
+  test('pipeline applies operator revision state and compiles base or accepted PSG targets', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const revisionStateFilePath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'revision-state-historical-crowd.json'
+    );
+    const baseOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-base-compile-'));
+    const acceptedOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-accepted-compile-'));
+
+    const baseResult = runMetagrinderMvp({
+      inputPath,
+      outputDir: baseOutputDir,
+      title: 'RALPH 5 Base Grammar',
+      compileGrammar: 'base'
+    });
+    const acceptedResult = runMetagrinderMvp({
+      inputPath,
+      outputDir: acceptedOutputDir,
+      title: 'RALPH 5 Accepted Grammar',
+      revisionStateFilePath,
+      applyAcceptedRevisions: true,
+      compileGrammar: 'accepted'
+    });
+
+    expect(fs.existsSync(path.join(acceptedOutputDir, 'revision-state.applied.json'))).toBe(true);
+    expect(fs.existsSync(path.join(acceptedOutputDir, 'revision-review.json'))).toBe(true);
+    expect(fs.existsSync(path.join(acceptedOutputDir, 'accepted-grammar-deltas.json'))).toBe(true);
+    expect(fs.existsSync(path.join(acceptedOutputDir, 'operator-review.md'))).toBe(true);
+    expect(fs.existsSync(path.join(acceptedOutputDir, 'psg-compile-diff.json'))).toBe(true);
+    expect(fs.existsSync(path.join(acceptedOutputDir, 'live-retrieval-readiness.json'))).toBe(true);
+    expect(fs.existsSync(path.join(acceptedOutputDir, 'accepted-scene-grammar.json'))).toBe(true);
+    expect(acceptedResult.revisionStateAppliedArtifact.appliedRevisionIds).toEqual([
+      'research-input-historical-crowd-grammar_grammar_revision_001'
+    ]);
+    expect(acceptedResult.revisionStateAppliedArtifact.rejectedRevisionIds).toEqual([
+      'research-input-historical-crowd-grammar_grammar_revision_002'
+    ]);
+    expect(acceptedResult.revisionStateAppliedArtifact.skippedRevisionIds.length).toBeGreaterThan(0);
+    expect(acceptedResult.acceptedSceneGrammarArtifact.reviewFlags).toContain(
+      'accepted-revision:research-input-historical-crowd-grammar_grammar_revision_001'
+    );
+    expect(acceptedResult.acceptedSceneGrammarArtifact.reviewFlags).not.toContain(
+      'accepted-revision:research-input-historical-crowd-grammar_grammar_revision_002'
+    );
+    expect(acceptedResult.sceneGrammarArtifact.reviewFlags).not.toContain(
+      'accepted-revision:research-input-historical-crowd-grammar_grammar_revision_001'
+    );
+    expect(acceptedResult.revisionReviewArtifact.acceptedCount).toBe(1);
+    expect(acceptedResult.revisionReviewArtifact.rejectedCount).toBe(1);
+    expect(acceptedResult.revisionReviewArtifact.compileGrammarTarget).toBe('accepted');
+    expect(acceptedResult.acceptedGrammarDeltasArtifact.deltas.length).toBeGreaterThanOrEqual(1);
+    expect(acceptedResult.acceptedGrammarDeltasArtifact.deltas.some((delta: any) =>
+      delta.materialChange
+    )).toBe(true);
+    expect(acceptedResult.psgCompileDiffArtifact.materialDifference).toBe(true);
+    expect(acceptedResult.psgCompileDiffArtifact.changedNodes.some((node: any) =>
+      node.nodeId === 'archetype-choice' || node.nodeId === 'rail-choice'
+    )).toBe(true);
+    expect(acceptedResult.liveRetrievalReadinessArtifact.ready).toBe(true);
+    expect(acceptedResult.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'revision-state' &&
+        collection.path === 'revision-state.json'
+    )).toBe(true);
+    expect(acceptedResult.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'revision-state-applied' &&
+        collection.path === 'revision-state.applied.json'
+    )).toBe(true);
+    expect(acceptedResult.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'revision-review' &&
+        collection.path === 'revision-review.json'
+    )).toBe(true);
+    expect(acceptedResult.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'accepted-grammar-deltas' &&
+        collection.path === 'accepted-grammar-deltas.json'
+    )).toBe(true);
+    expect(acceptedResult.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'psg-compile-diff' &&
+        collection.path === 'psg-compile-diff.json'
+    )).toBe(true);
+    expect(acceptedResult.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'live-retrieval-readiness' &&
+        collection.path === 'live-retrieval-readiness.json'
+    )).toBe(true);
+    expect(() => MetagrinderPsgCompileDiffArtifactSchema.parse(acceptedResult.psgCompileDiffArtifact)).not.toThrow();
+    expect(() => MetagrinderLiveRetrievalReadinessArtifactSchema.parse(acceptedResult.liveRetrievalReadinessArtifact)).not.toThrow();
+    expect(() => MetagrinderPsgV2FileSchema.parse(baseResult.sceneGrammarPsg)).not.toThrow();
+    expect(() => MetagrinderPsgV2FileSchema.parse(acceptedResult.sceneGrammarPsg)).not.toThrow();
+    Object.values(acceptedResult.branchGraphPsgs).forEach((graph: any) => {
+      expect(() => MetagrinderPsgV2FileSchema.parse(graph)).not.toThrow();
+    });
+    const baseContext = baseResult.sceneGrammarPsg.graph.nodes.find((node: any) => node.id === 'scene-context');
+    const acceptedContext = acceptedResult.sceneGrammarPsg.graph.nodes.find((node: any) => node.id === 'scene-context');
+    const baseArchetypeChoice = baseResult.sceneGrammarPsg.graph.nodes.find((node: any) => node.id === 'archetype-choice');
+    const acceptedArchetypeChoice = acceptedResult.sceneGrammarPsg.graph.nodes.find((node: any) => node.id === 'archetype-choice');
+    expect(baseContext.data.value).not.toBe(acceptedContext.data.value);
+    expect(acceptedContext.data.value).toContain('Accepted revision count: 1');
+    expect(baseArchetypeChoice.data.choices).not.toEqual(acceptedArchetypeChoice.data.choices);
+  });
+
+  test('material-delta revision state fixture drives accepted PSG graph differences beyond summary text', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const revisionStateFilePath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'revision-state-historical-crowd-material-delta.json'
+    );
+    const revisionState = MetagrinderRevisionStateFileSchema.parse(
+      readFixture('revision-state-historical-crowd-material-delta.json')
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-material-delta-'));
+
+    const result = runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'RALPH 6 Accepted Grammar',
+      revisionStateFilePath,
+      applyAcceptedRevisions: true,
+      compileGrammar: 'accepted'
+    });
+    const materialDeltas = result.acceptedGrammarDeltasArtifact.deltas.filter((delta: any) =>
+      delta.materialChange
+    );
+    const contextOnlyChanges = result.psgCompileDiffArtifact.changedNodes.filter((node: any) =>
+      node.nodeId === 'scene-context'
+    );
+
+    expect(revisionState.revisionStates.map((entry: any) => entry.reviewStatus)).toEqual([
+      'accepted',
+      'accepted',
+      'rejected',
+      'pending'
+    ]);
+    expect(result.revisionStateAppliedArtifact.appliedRevisionIds).toEqual([
+      'research-input-historical-crowd-grammar_grammar_revision_001',
+      'research-input-historical-crowd-grammar_grammar_revision_002'
+    ]);
+    expect(result.revisionStateAppliedArtifact.rejectedRevisionIds).toEqual([
+      'research-input-historical-crowd-grammar_grammar_revision_003'
+    ]);
+    expect(result.revisionStateAppliedArtifact.skippedRevisionIds).toContain(
+      'research-input-historical-crowd-grammar_grammar_revision_004'
+    );
+    expect(materialDeltas.length).toBeGreaterThan(0);
+    expect(result.acceptedGrammarDeltasArtifact.deltas.some((delta: any) =>
+      delta.materialChange === false && delta.changeType === 'confirm-weight-range'
+    )).toBe(true);
+    expect(result.psgCompileDiffArtifact.materialDifference).toBe(true);
+    expect(result.psgCompileDiffArtifact.changedNodes.length).toBeGreaterThan(0);
+    expect(contextOnlyChanges).toHaveLength(0);
+    expect(fs.readFileSync(path.join(outputDir, 'operator-review.md'), 'utf8')).toContain(
+      'Recommended action:'
+    );
+  });
+
+  test('retrieval boundary dry-run logs queries without creating source claims', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-dry-run-'));
+
+    const result = runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'RALPH 7 Dry Run',
+      webResearchMode: 'dry-run',
+      maxQueriesTotal: 3,
+      maxResultsPerQuery: 2
+    });
+
+    expect(result.retrievalPolicyArtifact.mode).toBe('dry-run');
+    expect(result.retrievalRunLogArtifact.budgetUse.queriesAllowed).toBe(3);
+    expect(result.retrievalRunLogArtifact.budgetUse.queriesSkippedByBudget).toBeGreaterThan(0);
+    expect(result.retrievalRunLogArtifact.queryAttempts.filter((attempt: any) =>
+      attempt.wouldExecute
+    )).toHaveLength(3);
+    expect(result.retrievalCandidatesArtifact.candidates).toHaveLength(0);
+    expect(result.sourceClaimsArtifact.claims).toHaveLength(0);
+    expect(result.grammarRevisionArtifact.revisions).toHaveLength(0);
+    expect(result.retrievalSafetyReportArtifact.blockedAutoPromotion).toBe(true);
+    expect(() => MetagrinderRetrievalPolicySchema.parse(result.retrievalPolicyArtifact)).not.toThrow();
+    expect(() => MetagrinderRetrievalRunLogSchema.parse(result.retrievalRunLogArtifact)).not.toThrow();
+    expect(() => MetagrinderRetrievalCandidatesArtifactSchema.parse(result.retrievalCandidatesArtifact)).not.toThrow();
+    expect(() => MetagrinderRetrievalSafetyReportSchema.parse(result.retrievalSafetyReportArtifact)).not.toThrow();
+  });
+
+  test('retrieval cache replay promotes only operator-approved candidates into source claims', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-cache-replay-'));
+
+    const result = runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'RALPH 7 Cache Replay',
+      webResearchMode: 'cache-replay',
+      retrievalCacheDir: path.join(__dirname, 'fixtures', 'metagrinder', 'retrieval-cache-historical-crowd.json'),
+      sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd.json')
+    });
+
+    expect(result.retrievalPolicyArtifact.mode).toBe('cache-replay');
+    expect(result.retrievalCacheManifestArtifact.cacheHit).toBe(true);
+    expect(result.retrievalCandidatesArtifact.candidates).toHaveLength(3);
+    expect(result.sourceIntakeApprovalArtifact.approvals.map((entry: any) => entry.approvalStatus)).toEqual([
+      'approved',
+      'rejected',
+      'pending'
+    ]);
+    expect(result.approvedSourceResultsArtifact.approvedResults).toHaveLength(1);
+    expect(result.sourceClaimsArtifact.claims).toHaveLength(1);
+    expect(result.sourceClaimsArtifact.claims[0].sourceId).toBeDefined();
+    expect(result.grammarRevisionArtifact.revisions.length).toBeGreaterThanOrEqual(1);
+    expect(result.retrievalSafetyReportArtifact.approvedCandidateCount).toBe(1);
+    expect(result.retrievalSafetyReportArtifact.blockedAutoPromotion).toBe(true);
+    expect(() => MetagrinderRetrievalCacheManifestSchema.parse(result.retrievalCacheManifestArtifact)).not.toThrow();
+    expect(() => MetagrinderSourceIntakeApprovalSchema.parse(result.sourceIntakeApprovalArtifact)).not.toThrow();
+    expect(() => MetagrinderApprovedSourceResultsSchema.parse(result.approvedSourceResultsArtifact)).not.toThrow();
+  });
+
+  test('citation evidence review gates material revision application for cache replay claims', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const reviewedOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-citation-reviewed-'));
+    const blockedOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-citation-blocked-'));
+    const commonArgs = {
+      inputPath,
+      webResearchMode: 'cache-replay',
+      retrievalCacheDir: path.join(__dirname, 'fixtures', 'metagrinder', 'retrieval-cache-historical-crowd.json'),
+      sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd.json'),
+      applyAcceptedRevisions: true,
+      compileGrammar: 'accepted'
+    };
+
+    const reviewed = runMetagrinderMvp({
+      ...commonArgs,
+      outputDir: reviewedOutputDir,
+      title: 'RALPH 8 Citation Reviewed',
+      sourceClaimReviewFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-claim-review-historical-crowd.json'),
+      revisionStateFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'revision-state-historical-crowd-citation-gated.json')
+    });
+    const blocked = runMetagrinderMvp({
+      ...commonArgs,
+      outputDir: blockedOutputDir,
+      title: 'RALPH 8 Citation Blocked',
+      sourceClaimReviewFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-claim-review-historical-crowd-blocked.json'),
+      revisionStateFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'revision-state-historical-crowd-citation-blocked.json')
+    });
+    const needsReviewBlocked = applyAcceptedGrammarRevisionsWithDeltas({
+      sceneGrammarArtifact: reviewed.sceneGrammarArtifact,
+      grammarRevisionArtifact: {
+        inputId: reviewed.grammarRevisionArtifact.inputId,
+        revisions: reviewed.grammarRevisionArtifact.revisions.map((revision: any, index: number) => ({
+          ...revision,
+          reviewStatus: index === 0 ? 'accepted' : revision.reviewStatus
+        }))
+      },
+      sourceClaimsArtifact: reviewed.sourceClaimsArtifact,
+      sourceClaimReviewArtifact: {
+        inputId: reviewed.sourceClaimsArtifact.inputId,
+        claimReviews: [
+          {
+            sourceClaimId: 'source_claim_001',
+            evidenceIds: ['source_evidence_001'],
+            citationStatus: 'needs_review',
+            operatorNote: 'Citation remains under review.'
+          }
+        ]
+      },
+      requireReviewedCitations: true
+    });
+    const overrideAllowed = applyAcceptedGrammarRevisionsWithDeltas({
+      sceneGrammarArtifact: reviewed.sceneGrammarArtifact,
+      grammarRevisionArtifact: {
+        inputId: reviewed.grammarRevisionArtifact.inputId,
+        revisions: reviewed.grammarRevisionArtifact.revisions.map((revision: any, index: number) => ({
+          ...revision,
+          reviewStatus: index === 0 ? 'accepted' : revision.reviewStatus,
+          operatorState: index === 0 ? { overrideCitationReview: true } : revision.operatorState
+        }))
+      },
+      sourceClaimsArtifact: reviewed.sourceClaimsArtifact,
+      sourceClaimReviewArtifact: {
+        inputId: reviewed.sourceClaimsArtifact.inputId,
+        claimReviews: [
+          {
+            sourceClaimId: 'source_claim_001',
+            evidenceIds: ['source_evidence_001'],
+            citationStatus: 'needs_review',
+            operatorNote: 'Citation remains under review.'
+          }
+        ]
+      },
+      requireReviewedCitations: true
+    });
+
+    expect(() => MetagrinderSourceEvidenceArtifactSchema.parse(reviewed.sourceEvidenceArtifact)).not.toThrow();
+    expect(() => MetagrinderSourceClaimReviewArtifactSchema.parse(reviewed.sourceClaimReviewArtifact)).not.toThrow();
+    expect(reviewed.sourceEvidenceArtifact.evidence[0].locator.cacheRecordId).toBe('cache_record_001');
+    expect(reviewed.retrievalCacheManifestArtifact.cacheRecords[0].payloadHash).toMatch(/^sha256:/);
+    expect(reviewed.sourceClaimsArtifact.claims[0].evidenceIds).toEqual(['source_evidence_001']);
+    expect(reviewed.acceptedGrammarDeltasArtifact.deltas[0]).toMatchObject({
+      applied: true,
+      materialChange: true,
+      evidenceIds: ['source_evidence_001'],
+      citationStatus: 'accepted'
+    });
+    expect(reviewed.acceptedGrammarDeltasArtifact.deltas[0].riskFlags).toContain('not-event-specific');
+    expect(fs.readFileSync(path.join(reviewedOutputDir, 'operator-review.md'), 'utf8')).toContain('Citation status: accepted');
+    expect(fs.readFileSync(path.join(reviewedOutputDir, 'operator-review.md'), 'utf8')).toContain('Evidence excerpt:');
+    expect(reviewed.revisionReviewArtifact.citationStatusCounts.accepted).toBe(1);
+    expect(reviewed.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'source-evidence'
+    )).toBe(true);
+    expect(reviewed.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'source-claim-review'
+    )).toBe(true);
+    expect(blocked.acceptedGrammarDeltasArtifact.deltas[0].applied).toBe(false);
+    expect(blocked.acceptedGrammarDeltasArtifact.deltas[0].citationStatus).toBe('rejected');
+    expect(blocked.acceptedGrammarDeltasArtifact.deltas[0].warnings[0]).toContain('blocked');
+    expect(blocked.acceptedSceneGrammarArtifact.archetypes[0].weightRange).toEqual(
+      blocked.sceneGrammarArtifact.archetypes[0].weightRange
+    );
+    expect(blocked.psgCompileDiffArtifact.materialDifference).toBe(false);
+    expect(needsReviewBlocked.acceptedGrammarDeltasArtifact.deltas[0].applied).toBe(false);
+    expect(needsReviewBlocked.acceptedGrammarDeltasArtifact.deltas[0].citationStatus).toBe('needs_review');
+    expect(overrideAllowed.acceptedGrammarDeltasArtifact.deltas[0].applied).toBe(true);
+    expect(overrideAllowed.acceptedGrammarDeltasArtifact.deltas[0].riskFlags).toContain('citation-review-override');
+  });
+
+  test('retrieval mock and live-candidate-only modes preserve source-claim safety boundaries', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const mockOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-mock-boundary-'));
+    const liveOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-live-boundary-'));
+    const allowlistOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-allowlist-boundary-'));
+
+    const mockResult = runMetagrinderMvp({
+      inputPath,
+      outputDir: mockOutputDir,
+      title: 'RALPH 7 Mock',
+      webResearchMode: 'mock',
+      maxResultsPerQuery: 2
+    });
+    const liveBoundaryResult = runMetagrinderMvp({
+      inputPath,
+      outputDir: liveOutputDir,
+      title: 'RALPH 7 Live Candidate Boundary',
+      webResearchMode: 'live-candidate-only'
+    });
+    const allowlistResult = runMetagrinderMvp({
+      inputPath,
+      outputDir: allowlistOutputDir,
+      title: 'RALPH 7 Allowlist Boundary',
+      webResearchMode: 'mock',
+      maxQueriesTotal: 1,
+      maxResultsPerQuery: 5,
+      allowedSourceTypes: ['museum']
+    });
+
+    expect(mockResult.retrievalCandidatesArtifact.candidates.length).toBeGreaterThan(0);
+    expect(mockResult.sourceClaimsArtifact.claims.length).toBeGreaterThan(0);
+    expect(mockResult.retrievalCandidatesArtifact.candidates.every((candidate: any) =>
+      candidate.canCreateSourceClaim === false
+    )).toBe(true);
+    expect(liveBoundaryResult.retrievalPolicyArtifact.mode).toBe('live-candidate-only');
+    expect(liveBoundaryResult.retrievalRunLogArtifact.queryAttempts.some((attempt: any) =>
+      attempt.reason.includes('preflight blocked')
+    )).toBe(true);
+    expect(liveBoundaryResult.sourceClaimsArtifact.claims).toHaveLength(0);
+    expect(liveBoundaryResult.grammarRevisionArtifact.revisions).toHaveLength(0);
+    expect(liveBoundaryResult.retrievalSafetyReportArtifact.blockedAutoPromotion).toBe(true);
+    expect(liveBoundaryResult.retrievalSafetyReportArtifact.sourceClaimsCreatedFromLiveCandidates).toBe(0);
+    expect(allowlistResult.retrievalCandidatesArtifact.candidates.length).toBeGreaterThan(0);
+    expect(allowlistResult.retrievalCandidatesArtifact.candidates.every((candidate: any) =>
+      candidate.sourceTypeHypothesis === 'museum'
+    )).toBe(true);
+  });
+
+  test('controlled live retrieval pilot is preflight-gated, candidate-only, and cache replayable', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const blockedOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-live-preflight-blocked-'));
+    const liveOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-live-fixture-'));
+    const replayOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-live-replay-'));
+
+    const blocked = runMetagrinderMvp({
+      inputPath,
+      outputDir: blockedOutputDir,
+      title: 'RALPH 9 Live Preflight Blocked',
+      webResearchMode: 'live-candidate-only',
+      maxQueriesTotal: 2,
+      maxResultsPerQuery: 2
+    });
+
+    expect(() => MetagrinderLiveRetrievalPreflightSchema.parse(blocked.liveRetrievalPreflightArtifact)).not.toThrow();
+    expect(() => MetagrinderLiveRetrievalRequestsSchema.parse(blocked.liveRetrievalRequestsArtifact)).not.toThrow();
+    expect(() => MetagrinderLiveRetrievalCacheWriteSchema.parse(blocked.liveRetrievalCacheWriteArtifact)).not.toThrow();
+    expect(blocked.liveRetrievalPreflightArtifact.verdict).toBe('blocked');
+    expect(blocked.liveRetrievalPreflightArtifact.networkAllowed).toBe(false);
+    expect(blocked.liveRetrievalRequestsArtifact.requests.every((request: any) => request.executed === false)).toBe(true);
+    expect(blocked.retrievalCandidatesArtifact.candidates).toHaveLength(0);
+    expect(blocked.sourceRegistryArtifact.sources.filter((source: any) => source.sourceKind === 'web-result')).toHaveLength(0);
+    expect(blocked.sourceClaimsArtifact.claims).toHaveLength(0);
+    expect(blocked.grammarRevisionArtifact.revisions).toHaveLength(0);
+
+    const live = runMetagrinderMvp({
+      inputPath,
+      outputDir: liveOutputDir,
+      title: 'RALPH 9 Live Fixture Candidate',
+      webResearchMode: 'live-candidate-only',
+      enableLiveRetrieval: true,
+      liveProvider: 'fixture-live',
+      maxQueriesTotal: 2,
+      maxResultsPerQuery: 2,
+      allowedSourceTypes: ['archive']
+    });
+
+    expect(live.liveRetrievalPreflightArtifact.verdict).toBe('allowed');
+    expect(live.liveRetrievalPreflightArtifact.enabledByCli).toBe(true);
+    expect(live.liveRetrievalPreflightArtifact.enabledByEnv).toBe(false);
+    expect(live.retrievalCandidatesArtifact.candidates.length).toBeGreaterThan(0);
+    expect(live.retrievalCandidatesArtifact.candidates.every((candidate: any) =>
+      candidate.canCreateSourceClaim === false
+    )).toBe(true);
+    expect(live.retrievalCandidatesArtifact.candidates.every((candidate: any) =>
+      candidate.sourceTypeHypothesis === 'archive'
+    )).toBe(true);
+    expect(live.sourceClaimsArtifact.claims).toHaveLength(0);
+    expect(live.grammarRevisionArtifact.revisions).toHaveLength(0);
+    expect(live.liveRetrievalRequestsArtifact.requests.some((request: any) => request.executed)).toBe(true);
+    expect(live.liveRetrievalCacheWriteArtifact.cacheWrites.length).toBe(live.retrievalCandidatesArtifact.candidates.length);
+    expect(live.liveRetrievalCacheWriteArtifact.cacheWrites[0].payloadHash).toMatch(/^sha256:/);
+    expect(live.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'live-retrieval-preflight'
+    )).toBe(true);
+
+    const replay = runMetagrinderMvp({
+      inputPath,
+      outputDir: replayOutputDir,
+      title: 'RALPH 9 Live Cache Replay',
+      webResearchMode: 'cache-replay',
+      retrievalCacheDir: path.join(liveOutputDir, 'retrieval-cache-manifest.json'),
+      sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd-live.json'),
+      sourceClaimReviewFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-claim-review-historical-crowd.json'),
+      revisionStateFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'revision-state-historical-crowd-citation-gated.json'),
+      applyAcceptedRevisions: true,
+      compileGrammar: 'accepted',
+      maxQueriesTotal: 2,
+      maxResultsPerQuery: 2
+    });
+
+    expect(replay.retrievalCacheManifestArtifact.cacheHit).toBe(true);
+    expect(replay.retrievalRunLogArtifact.queryAttempts.every((attempt: any) => attempt.executed === false)).toBe(true);
+    expect(replay.retrievalCacheManifestArtifact.cacheRecords[0].payloadHash).toBe(
+      live.liveRetrievalCacheWriteArtifact.cacheWrites[0].payloadHash
+    );
+    expect(replay.approvedSourceResultsArtifact.approvedResults).toHaveLength(1);
+    expect(replay.sourceEvidenceArtifact.evidence).toHaveLength(1);
+    expect(replay.sourceClaimsArtifact.claims).toHaveLength(1);
+    expect(replay.sourceClaimsArtifact.claims[0].evidenceIds).toEqual(['source_evidence_001']);
+    expect(replay.acceptedGrammarDeltasArtifact.deltas[0]).toMatchObject({
+      applied: true,
+      citationStatus: 'accepted'
+    });
+  });
+
+  test('real provider contract preflight logs request shapes, source typing, policy blocks, and provider errors', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const blockedOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-provider-blocked-'));
+    const typingOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-provider-typing-'));
+    const policyOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-provider-policy-'));
+
+    const blocked = runMetagrinderMvp({
+      inputPath,
+      outputDir: blockedOutputDir,
+      title: 'RALPH 10 Provider Blocked',
+      webResearchMode: 'live-candidate-only',
+      enableLiveRetrieval: true,
+      liveProvider: 'generic-search',
+      maxQueriesTotal: 2,
+      maxResultsPerQuery: 2
+    });
+
+    expect(() => MetagrinderLiveProviderContractSchema.parse(blocked.liveProviderContractArtifact)).not.toThrow();
+    expect(() => MetagrinderProviderPreflightReportSchema.parse(blocked.providerPreflightReportArtifact)).not.toThrow();
+    expect(() => MetagrinderProviderRequestShapesSchema.parse(blocked.providerRequestShapesArtifact)).not.toThrow();
+    expect(() => MetagrinderProviderErrorReportSchema.parse(blocked.providerErrorReportArtifact)).not.toThrow();
+    expect(blocked.liveProviderContractArtifact.providers.find((provider: any) =>
+      provider.providerId === 'generic-search'
+    ).status).toBe('unavailable');
+    expect(blocked.providerPreflightReportArtifact.verdict).toBe('blocked');
+    expect(blocked.providerRequestShapesArtifact.requests[0]).toMatchObject({
+      providerId: 'generic-search',
+      wouldExecute: false,
+      reason: 'provider-preflight-blocked'
+    });
+    expect(blocked.providerErrorReportArtifact.errors.some((error: any) =>
+      error.errorType === 'provider-unavailable' && error.fatal === false
+    )).toBe(true);
+    expect(blocked.retrievalCandidatesArtifact.candidates).toHaveLength(0);
+    expect(blocked.sourceClaimsArtifact.claims).toHaveLength(0);
+    expect(blocked.grammarRevisionArtifact.revisions).toHaveLength(0);
+
+    const typing = runMetagrinderMvp({
+      inputPath,
+      outputDir: typingOutputDir,
+      title: 'RALPH 10 Fixture Typing',
+      webResearchMode: 'live-candidate-only',
+      enableLiveRetrieval: true,
+      liveProvider: 'fixture-live',
+      maxQueriesTotal: 1,
+      maxResultsPerQuery: 4,
+      allowedSourceTypes: ['archive', 'museum', 'stock-photo', 'unknown']
+    });
+
+    expect(() => MetagrinderSourceTypingReportSchema.parse(typing.sourceTypingReportArtifact)).not.toThrow();
+    expect(typing.sourceTypingReportArtifact.candidateClassifications.map((entry: any) =>
+      entry.sourceTypeHypothesis
+    )).toEqual(expect.arrayContaining(['archive', 'museum', 'stock-photo', 'unknown']));
+    expect(typing.sourceTypingReportArtifact.candidateClassifications.find((entry: any) =>
+      entry.sourceTypeHypothesis === 'stock-photo'
+    )).toMatchObject({
+      sourceQualityHypothesis: 'low',
+      promotionRecommendation: 'block'
+    });
+    expect(typing.sourceTypingReportArtifact.candidateClassifications.find((entry: any) =>
+      entry.sourceTypeHypothesis === 'unknown'
+    )).toMatchObject({
+      sourceQualityHypothesis: 'low',
+      promotionRecommendation: 'block'
+    });
+    expect(typing.retrievalCacheManifestArtifact.cacheRecords[0]).toHaveProperty('rawCandidatePayload');
+    expect(typing.retrievalCacheManifestArtifact.cacheRecords[0]).toHaveProperty('normalizedCandidatePayload');
+    expect(typing.researchPackageManifest.collections.some((collection: any) =>
+      collection.type === 'source-typing-report'
+    )).toBe(true);
+
+    const policyBlocked = runMetagrinderMvp({
+      inputPath,
+      outputDir: policyOutputDir,
+      title: 'RALPH 10 Policy Blocking',
+      webResearchMode: 'live-candidate-only',
+      enableLiveRetrieval: true,
+      liveProvider: 'fixture-live',
+      blockedDomains: ['archive.example.org'],
+      blockedSourceTypes: ['stock-photo'],
+      allowedSourceTypes: ['archive', 'museum'],
+      maxQueriesTotal: 1,
+      maxResultsPerQuery: 4
+    });
+
+    expect(policyBlocked.retrievalCandidatesArtifact.candidates.every((candidate: any) =>
+      candidate.domain !== 'archive.example.org' && candidate.sourceTypeHypothesis !== 'stock-photo'
+    )).toBe(true);
+    expect(policyBlocked.retrievalCandidatesArtifact.candidates.map((candidate: any) =>
+      candidate.sourceTypeHypothesis
+    )).toEqual(['museum']);
+    expect(policyBlocked.retrievalRunLogArtifact.warnings.some((warning: string) =>
+      warning.includes('domain/source-type policy')
+    )).toBe(true);
+  });
+
+  test('generic-http-search adapter is guarded, injectable, cached, redacted, and candidate-only', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const previousEnvGuard = process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL;
+    const previousEndpoint = process.env.METAGRINDER_SEARCH_ENDPOINT;
+    const previousApiKey = process.env.METAGRINDER_SEARCH_API_KEY;
+    delete process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL;
+    delete process.env.METAGRINDER_SEARCH_ENDPOINT;
+    delete process.env.METAGRINDER_SEARCH_API_KEY;
+
+    try {
+      const blockedOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-http-env-blocked-'));
+      const blocked = runMetagrinderMvp({
+        inputPath,
+        outputDir: blockedOutputDir,
+        title: 'RALPH 11 Env Blocked',
+        webResearchMode: 'live-candidate-only',
+        enableLiveRetrieval: true,
+        liveProvider: 'generic-http-search',
+        maxQueriesTotal: 2,
+        maxResultsPerQuery: 2
+      });
+
+      expect(blocked.liveProviderContractArtifact.providers.find((provider: any) =>
+        provider.providerId === 'generic-http-search'
+      )).toMatchObject({
+        status: 'available',
+        candidateOnly: true,
+        autoPromotionAllowed: false
+      });
+      expect(() => MetagrinderProviderConfigAppliedSchema.parse(blocked.providerConfigAppliedArtifact)).not.toThrow();
+      expect(() => MetagrinderProviderResponseLogSchema.parse(blocked.providerResponseLogArtifact)).not.toThrow();
+      expect(blocked.providerPreflightReportArtifact.verdict).toBe('blocked');
+      expect(blocked.providerPreflightReportArtifact.networkAllowed).toBe(false);
+      expect(blocked.providerResponseLogArtifact.responses.every((response: any) =>
+        response.status === 'blocked'
+      )).toBe(true);
+      expect(blocked.retrievalCandidatesArtifact.candidates).toHaveLength(0);
+      expect(blocked.sourceClaimsArtifact.claims).toHaveLength(0);
+      expect(blocked.grammarRevisionArtifact.revisions).toHaveLength(0);
+
+      process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL = '1';
+      const missingEndpointOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-http-missing-endpoint-'));
+      const missingEndpoint = runMetagrinderMvp({
+        inputPath,
+        outputDir: missingEndpointOutputDir,
+        title: 'RALPH 11 Missing Endpoint',
+        webResearchMode: 'live-candidate-only',
+        enableLiveRetrieval: true,
+        liveProvider: 'generic-http-search',
+        maxQueriesTotal: 1,
+        maxResultsPerQuery: 1
+      });
+      expect(missingEndpoint.providerPreflightReportArtifact.verdict).toBe('blocked');
+      expect(missingEndpoint.providerErrorReportArtifact.errors.some((error: any) =>
+        error.message.includes('endpoint')
+      )).toBe(true);
+
+      const fakeConfigPath = path.join(
+        __dirname,
+        'fixtures',
+        'metagrinder',
+        'provider-config-generic-http-search-fake.json'
+      );
+      const fakeOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-http-fake-'));
+      const fake = runMetagrinderMvp({
+        inputPath,
+        outputDir: fakeOutputDir,
+        title: 'RALPH 11 Fake Provider',
+        webResearchMode: 'live-candidate-only',
+        enableLiveRetrieval: true,
+        liveProvider: 'generic-http-search',
+        providerConfigFilePath: fakeConfigPath,
+        maxQueriesTotal: 2,
+        maxResultsPerQuery: 2
+      });
+
+      expect(fake.providerPreflightReportArtifact.verdict).toBe('allowed');
+      expect(fake.providerPreflightReportArtifact.networkAllowed).toBe(true);
+      expect(fake.providerResponseLogArtifact.responses).toHaveLength(2);
+      expect(fake.providerResponseLogArtifact.responses.every((response: any) =>
+        response.status === 'success'
+      )).toBe(true);
+      expect(fake.retrievalCandidatesArtifact.candidates).toHaveLength(4);
+      expect(fake.retrievalCandidatesArtifact.candidates.every((candidate: any) =>
+        candidate.canCreateSourceClaim === false
+      )).toBe(true);
+      expect(fake.liveRetrievalCacheWriteArtifact.cacheWrites).toHaveLength(4);
+      expect(fake.liveRetrievalCacheWriteArtifact.cacheWrites[0]).toHaveProperty('providerResponseId');
+      expect(fake.retrievalCacheManifestArtifact.cacheRecords[0]).toHaveProperty('providerResponseId');
+      expect(fake.sourceTypingReportArtifact.candidateClassifications.map((entry: any) =>
+        entry.sourceTypeHypothesis
+      )).toEqual(expect.arrayContaining(['library', 'museum']));
+      expect(fake.sourceClaimsArtifact.claims).toHaveLength(0);
+      expect(fake.grammarRevisionArtifact.revisions).toHaveLength(0);
+      expect(fake.researchPackageManifest.collections.some((collection: any) =>
+        collection.type === 'provider-config-applied'
+      )).toBe(true);
+      expect(fake.researchPackageManifest.collections.some((collection: any) =>
+        collection.type === 'provider-response-log'
+      )).toBe(true);
+
+      const serializedArtifacts = [
+        fake.providerConfigAppliedArtifact,
+        fake.liveRetrievalRequestsArtifact,
+        fake.providerRequestShapesArtifact,
+        fake.providerResponseLogArtifact,
+        fake.providerErrorReportArtifact,
+        fake.retrievalCacheManifestArtifact,
+        fake.liveRetrievalCacheWriteArtifact
+      ].map((artifact) => JSON.stringify(artifact)).join('\n');
+      expect(serializedArtifacts).not.toContain('ralph11-fake-secret-do-not-log');
+
+      const replayOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-http-replay-'));
+      const replay = runMetagrinderMvp({
+        inputPath,
+        outputDir: replayOutputDir,
+        title: 'RALPH 11 Provider Cache Replay',
+        webResearchMode: 'cache-replay',
+        retrievalCacheDir: path.join(fakeOutputDir, 'retrieval-cache-manifest.json'),
+        sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd-live.json'),
+        sourceClaimReviewFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-claim-review-historical-crowd.json'),
+        revisionStateFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'revision-state-historical-crowd-citation-gated.json'),
+        applyAcceptedRevisions: true,
+        compileGrammar: 'accepted'
+      });
+      expect(replay.retrievalCacheManifestArtifact.cacheHit).toBe(true);
+      expect(replay.approvedSourceResultsArtifact.approvedResults).toHaveLength(1);
+      expect(replay.sourceEvidenceArtifact.evidence).toHaveLength(1);
+      expect(replay.sourceClaimsArtifact.claims).toHaveLength(1);
+      expect(replay.acceptedGrammarDeltasArtifact.deltas[0]).toMatchObject({
+        applied: true,
+        citationStatus: 'accepted'
+      });
+
+      const errorCases = [
+        {
+          name: 'timeout',
+          client: () => {
+            throw new Error('timeout after 5ms');
+          },
+          expectedStatus: 'timeout'
+        },
+        {
+          name: 'rate-limit',
+          client: () => ({ status: 429, json: { results: [] }, durationMs: 12 }),
+          expectedStatus: 'rate-limited'
+        },
+        {
+          name: 'parse-error',
+          client: () => ({ status: 200, json: { unexpected: [] }, durationMs: 3 }),
+          expectedStatus: 'parse-error'
+        }
+      ];
+      errorCases.forEach((errorCase) => {
+        const errorConfigPath = path.join(os.tmpdir(), `metagrinder-${errorCase.name}-config.json`);
+        fs.writeFileSync(errorConfigPath, JSON.stringify({
+          providerId: 'generic-http-search',
+          endpoint: 'https://example.invalid/search',
+          requiresApiKey: false
+        }), 'utf8');
+        const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), `metagrinder-http-${errorCase.name}-`));
+        const result = runMetagrinderMvp({
+          inputPath,
+          outputDir,
+          title: `RALPH 11 ${errorCase.name}`,
+          webResearchMode: 'live-candidate-only',
+          enableLiveRetrieval: true,
+          liveProvider: 'generic-http-search',
+          providerConfigFilePath: errorConfigPath,
+          providerHttpClient: errorCase.client,
+          maxQueriesTotal: 1,
+          maxResultsPerQuery: 1
+        });
+        expect(result.providerResponseLogArtifact.responses[0].status).toBe(errorCase.expectedStatus);
+        expect(result.providerErrorReportArtifact.errors.some((error: any) =>
+          error.errorType === errorCase.expectedStatus && error.fatal === false
+        )).toBe(true);
+        expect(result.sourceClaimsArtifact.claims).toHaveLength(0);
+      });
+    } finally {
+      if (previousEnvGuard === undefined) delete process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL;
+      else process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL = previousEnvGuard;
+      if (previousEndpoint === undefined) delete process.env.METAGRINDER_SEARCH_ENDPOINT;
+      else process.env.METAGRINDER_SEARCH_ENDPOINT = previousEndpoint;
+      if (previousApiKey === undefined) delete process.env.METAGRINDER_SEARCH_API_KEY;
+      else process.env.METAGRINDER_SEARCH_API_KEY = previousApiKey;
+    }
+  });
+
+  test('one-query no-auth generic-http pilot is cache-write only and safely replayable', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const previousEnvGuard = process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL;
+    process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL = '1';
+
+    try {
+      const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-http-noauth-'));
+      const result = runMetagrinderMvp({
+        inputPath,
+        outputDir,
+        title: 'RALPH 12 No Auth Fake Provider',
+        webResearchMode: 'live-candidate-only',
+        enableLiveRetrieval: true,
+        liveProvider: 'generic-http-search',
+        providerConfigFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'provider-config-generic-http-search-noauth-fake.json'),
+        retrievalPolicyFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'retrieval-policy-live-one-query.json'),
+        maxQueriesTotal: 1,
+        maxResultsPerQuery: 2
+      });
+
+      expect(() => MetagrinderLiveProviderPilotReportSchema.parse(result.liveProviderPilotReportArtifact)).not.toThrow();
+      expect(result.providerConfigAppliedArtifact).toMatchObject({
+        providerId: 'generic-http-search',
+        endpointConfigured: true,
+        apiKeyConfigured: true
+      });
+      expect(result.providerConfigAppliedArtifact.sanitizedConfig.requiresApiKey).toBe(false);
+      expect(result.providerPreflightReportArtifact.verdict).toBe('allowed');
+      expect(result.providerRequestShapesArtifact.requests).toHaveLength(1);
+      expect(result.providerResponseLogArtifact.responses).toHaveLength(1);
+      expect(result.retrievalCandidatesArtifact.candidates).toHaveLength(2);
+      expect(result.retrievalCandidatesArtifact.candidates.every((candidate: any) =>
+        candidate.canCreateSourceClaim === false
+      )).toBe(true);
+      expect(result.liveRetrievalCacheWriteArtifact.cacheWrites).toHaveLength(2);
+      expect(result.sourceClaimsArtifact.claims).toHaveLength(0);
+      expect(result.grammarRevisionArtifact.revisions).toHaveLength(0);
+      expect(result.liveProviderPilotReportArtifact).toMatchObject({
+        networkAttempted: true,
+        networkSucceeded: true,
+        candidateCount: 2,
+        sourceClaimsCreated: 0,
+        grammarRevisionsCreated: 0,
+        cacheWriteCount: 2,
+        verdict: 'safe'
+      });
+      expect(result.providerResponseLogArtifact.responses[0]).toMatchObject({
+        status: 'success',
+        rawResultCount: 2,
+        normalizedCandidateCount: 2
+      });
+      expect(result.retrievalCandidatesArtifact.candidates[0]).toMatchObject({
+        title: 'Public library record for early spectator scene',
+        domain: 'library.example.org',
+        sourceTypeHypothesis: 'library'
+      });
+      expect(result.sourceTypingReportArtifact.candidateClassifications.map((entry: any) =>
+        entry.sourceTypeHypothesis
+      )).toEqual(['library', 'newspaper']);
+      expect(JSON.stringify(result.providerConfigAppliedArtifact)).not.toContain('Bearer');
+
+      const failedOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-http-noauth-failed-'));
+      const failedConfigPath = path.join(os.tmpdir(), 'metagrinder-noauth-failed-config.json');
+      fs.writeFileSync(failedConfigPath, JSON.stringify({
+        providerId: 'generic-http-search',
+        endpoint: 'https://example.invalid/search',
+        requiresApiKey: false,
+        fakeError: 'timeout'
+      }), 'utf8');
+      const failed = runMetagrinderMvp({
+        inputPath,
+        outputDir: failedOutputDir,
+        title: 'RALPH 12 Failed Provider',
+        webResearchMode: 'live-candidate-only',
+        enableLiveRetrieval: true,
+        liveProvider: 'generic-http-search',
+        providerConfigFilePath: failedConfigPath,
+        maxQueriesTotal: 1,
+        maxResultsPerQuery: 2
+      });
+      expect(failed.liveProviderPilotReportArtifact).toMatchObject({
+        networkAttempted: true,
+        networkSucceeded: false,
+        candidateCount: 0,
+        sourceClaimsCreated: 0,
+        grammarRevisionsCreated: 0,
+        verdict: 'safe-failed-provider'
+      });
+
+      const replayOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-http-noauth-replay-'));
+      const replay = runMetagrinderMvp({
+        inputPath,
+        outputDir: replayOutputDir,
+        title: 'RALPH 12 Pilot Cache Replay',
+        webResearchMode: 'cache-replay',
+        retrievalCacheDir: path.join(outputDir, 'retrieval-cache-manifest.json'),
+        sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd-live.json'),
+        sourceClaimReviewFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-claim-review-historical-crowd.json'),
+        revisionStateFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'revision-state-historical-crowd-citation-gated.json'),
+        applyAcceptedRevisions: true,
+        compileGrammar: 'accepted'
+      });
+      expect(replay.retrievalCacheManifestArtifact.cacheHit).toBe(true);
+      expect(replay.approvedSourceResultsArtifact.approvedResults).toHaveLength(1);
+      expect(replay.sourceEvidenceArtifact.evidence).toHaveLength(1);
+      expect(replay.sourceClaimsArtifact.claims).toHaveLength(1);
+      expect(replay.acceptedGrammarDeltasArtifact.deltas[0]).toMatchObject({
+        applied: true,
+        citationStatus: 'accepted'
+      });
+    } finally {
+      if (previousEnvGuard === undefined) delete process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL;
+      else process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL = previousEnvGuard;
+    }
+  });
+
+  test('real endpoint proof skips missing local config and supports selector approval after inspection', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const previousEnvGuard = process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL;
+    process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL = '1';
+
+    try {
+      const missingOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-real-missing-'));
+      const missing = runMetagrinderMvp({
+        inputPath,
+        outputDir: missingOutputDir,
+        title: 'RALPH 13 Real Config Missing',
+        webResearchMode: 'live-candidate-only',
+        enableLiveRetrieval: true,
+        liveProvider: 'generic-http-search',
+        providerConfigFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'provider-config-generic-http-search-real.local.json'),
+        maxQueriesTotal: 1,
+        maxQueriesPerGap: 1,
+        maxResultsPerQuery: 2
+      });
+      expect(() => MetagrinderRealEndpointProofReportSchema.parse(missing.realEndpointProofReportArtifact)).not.toThrow();
+      expect(missing.realEndpointProofReportArtifact).toMatchObject({
+        configPresent: false,
+        networkAttempted: false,
+        networkSucceeded: false,
+        candidateCount: 0,
+        sourceClaimsCreated: 0,
+        grammarRevisionsCreated: 0,
+        verdict: 'skipped-no-provider-config'
+      });
+      expect(missing.retrievalSafetyReportArtifact.verdict).toBe('safe');
+      expect(missing.sourceClaimsArtifact.claims).toHaveLength(0);
+      expect(missing.grammarRevisionArtifact.revisions).toHaveLength(0);
+
+      const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-real-inspection-'));
+      const inspected = runMetagrinderMvp({
+        inputPath,
+        outputDir,
+        title: 'RALPH 13 Candidate Inspection',
+        webResearchMode: 'live-candidate-only',
+        enableLiveRetrieval: true,
+        liveProvider: 'generic-http-search',
+        providerConfigFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'provider-config-generic-http-search-noauth-fake.json'),
+        maxQueriesTotal: 1,
+        maxQueriesPerGap: 1,
+        maxResultsPerQuery: 2
+      });
+      expect(() => MetagrinderCandidateInspectionArtifactSchema.parse(inspected.candidateInspectionArtifact)).not.toThrow();
+      expect(inspected.candidateInspectionArtifact.candidates).toHaveLength(2);
+      expect(inspected.candidateInspectionArtifact.candidates[0]).toMatchObject({
+        candidateId: 'retrieval_candidate_live_001',
+        sourceTypeHypothesis: 'library',
+        sourceQualityHypothesis: 'medium',
+        canCreateSourceClaim: false
+      });
+      expect(inspected.candidateInspectionArtifact.candidates[0].payloadHash).toMatch(/^sha256:/);
+      expect(fs.readFileSync(path.join(outputDir, 'candidate-inspection.md'), 'utf8')).toContain('Recommended action:');
+      expect(inspected.researchPackageManifest.collections.some((collection: any) =>
+        collection.type === 'candidate-inspection'
+      )).toBe(true);
+      expect(inspected.researchPackageManifest.collections.some((collection: any) =>
+        collection.type === 'real-endpoint-proof-report'
+      )).toBe(true);
+
+      const replayOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-real-selector-replay-'));
+      const replay = runMetagrinderMvp({
+        inputPath,
+        outputDir: replayOutputDir,
+        title: 'RALPH 13 Cache Replay Review',
+        webResearchMode: 'cache-replay',
+        retrievalCacheDir: path.join(outputDir, 'retrieval-cache-manifest.json'),
+        sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd-selector.json'),
+        sourceClaimReviewFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-claim-review-historical-crowd.json'),
+        revisionStateFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'revision-state-historical-crowd-citation-gated.json'),
+        applyAcceptedRevisions: true,
+        compileGrammar: 'accepted'
+      });
+      expect(replay.approvedSourceResultsArtifact.approvedResults).toHaveLength(1);
+      expect(replay.approvedSourceResultsArtifact.approvedResults[0]).toMatchObject({
+        candidateId: 'retrieval_candidate_live_001',
+        approvalMatchMode: 'canonicalUrl'
+      });
+      expect(replay.sourceEvidenceArtifact.evidence).toHaveLength(1);
+      expect(replay.sourceClaimsArtifact.claims).toHaveLength(1);
+      expect(replay.acceptedGrammarDeltasArtifact.deltas[0]).toMatchObject({
+        applied: true,
+        citationStatus: 'accepted'
+      });
+
+      const ambiguousApproval = {
+        inputId: 'research-input-historical-crowd-grammar',
+        approvals: [
+          {
+            candidateSelector: { queryId: 'gap_middle_class_spectator_weight_support_query_01' },
+            approvalStatus: 'approved',
+            operatorNote: 'Intentionally ambiguous selector.'
+          }
+        ]
+      };
+      const ambiguous = buildApprovedSourceResultsArtifact({
+        retrievalCandidatesArtifact: inspected.retrievalCandidatesArtifact,
+        sourceIntakeApprovalArtifact: ambiguousApproval
+      });
+      expect(ambiguous.approvedResults).toHaveLength(0);
+      expect(ambiguous.warnings[0]).toContain('matched 2 candidates');
+    } finally {
+      if (previousEnvGuard === undefined) delete process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL;
+      else process.env.METAGRINDER_ENABLE_LIVE_RETRIEVAL = previousEnvGuard;
+    }
+  });
+
+  test('revision state application reports unknown ids and missing operator notes', () => {
+    const grammarRevisionArtifact = MetagrinderGrammarRevisionArtifactSchema.parse({
+      inputId: 'scene',
+      revisions: [
+        {
+          revisionId: 'revision_001',
+          gapId: 'gap_001',
+          changeType: 'no-op',
+          targetGrammarRef: 'sceneGrammar',
+          before: 'before',
+          after: 'after',
+          reason: 'reviewable',
+          sourceClaimIds: ['source_claim_001'],
+          confidence: 'low',
+          reviewStatus: 'needs_review'
+        }
+      ]
+    });
+    const { grammarRevisionArtifact: reviewed, revisionStateAppliedArtifact } = applyRevisionStateFile({
+      grammarRevisionArtifact,
+      revisionStateFile: {
+        inputId: 'scene',
+        revisionStates: [
+          {
+            revisionId: 'revision_001',
+            reviewStatus: 'accepted'
+          },
+          {
+            revisionId: 'revision_unknown',
+            reviewStatus: 'rejected',
+            operatorNote: 'No matching proposed revision.'
+          }
+        ]
+      },
+      revisionStateFilePath: 'revision-state.json',
+      sourceClaimsArtifact: {
+        inputId: 'scene',
+        claims: [
+          {
+            sourceClaimId: 'source_claim_001',
+            sourceId: 'source_loc_001',
+            gapId: 'gap_001',
+            claim: 'Weak support.',
+            claimType: 'source-support',
+            supportsGrammarRefs: ['sceneGrammar'],
+            attributionMode: 'web-retrieved',
+            confidence: 'low',
+            evidenceText: 'Weak support.',
+            evidenceLocator: {
+              url: 'mock://source',
+              page: null,
+              selector: null,
+              accessDate: '2026-05-02'
+            },
+            limitations: [],
+            reviewStatus: 'needs_review'
+          }
+        ]
+      }
+    });
+
+    expect(reviewed.revisions[0].reviewStatus).toBe('accepted');
+    expect(revisionStateAppliedArtifact.appliedRevisionIds).toContain('revision_001');
+    expect(revisionStateAppliedArtifact.unknownRevisionIds).toContain('revision_unknown');
+    expect(revisionStateAppliedArtifact.warnings).toEqual(expect.arrayContaining([
+      'Revision state revision_001 is missing operatorNote.',
+      'Accepted revision revision_001 is supported only by low-quality source claims.'
+    ]));
+    expect(() => MetagrinderRevisionStateAppliedSchema.parse(revisionStateAppliedArtifact)).not.toThrow();
   });
 
   test('keeps mutation collection in the manifest even when no variants are generated', () => {

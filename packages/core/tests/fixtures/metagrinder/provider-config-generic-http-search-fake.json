@@ -1,0 +1,26 @@
+{
+  "providerId": "generic-http-search",
+  "endpoint": "https://example.invalid/search",
+  "requiresApiKey": true,
+  "apiKey": "ralph11-fake-secret-do-not-log",
+  "timeoutMs": 5000,
+  "maxRetries": 0,
+  "fakeResponses": {
+    "default": {
+      "results": [
+        {
+          "title": "Library collection page for 1910s spectator crowd",
+          "url": "https://library.example.org/collections/crowd-1910",
+          "snippet": "Archival collection page with period crowd photographs.",
+          "sourceType": "library"
+        },
+        {
+          "title": "Museum catalog record for grandstand spectators",
+          "url": "https://museum.example.org/catalog/grandstand-spectators",
+          "snippet": "Museum catalog entry with period crowd imagery.",
+          "sourceType": "museum"
+        }
+      ]
+    }
+  }
+}

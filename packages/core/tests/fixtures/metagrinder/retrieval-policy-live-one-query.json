@@ -1,0 +1,31 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "mode": "live-candidate-only",
+  "allowLiveRetrieval": true,
+  "maxQueriesTotal": 1,
+  "maxQueriesPerGap": 1,
+  "maxResultsPerQuery": 2,
+  "allowedSourceTypes": [
+    "archive",
+    "museum",
+    "library",
+    "scholarly",
+    "newspaper",
+    "high-quality-secondary"
+  ],
+  "blockedSourceTypes": [
+    "stock-photo",
+    "blog",
+    "forum",
+    "low-quality-source"
+  ],
+  "requireOperatorApprovalForSourceClaims": true,
+  "allowLowQualitySources": false,
+  "failOnProviderError": false,
+  "cache": {
+    "enabled": true,
+    "readFromCache": true,
+    "writeToCache": true,
+    "cacheDir": "tmp/metagrinder-retrieval-cache"
+  }
+}

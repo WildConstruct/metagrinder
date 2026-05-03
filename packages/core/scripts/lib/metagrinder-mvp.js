@@ -18,6 +18,25 @@ const researchSceneGrammarService = require('../../services/researchSceneGrammar
 const researchGapAnalysisService = require('../../services/researchGapAnalysis/index.js');
 const researchQueryPlanService = require('../../services/researchQueryPlan/index.js');
 const researchWebResearchService = require('../../services/researchWebResearch/index.js');
+const researchRetrievalPolicyService = require('../../services/researchRetrievalPolicy/index.js');
+const researchRetrievalCandidatesService = require('../../services/researchRetrievalCandidates/index.js');
+const researchRetrievalCacheService = require('../../services/researchRetrievalCache/index.js');
+const researchLiveRetrievalService = require('../../services/researchLiveRetrieval/index.js');
+const researchLiveProviderContractService = require('../../services/researchLiveProviderContract/index.js');
+const researchProviderConfigService = require('../../services/researchProviderConfig/index.js');
+const researchProviderPreflightService = require('../../services/researchProviderPreflight/index.js');
+const researchProviderRequestShapesService = require('../../services/researchProviderRequestShapes/index.js');
+const researchProviderErrorsService = require('../../services/researchProviderErrors/index.js');
+const researchProviderResponseLogService = require('../../services/researchProviderResponseLog/index.js');
+const researchLiveProviderPilotReportService = require('../../services/researchLiveProviderPilotReport/index.js');
+const researchCandidateInspectionService = require('../../services/researchCandidateInspection/index.js');
+const researchRealEndpointProofService = require('../../services/researchRealEndpointProof/index.js');
+const researchSourceTypingService = require('../../services/researchSourceTyping/index.js');
+const researchSourceIntakeApprovalService = require('../../services/researchSourceIntakeApproval/index.js');
+const researchSourceRegistryService = require('../../services/researchSourceRegistry/index.js');
+const researchSourceClaimsService = require('../../services/researchSourceClaims/index.js');
+const researchSourceEvidenceService = require('../../services/researchSourceEvidence/index.js');
+const researchSourceClaimReviewService = require('../../services/researchSourceClaimReview/index.js');
 const researchGrammarRevisionService = require('../../services/researchGrammarRevision/index.js');
 const researchSamplerService = require('../../services/researchSampler/index.js');
 const researchPlausibilityEvaluateService = require('../../services/researchPlausibilityEvaluate/index.js');
@@ -196,6 +215,40 @@ function buildResearchPackageManifest({
   plausibilityReviewArtifact,
   sceneGrammarPsg,
   grammarRevisionArtifact,
+  acceptedGrammarRevisionArtifact,
+  rejectedGrammarRevisionArtifact,
+  revisionStateArtifact,
+  revisionStateAppliedArtifact,
+  revisionReviewArtifact,
+  acceptedGrammarDeltasArtifact,
+  operatorReviewArtifact,
+  psgCompileDiffArtifact,
+  liveRetrievalReadinessArtifact,
+  liveProviderContractArtifact,
+  providerConfigAppliedArtifact,
+  providerPreflightReportArtifact,
+  providerRequestShapesArtifact,
+  providerResponseLogArtifact,
+  liveProviderPilotReportArtifact,
+  realEndpointProofReportArtifact,
+  candidateInspectionArtifact,
+  sourceTypingReportArtifact,
+  providerErrorReportArtifact,
+  liveRetrievalPreflightArtifact,
+  liveRetrievalRequestsArtifact,
+  liveRetrievalCacheWriteArtifact,
+  sourceRegistryArtifact,
+  sourceClaimsArtifact,
+  sourceEvidenceArtifact,
+  sourceClaimReviewArtifact,
+  retrievalPolicyArtifact,
+  retrievalRunLogArtifact,
+  retrievalCandidatesArtifact,
+  retrievalCacheManifestArtifact,
+  sourceIntakeApprovalArtifact,
+  approvedSourceResultsArtifact,
+  retrievalSafetyReportArtifact,
+  acceptedSceneGrammarArtifact,
   branchGraphPsgs
 }) {
   return researchPackageService.buildResearchPackageManifest({
@@ -209,6 +262,40 @@ function buildResearchPackageManifest({
     plausibilityReviewArtifact,
     sceneGrammarPsg,
     grammarRevisionArtifact,
+    acceptedGrammarRevisionArtifact,
+    rejectedGrammarRevisionArtifact,
+    revisionStateArtifact,
+    revisionStateAppliedArtifact,
+    revisionReviewArtifact,
+    acceptedGrammarDeltasArtifact,
+    operatorReviewArtifact,
+    psgCompileDiffArtifact,
+    liveRetrievalReadinessArtifact,
+    liveProviderContractArtifact,
+    providerConfigAppliedArtifact,
+    providerPreflightReportArtifact,
+    providerRequestShapesArtifact,
+    providerResponseLogArtifact,
+    liveProviderPilotReportArtifact,
+    realEndpointProofReportArtifact,
+    candidateInspectionArtifact,
+    sourceTypingReportArtifact,
+    providerErrorReportArtifact,
+    liveRetrievalPreflightArtifact,
+    liveRetrievalRequestsArtifact,
+    liveRetrievalCacheWriteArtifact,
+    sourceRegistryArtifact,
+    sourceClaimsArtifact,
+    sourceEvidenceArtifact,
+    sourceClaimReviewArtifact,
+    retrievalPolicyArtifact,
+    retrievalRunLogArtifact,
+    retrievalCandidatesArtifact,
+    retrievalCacheManifestArtifact,
+    sourceIntakeApprovalArtifact,
+    approvedSourceResultsArtifact,
+    retrievalSafetyReportArtifact,
+    acceptedSceneGrammarArtifact,
     branchGraphPsgs
   });
 }
@@ -262,11 +349,184 @@ function buildWebResearchResults({ researchQueryPlan, researchGapArtifact, now }
   });
 }
 
-function buildGrammarRevisionArtifact({ sceneGrammarArtifact, researchGapArtifact, webResearchResults }) {
+function buildApprovedWebResearchResults({ approvedSourceResultsArtifact, retrievalCandidatesArtifact, researchGapArtifact, now }) {
+  return researchWebResearchService.buildApprovedWebResearchResults({
+    approvedSourceResultsArtifact,
+    retrievalCandidatesArtifact,
+    researchGapArtifact,
+    now
+  });
+}
+
+function buildEmptyWebResearchResults({ inputId, adapterMode, now }) {
+  return researchWebResearchService.buildEmptyWebResearchResults({
+    inputId,
+    adapterMode,
+    now
+  });
+}
+
+function buildRetrievalPolicyArtifact(args) {
+  return researchRetrievalPolicyService.buildRetrievalPolicyArtifact(args);
+}
+
+function buildRetrievalRunBoundary(args) {
+  return researchRetrievalCandidatesService.buildRetrievalRunBoundary(args);
+}
+
+function buildLiveRetrievalPreflight(args) {
+  return researchLiveRetrievalService.buildLiveRetrievalPreflight(args);
+}
+
+function searchLiveCandidates(args) {
+  return researchLiveRetrievalService.searchLiveCandidates(args);
+}
+
+function buildLiveProviderContract(args) {
+  return researchLiveProviderContractService.buildLiveProviderContract(args);
+}
+
+function buildProviderConfigApplied(args) {
+  return researchProviderConfigService.buildProviderConfigApplied(args);
+}
+
+function buildProviderPreflightReport(args) {
+  return researchProviderPreflightService.buildProviderPreflightReport(args);
+}
+
+function buildProviderRequestShapes(args) {
+  return researchProviderRequestShapesService.buildProviderRequestShapes(args);
+}
+
+function buildProviderErrorReport(args) {
+  return researchProviderErrorsService.buildProviderErrorReport(args);
+}
+
+function buildEmptyProviderResponseLog(args) {
+  return researchProviderResponseLogService.buildEmptyProviderResponseLog(args);
+}
+
+function buildLiveProviderPilotReport(args) {
+  return researchLiveProviderPilotReportService.buildLiveProviderPilotReport(args);
+}
+
+function buildCandidateInspectionArtifact(args) {
+  return researchCandidateInspectionService.buildCandidateInspectionArtifact(args);
+}
+
+function buildCandidateInspectionMarkdown(args) {
+  return researchCandidateInspectionService.buildCandidateInspectionMarkdown(args);
+}
+
+function buildRealEndpointProofReport(args) {
+  return researchRealEndpointProofService.buildRealEndpointProofReport(args);
+}
+
+function buildSourceTypingReport(args) {
+  return researchSourceTypingService.buildSourceTypingReport(args);
+}
+
+function readRetrievalCacheArtifact(args) {
+  return researchRetrievalCacheService.readRetrievalCacheArtifact(args);
+}
+
+function buildRetrievalCacheManifest(args) {
+  return researchRetrievalCacheService.buildRetrievalCacheManifest(args);
+}
+
+function buildSourceIntakeApprovalArtifact(args) {
+  return researchSourceIntakeApprovalService.buildSourceIntakeApprovalArtifact(args);
+}
+
+function buildApprovedSourceResultsArtifact(args) {
+  return researchSourceIntakeApprovalService.buildApprovedSourceResultsArtifact(args);
+}
+
+function buildRetrievalSafetyReport(args) {
+  return researchSourceIntakeApprovalService.buildRetrievalSafetyReport(args);
+}
+
+function buildSourceRegistryArtifact({ ingestArtifact, webResearchResults }) {
+  return researchSourceRegistryService.buildSourceRegistryArtifact({
+    ingestArtifact,
+    webResearchResults
+  });
+}
+
+function buildSourceClaimsArtifact({ sourceRegistryArtifact, webResearchResults, researchGapArtifact, sourceEvidenceArtifact, sourceClaimReviewArtifact }) {
+  return researchSourceClaimsService.buildSourceClaimsArtifact({
+    sourceRegistryArtifact,
+    webResearchResults,
+    researchGapArtifact,
+    sourceEvidenceArtifact,
+    sourceClaimReviewArtifact
+  });
+}
+
+function buildSourceEvidenceArtifact(args) {
+  return researchSourceEvidenceService.buildSourceEvidenceArtifact(args);
+}
+
+function buildSourceClaimReviewArtifact(args) {
+  return researchSourceClaimReviewService.buildSourceClaimReviewArtifact(args);
+}
+
+function buildGrammarRevisionArtifact({ sceneGrammarArtifact, researchGapArtifact, webResearchResults, sourceClaimsArtifact }) {
   return researchGrammarRevisionService.buildGrammarRevisionArtifact({
     sceneGrammarArtifact,
     researchGapArtifact,
-    webResearchResults
+    webResearchResults,
+    sourceClaimsArtifact
+  });
+}
+
+function splitGrammarRevisionArtifact({ grammarRevisionArtifact }) {
+  return researchGrammarRevisionService.splitGrammarRevisionArtifact({
+    grammarRevisionArtifact
+  });
+}
+
+function applyRevisionStateFile({ grammarRevisionArtifact, revisionStateFile, revisionStateFilePath, sourceClaimsArtifact }) {
+  return researchGrammarRevisionService.applyRevisionStateFile({
+    grammarRevisionArtifact,
+    revisionStateFile,
+    revisionStateFilePath,
+    sourceClaimsArtifact
+  });
+}
+
+function applyAcceptedGrammarRevisions({ sceneGrammarArtifact, grammarRevisionArtifact }) {
+  return researchGrammarRevisionService.applyAcceptedGrammarRevisions({
+    sceneGrammarArtifact,
+    grammarRevisionArtifact
+  });
+}
+
+function applyAcceptedGrammarRevisionsWithDeltas({ sceneGrammarArtifact, grammarRevisionArtifact, sourceClaimsArtifact, sourceClaimReviewArtifact, requireReviewedCitations }) {
+  return researchGrammarRevisionService.applyAcceptedGrammarRevisionsWithDeltas({
+    sceneGrammarArtifact,
+    grammarRevisionArtifact,
+    sourceClaimsArtifact,
+    sourceClaimReviewArtifact,
+    requireReviewedCitations
+  });
+}
+
+function buildRevisionReviewArtifact({
+  grammarRevisionArtifact,
+  revisionStateAppliedArtifact,
+  sourceClaimsArtifact,
+  compileGrammarTarget,
+  acceptedGrammarDeltasArtifact,
+  psgCompileDiffArtifact
+}) {
+  return researchGrammarRevisionService.buildRevisionReviewArtifact({
+    grammarRevisionArtifact,
+    revisionStateAppliedArtifact,
+    sourceClaimsArtifact,
+    compileGrammarTarget,
+    acceptedGrammarDeltasArtifact,
+    psgCompileDiffArtifact
   });
 }
 
@@ -320,7 +580,27 @@ function validatePackageArtifacts({
   researchGapArtifact,
   researchQueryPlan,
   webResearchResults,
+  sourceRegistryArtifact,
+  sourceClaimsArtifact,
+  sourceEvidenceArtifact,
+  sourceClaimReviewArtifact,
+  retrievalPolicyArtifact,
+  retrievalRunLogArtifact,
+  retrievalCandidatesArtifact,
+  retrievalCacheManifestArtifact,
+  sourceIntakeApprovalArtifact,
+  approvedSourceResultsArtifact,
+  retrievalSafetyReportArtifact,
   grammarRevisionArtifact,
+  acceptedGrammarRevisionArtifact,
+  rejectedGrammarRevisionArtifact,
+  revisionStateArtifact,
+  revisionStateAppliedArtifact,
+  revisionReviewArtifact,
+  acceptedGrammarDeltasArtifact,
+  psgCompileDiffArtifact,
+  liveRetrievalReadinessArtifact,
+  acceptedSceneGrammarArtifact,
   samplePromptsArtifact,
   sceneGrammarEvaluation,
   plausibilityReviewArtifact,
@@ -351,7 +631,27 @@ function validatePackageArtifacts({
     researchGapArtifact,
     researchQueryPlan,
     webResearchResults,
+    sourceRegistryArtifact,
+    sourceClaimsArtifact,
+    sourceEvidenceArtifact,
+    sourceClaimReviewArtifact,
+    retrievalPolicyArtifact,
+    retrievalRunLogArtifact,
+    retrievalCandidatesArtifact,
+    retrievalCacheManifestArtifact,
+    sourceIntakeApprovalArtifact,
+    approvedSourceResultsArtifact,
+    retrievalSafetyReportArtifact,
     grammarRevisionArtifact,
+    acceptedGrammarRevisionArtifact,
+    rejectedGrammarRevisionArtifact,
+    revisionStateArtifact,
+    revisionStateAppliedArtifact,
+    revisionReviewArtifact,
+    acceptedGrammarDeltasArtifact,
+    psgCompileDiffArtifact,
+    liveRetrievalReadinessArtifact,
+    acceptedSceneGrammarArtifact,
     samplePromptsArtifact,
     sceneGrammarEvaluation,
     plausibilityReviewArtifact,
@@ -369,12 +669,59 @@ function validatePackageArtifacts({
   });
 }
 
-function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
+function runMetagrinderMvp({
+  inputPath,
+  inputPaths,
+  outputDir,
+  title,
+  revisionStateFilePath,
+  applyAcceptedRevisions,
+  compileGrammar,
+  webResearchMode,
+  retrievalPolicyFilePath,
+  sourceIntakeApprovalFilePath,
+  sourceClaimReviewFilePath,
+  retrievalCacheDir,
+  maxQueriesTotal,
+  maxQueriesPerGap,
+  maxResultsPerQuery,
+  allowedSourceTypes,
+  allowedDomains,
+  blockedDomains,
+  blockedSourceTypes,
+  enableLiveRetrieval,
+  liveProvider,
+  providerConfigFilePath,
+  providerTimeoutMs,
+  providerMaxRetries,
+  providerHttpClient
+}) {
   return researchPipelineService.runPipeline({
     inputPath,
     inputPaths,
     outputDir,
     title,
+    revisionStateFilePath,
+    applyAcceptedRevisions,
+    compileGrammar,
+    webResearchMode,
+    retrievalPolicyFilePath,
+    sourceIntakeApprovalFilePath,
+    sourceClaimReviewFilePath,
+    retrievalCacheDir,
+    maxQueriesTotal,
+    maxQueriesPerGap,
+    maxResultsPerQuery,
+    allowedSourceTypes,
+    allowedDomains,
+    blockedDomains,
+    blockedSourceTypes,
+    enableLiveRetrieval,
+    liveProvider,
+    providerConfigFilePath,
+    providerTimeoutMs,
+    providerMaxRetries,
+    providerHttpClient,
     resolveInputPath: (candidatePath) => researchPipelineService.resolveInputPath(
       candidatePath,
       path.resolve(__dirname, '..', '..', '..', '..')
@@ -405,7 +752,38 @@ function runMetagrinderMvp({ inputPath, inputPaths, outputDir, title }) {
     buildResearchGapArtifact,
     buildResearchQueryPlan,
     buildWebResearchResults,
+    buildApprovedWebResearchResults,
+    buildEmptyWebResearchResults,
+    buildRetrievalPolicyArtifact,
+    buildRetrievalRunBoundary,
+    buildLiveRetrievalPreflight,
+    searchLiveCandidates,
+    buildLiveProviderContract,
+    buildProviderConfigApplied,
+    buildProviderPreflightReport,
+    buildProviderRequestShapes,
+    buildProviderErrorReport,
+    buildEmptyProviderResponseLog,
+    buildLiveProviderPilotReport,
+    buildCandidateInspectionArtifact,
+    buildCandidateInspectionMarkdown,
+    buildRealEndpointProofReport,
+    buildSourceTypingReport,
+    readRetrievalCacheArtifact,
+    buildRetrievalCacheManifest,
+    buildSourceIntakeApprovalArtifact,
+    buildApprovedSourceResultsArtifact,
+    buildRetrievalSafetyReport,
+    buildSourceRegistryArtifact,
+    buildSourceEvidenceArtifact,
+    buildSourceClaimReviewArtifact,
+    buildSourceClaimsArtifact,
     buildGrammarRevisionArtifact,
+    applyRevisionStateFile,
+    splitGrammarRevisionArtifact,
+    applyAcceptedGrammarRevisions,
+    applyAcceptedGrammarRevisionsWithDeltas,
+    buildRevisionReviewArtifact,
     buildSamplePromptsArtifact,
     buildSceneGrammarEvaluation,
     buildPlausibilityReviewArtifact,
@@ -436,7 +814,38 @@ module.exports = {
   buildResearchGapArtifact,
   buildResearchQueryPlan,
   buildWebResearchResults,
+  buildApprovedWebResearchResults,
+  buildEmptyWebResearchResults,
+  buildRetrievalPolicyArtifact,
+  buildRetrievalRunBoundary,
+  buildLiveRetrievalPreflight,
+  searchLiveCandidates,
+  buildLiveProviderContract,
+  buildProviderConfigApplied,
+  buildProviderPreflightReport,
+  buildProviderRequestShapes,
+  buildProviderErrorReport,
+  buildEmptyProviderResponseLog,
+  buildLiveProviderPilotReport,
+  buildCandidateInspectionArtifact,
+  buildCandidateInspectionMarkdown,
+  buildRealEndpointProofReport,
+  buildSourceTypingReport,
+  readRetrievalCacheArtifact,
+  buildRetrievalCacheManifest,
+  buildSourceIntakeApprovalArtifact,
+  buildApprovedSourceResultsArtifact,
+  buildRetrievalSafetyReport,
+  buildSourceRegistryArtifact,
+  buildSourceEvidenceArtifact,
+  buildSourceClaimReviewArtifact,
+  buildSourceClaimsArtifact,
   buildGrammarRevisionArtifact,
+  applyRevisionStateFile,
+  splitGrammarRevisionArtifact,
+  applyAcceptedGrammarRevisions,
+  applyAcceptedGrammarRevisionsWithDeltas,
+  buildRevisionReviewArtifact,
   buildSamplePromptsArtifact,
   buildSceneGrammarEvaluation,
   buildPlausibilityReviewArtifact,

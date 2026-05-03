@@ -1,0 +1,19 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "revisionStates": [
+    {
+      "revisionId": "research-input-historical-crowd-grammar_grammar_revision_001",
+      "reviewStatus": "accepted",
+      "operatorNote": "Accepting because multiple medium-quality source claims support keeping this distribution as a reviewable sourced range.",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    },
+    {
+      "revisionId": "research-input-historical-crowd-grammar_grammar_revision_002",
+      "reviewStatus": "rejected",
+      "operatorNote": "Rejected because the supporting source is not event-specific enough for promotion.",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z"
+    }
+  ]
+}

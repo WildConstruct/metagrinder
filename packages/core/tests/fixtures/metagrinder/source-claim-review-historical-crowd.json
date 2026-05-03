@@ -1,0 +1,32 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "claimReviews": [
+    {
+      "sourceClaimId": "source_claim_001",
+      "evidenceIds": ["source_evidence_001"],
+      "citationStatus": "accepted",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z",
+      "operatorNote": "Evidence supports the claim but is not event-specific.",
+      "riskFlags": ["not-event-specific"]
+    },
+    {
+      "sourceClaimId": "source_claim_002",
+      "evidenceIds": ["source_evidence_002"],
+      "citationStatus": "rejected",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z",
+      "operatorNote": "Rejected for citation-gating proof.",
+      "riskFlags": ["weak-citation"]
+    },
+    {
+      "sourceClaimId": "source_claim_003",
+      "evidenceIds": ["source_evidence_003"],
+      "citationStatus": "needs_review",
+      "reviewedBy": "local-operator",
+      "reviewedAt": "2026-05-02T00:00:00.000Z",
+      "operatorNote": "Pending review for citation-gating proof.",
+      "riskFlags": ["needs-citation-review"]
+    }
+  ]
+}

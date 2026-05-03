@@ -40,6 +40,33 @@ function sourceInputIdsFor(ingestArtifact, sourceChunkIds) {
 function parseWeightRangeFromText(text, fallbackLabel) {
   const weightMatch = text.match(/(?:weight|share|baseline|adult men|adult women|children|working|middle|affluent)[^0-9]{0,32}(\d+(?:\.\d+)?)\s*(?:-|to|–)\s*(\d+(?:\.\d+)?)\s*%/i);
   if (!weightMatch) {
+    if (/half to three[- ]fifths|half to 3\/5|three[- ]fifths/i.test(text)) {
+      return {
+        label: fallbackLabel,
+        min: 50,
+        max: 60,
+        unit: 'percent',
+        confidence: 'medium'
+      };
+    }
+    if (/one[- ]fifth to one[- ]third|fifth to a third/i.test(text)) {
+      return {
+        label: fallbackLabel,
+        min: 20,
+        max: 33,
+        unit: 'percent',
+        confidence: 'medium'
+      };
+    }
+    if (/rare in number|sparse|visually significant|visually important/i.test(text)) {
+      return {
+        label: fallbackLabel,
+        min: 5,
+        max: 8,
+        unit: 'percent',
+        confidence: 'low'
+      };
+    }
     return undefined;
   }
 
@@ -81,7 +108,7 @@ function focusedSliceForDefinition(sourceText, definition) {
 
   const start = Math.min(...starts);
   const endMarkers = [
-    ...ARCHETYPE_DEFINITIONS
+    ...[...ARCHETYPE_DEFINITIONS, ...GENERIC_ARCHETYPE_DEFINITIONS]
       .filter((candidate) => candidate.archetypeId !== definition.archetypeId)
       .flatMap((candidate) => [candidate.label, ...candidate.keywords]),
     'location-zone logic',
@@ -180,12 +207,59 @@ const ARCHETYPE_DEFINITIONS = [
   }
 ];
 
+const GENERIC_ARCHETYPE_DEFINITIONS = [
+  {
+    archetypeId: 'market_vendor',
+    label: 'Market vendor',
+    keywords: ['market vendor', 'vendor', 'stall keeper', 'stall-keeper'],
+    role: 'vendor',
+    genderPresentation: 'mixed',
+    classBand: 'working',
+    promptText: 'market vendor managing goods at a stall with practical clothing, apron, ledger, baskets, and source-supported trade props',
+    fallbackWeight: [35, 45]
+  },
+  {
+    archetypeId: 'market_shopper',
+    label: 'Market shopper',
+    keywords: ['market shopper', 'shopper', 'town buyer', 'buyer'],
+    role: 'shopper',
+    genderPresentation: 'mixed',
+    classBand: 'mixed',
+    promptText: 'town shopper comparing goods, carrying a basket or purse, dressed for ordinary public market activity',
+    fallbackWeight: [30, 40]
+  },
+  {
+    archetypeId: 'guild_messenger',
+    label: 'Guild messenger',
+    keywords: ['guild messenger', 'messenger', 'runner', 'courier'],
+    role: 'messenger',
+    genderPresentation: 'mixed',
+    classBand: 'working',
+    promptText: 'guild messenger moving through the market with satchel, sealed note, and practical travel clothing',
+    fallbackWeight: [10, 15]
+  },
+  {
+    archetypeId: 'foreign_trader',
+    label: 'Foreign trader',
+    keywords: ['foreign trader', 'outsider trader', 'visiting trader'],
+    role: 'trader',
+    genderPresentation: 'mixed',
+    classBand: 'merchant',
+    raceEthnicityContext: 'underrepresented_local_community',
+    promptText: 'visiting or outsider trader shown as a full commercial participant with varied merchant status and ordinary market behavior',
+    fallbackWeight: [5, 10]
+  }
+];
+
 const LOCATION_DEFINITIONS = [
   ['grandstand', 'Grandstand', 'seated or dense social viewing area with more complete outfits and family groups'],
   ['rail', 'Rail or fence', 'track-edge viewing zone with more adult men, shirtsleeves, and lower-middle or working-class spectators'],
   ['pit', 'Pit or official area', 'controlled work zone for officials, mechanics, drivers, press, and support roles'],
   ['infield', 'Infield or grounds', 'broader public space with looser posture and mixed casual viewing'],
-  ['walkway', 'Walkway or concession approach', 'movement zone with people passing, clustering, carrying programs, or pausing']
+  ['walkway', 'Walkway or concession approach', 'movement zone with people passing, clustering, carrying programs, or pausing'],
+  ['stalls', 'Stalls', 'market stall zone with vendors, shoppers, baskets, hanging goods, and close negotiation'],
+  ['gate', 'Gate', 'market entry zone with arrivals, guards, messengers, carts, and directional movement'],
+  ['fountain', 'Fountain', 'central social zone with shoppers pausing, children nearby, water carriers, and public conversation']
 ];
 
 function buildBehaviorStates(ingestArtifact) {
@@ -194,7 +268,10 @@ function buildBehaviorStates(ingestArtifact) {
     ['leaning', ['leaning', 'leaned', 'rail'], 'leaning at a rail or edge to see better'],
     ['walking_group', ['walking', 'group', 'clusters', 'clustered'], 'moving or clustering in small public groups'],
     ['seated_viewing', ['seated', 'grandstand'], 'seated in a denser viewing area'],
-    ['working_or_official', ['official', 'pit', 'mechanic', 'driver'], 'performing work, official, mechanical, or support duties']
+    ['working_or_official', ['official', 'pit', 'mechanic', 'driver'], 'performing work, official, mechanical, or support duties'],
+    ['selling_goods', ['selling', 'vendor', 'stall keeper', 'weighing'], 'selling, weighing, arranging, or guarding goods in a public market'],
+    ['buying_or_bargaining', ['buying', 'shopper', 'bargaining', 'buyer'], 'comparing goods, bargaining, and moving between stalls'],
+    ['message_running', ['messenger', 'runner', 'courier'], 'moving quickly through a crowd while carrying a message or satchel']
   ];
 
   return behaviorDefs
@@ -212,7 +289,9 @@ function buildEnvironmentalModifiers(ingestArtifact) {
     ['heat_state', ['heat', 'hot', 'sweat', 'shirtsleeves'], 'heat adaptation visible in loosened dress, jacket removal, and practical comfort choices'],
     ['dust_soiling', ['dust', 'dusty', 'soiled'], 'dust accumulation on shoes, hems, trouser cuffs, and lower garments'],
     ['bright_daylight', ['sun', 'daylight', 'bright'], 'bright outdoor daylight with hard visibility and squinting'],
-    ['smoke_or_haze', ['smoke', 'haze', 'gasoline'], 'light atmospheric haze from dust, smoke, fuel, or industrial activity']
+    ['smoke_or_haze', ['smoke', 'haze', 'gasoline'], 'light atmospheric haze from dust, smoke, fuel, or industrial activity'],
+    ['mud_state', ['mud', 'rain', 'wet'], 'mud, wet hems, and slippery paving influence stance, footwear, and garment edges'],
+    ['crowded_morning', ['morning crowd', 'crowded morning', 'market morning'], 'busy morning market density with blocked sightlines and overlapping public movement']
   ];
 
   return modifierDefs
@@ -231,7 +310,9 @@ function buildWardrobeSystem(ingestArtifact) {
     ['heat_adjusted_daywear', ['shirtsleeves', 'suspenders', 'jacket removed'], ['white shirt', 'suspenders', 'jacket removed', 'dark trousers']],
     ['hat_system', ['boater', 'flat cap', 'panama', 'bowler'], ['straw boater', 'flat cap', 'Panama hat', 'bowler']],
     ['female_public_daywear', ['shirtwaist', 'long skirt', 'large hat', 'parasol'], ['shirtwaist blouse', 'long skirt', 'large hat', 'gloves', 'parasol']],
-    ['work_or_official_wear', ['dust coat', 'goggles', 'mechanic', 'official'], ['dust coat', 'cap', 'goggles', 'work gloves']]
+    ['work_or_official_wear', ['dust coat', 'goggles', 'mechanic', 'official'], ['dust coat', 'cap', 'goggles', 'work gloves']],
+    ['market_workwear', ['apron', 'wool tunic', 'head cloth', 'ledger'], ['linen apron', 'wool tunic', 'head cloth', 'belt pouch', 'ledger']],
+    ['market_public_wear', ['hooded cloak', 'simple veil', 'basket', 'purse'], ['hooded cloak', 'simple veil', 'basket', 'purse', 'plain shoes']]
   ];
 
   return wardrobeDefs
@@ -249,7 +330,9 @@ function buildPropsAndAccessories(ingestArtifact) {
   const propDefs = [
     ['spectator_accessories', ['parasol', 'cane', 'gloves', 'pocket watch', 'program'], ['parasol', 'cane', 'gloves', 'pocket watch', 'program']],
     ['work_area_tools', ['clipboard', 'timing sheet', 'goggles', 'work gloves'], ['clipboard', 'timing sheet', 'goggles', 'work gloves']],
-    ['weather_comfort_objects', ['umbrella', 'scarf', 'muff'], ['umbrella', 'scarf', 'muff']]
+    ['weather_comfort_objects', ['umbrella', 'scarf', 'muff'], ['umbrella', 'scarf', 'muff']],
+    ['market_goods', ['basket', 'scales', 'fish crate', 'herb bundle', 'ledger'], ['basket', 'scales', 'fish crate', 'herb bundle', 'ledger']],
+    ['messenger_objects', ['satchel', 'sealed note', 'guild token'], ['satchel', 'sealed note', 'guild token']]
   ];
 
   return propDefs
@@ -295,7 +378,7 @@ function buildVisualReferenceSets(ingestArtifact, archetypes) {
 
 function buildArchetypes(ingestArtifact, wardrobeSystem, behaviorStates) {
   const text = combinedText(ingestArtifact).toLowerCase();
-  const archetypes = ARCHETYPE_DEFINITIONS
+  const archetypes = [...ARCHETYPE_DEFINITIONS, ...GENERIC_ARCHETYPE_DEFINITIONS]
     .filter((definition) => definition.keywords.some((keyword) => text.includes(keyword)))
     .map((definition) => {
       const sourceChunkIds = chunkIdsFor(ingestArtifact, definition.keywords);
@@ -323,7 +406,16 @@ function buildArchetypes(ingestArtifact, wardrobeSystem, behaviorStates) {
         'long skirt',
         'shirtwaist blouse',
         'parasol',
-        'period-appropriate youth clothing'
+        'period-appropriate youth clothing',
+        'linen apron',
+        'wool tunic',
+        'head cloth',
+        'basket',
+        'scales',
+        'satchel',
+        'sealed note',
+        'hooded cloak',
+        'simple veil'
       ]);
       const optionalAttributes = extractAttributesFromText(sourceText, [
         'waistcoat',
@@ -333,7 +425,12 @@ function buildArchetypes(ingestArtifact, wardrobeSystem, behaviorStates) {
         'worn clothing',
         'gloves',
         'cane',
-        'family group'
+        'family group',
+        'ledger',
+        'fish crate',
+        'herb bundle',
+        'guild token',
+        'purse'
       ]);
       const behaviorRefs = behaviorStates
         .filter((behavior) => behavior.sourceChunkIds.some((chunkId) => sourceChunkIds.includes(chunkId)))
@@ -518,8 +615,30 @@ function buildCompatibilityRules(ingestArtifact, locationZones) {
       { action: 'bias-toward', target: 'casual_public_viewing' }
     ]);
   }
+  if (locationZones.some((zone) => zone.zoneId === 'stalls')) {
+    addZoneRule('stalls', 'Market stalls bias vendors and shoppers', [
+      { action: 'increase', target: 'market_vendor' },
+      { action: 'increase', target: 'market_shopper' },
+      { action: 'requires', target: 'market_goods' },
+      { action: 'decrease', target: 'running_movement' }
+    ]);
+  }
+  if (locationZones.some((zone) => zone.zoneId === 'gate')) {
+    addZoneRule('gate', 'Market gates bias arrival and messenger movement', [
+      { action: 'increase', target: 'guild_messenger' },
+      { action: 'allow', target: 'foreign_trader' },
+      { action: 'bias-toward', target: 'arrival_or_departure' }
+    ]);
+  }
+  if (locationZones.some((zone) => zone.zoneId === 'fountain')) {
+    addZoneRule('fountain', 'Fountain zones bias social pausing', [
+      { action: 'increase', target: 'market_shopper' },
+      { action: 'allow', target: 'children' },
+      { action: 'bias-toward', target: 'conversation' }
+    ]);
+  }
 
-  const ethicalChunkIds = chunkIdsFor(ingestArtifact, ['not make black', 'not reduce', 'service role only', 'ethical']);
+  const ethicalChunkIds = chunkIdsFor(ingestArtifact, ['not make black', 'not reduce', 'service role only', 'ethical', 'avoid reducing', 'do not depict', 'outsiders only as thieves']);
   if (ethicalChunkIds.length > 0) {
     rules.push({
       ruleId: 'ethical_representation_not_worker_only',
@@ -532,7 +651,8 @@ function buildCompatibilityRules(ingestArtifact, locationZones) {
       effects: [
         { action: 'allow', target: 'middle_class_spectator' },
         { action: 'allow', target: 'working_class_spectator' },
-        { action: 'avoid', target: 'service_role_only' }
+        { action: 'avoid', target: 'service_role_only' },
+        { action: 'avoid', target: 'outsider_criminal_only' }
       ],
       sourceChunkIds: ethicalChunkIds,
       confidence: 'medium'
@@ -591,9 +711,12 @@ function buildNegativeConstraints(ingestArtifact, compatibilityRules) {
   addConstraint('avoid_modern_artifacts', 'Avoid modern artifacts', ['no modern', 'modern artifacts', 't-shirts', 'baseball caps'], 'Avoid modern fan clothing, branded jerseys, T-shirts, shorts, modern sunglasses, and baseball caps.', 'modern-artifact-risk');
   addConstraint('avoid_overbroad_variation', 'Avoid overbroad variation', ['randomize too broadly', 'low variance', 'high uniformity'], 'Do not randomize so broadly that the crowd loses its tight historical silhouette.', 'negative');
   addConstraint('avoid_incompatible_wardrobe', 'Avoid incompatible wardrobe mixing', ['incompatible', 'avoid mixing', 'panama', 'working-class'], 'Avoid incompatible class, wardrobe, and location combinations unless sourced as an exception.', 'compatibility');
-  addConstraint('avoid_worker_only_representation', 'Avoid worker-only representation', ['not make black', 'not reduce', 'service role only'], 'Do not reduce underrepresented groups to workers or service roles only; allow middle-class spectator, working-class spectator, worker, and family-member variants where spatially plausible.', 'ethical-historical-representation');
+  addConstraint('avoid_worker_only_representation', 'Avoid worker-only representation', ['not make black', 'not reduce', 'avoid reducing', 'service role only'], 'Do not reduce underrepresented groups to workers or service roles only; allow middle-class spectator, working-class spectator, worker, and family-member variants where spatially plausible.', 'ethical-historical-representation');
   addConstraint('avoid_wrong_era_silhouette', 'Avoid wrong-era silhouette', ['too victorian', 'frock coats', 'top hats', 'bustle'], 'Avoid wrong-era silhouettes and theatrical period cliches.', 'modern-artifact-risk');
   addConstraint('avoid_unbalanced_location_gender', 'Avoid unbalanced location placement', ['overpopulating women at the rail', 'rail is overwhelmingly men'], 'Do not overpopulate women in rail or controlled work zones without source support.', 'compatibility');
+  addConstraint('avoid_modern_market_artifacts', 'Avoid modern market artifacts', ['plastic crates', 'modern signage', 'electric lamps'], 'Avoid plastic crates, modern signage, electric lamps, and modern vendor uniforms.', 'modern-artifact-risk');
+  addConstraint('avoid_noble_only_market', 'Avoid noble-only market crowd', ['not only nobles', 'avoid noble-only', 'too noble'], 'Do not convert the market crowd into only nobles or court figures; preserve working vendors, shoppers, messengers, and mixed public roles.', 'negative');
+  addConstraint('avoid_outsider_criminal_only', 'Avoid outsider criminal-only representation', ['outsiders only as thieves', 'foreign traders only as criminals', 'ethical'], 'Do not depict foreign traders or outsiders only as thieves or criminals; keep them as ordinary commercial participants unless a source supports otherwise.', 'ethical-historical-representation');
 
   return constraints;
 }

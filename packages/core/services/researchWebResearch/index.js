@@ -40,6 +40,23 @@ const MOCK_SOURCE_TYPES = [
   }
 ];
 
+function createMockWebResearchAdapter({ now = () => new Date().toISOString() } = {}) {
+  return {
+    mode: 'mock',
+    retrieve({ researchQueryPlan, researchGapArtifact }) {
+      return buildWebResearchResults({
+        researchQueryPlan,
+        researchGapArtifact,
+        now
+      });
+    }
+  };
+}
+
+function createLiveWebResearchAdapter() {
+  throw new Error('Live web research adapter is not implemented; audit mode uses the mock adapter only.');
+}
+
 function claimForGap(gap) {
   const refs = gap.affectedGrammarRefs && gap.affectedGrammarRefs.length > 0
     ? gap.affectedGrammarRefs
@@ -126,6 +143,62 @@ function buildWebResearchResults({
   });
 }
 
+function buildApprovedWebResearchResults({
+  approvedSourceResultsArtifact,
+  retrievalCandidatesArtifact,
+  researchGapArtifact,
+  now = () => new Date().toISOString()
+}) {
+  const retrievedAt = now();
+  const candidatesById = new Map((retrievalCandidatesArtifact?.candidates || []).map((candidate) => [
+    candidate.candidateId,
+    candidate
+  ]));
+  const gapsById = new Map((researchGapArtifact?.gaps || []).map((gap) => [gap.gapId, gap]));
+  const results = (approvedSourceResultsArtifact?.approvedResults || []).map((approvedResult) => {
+    const candidate = candidatesById.get(approvedResult.candidateId);
+    const gap = gapsById.get(approvedResult.gapId);
+    return {
+      resultId: approvedResult.approvedResultId,
+      gapId: approvedResult.gapId,
+      sourceType: approvedResult.sourceType,
+      title: approvedResult.title,
+      url: approvedResult.url,
+      retrievedAt,
+      relevance: candidate?.relevance || 'medium',
+      sourceQuality: approvedResult.sourceQuality,
+      claimsExtracted: [{
+        claim: candidate?.snippet || `Approved operator-reviewed source result for ${approvedResult.gapId}.`,
+        supportsGrammarRefs: gap?.affectedGrammarRefs || [],
+        confidence: approvedResult.sourceQuality
+      }],
+      limitations: [
+        'Operator-approved retrieval candidate; use remains subject to source-specific citation review.'
+      ]
+    };
+  });
+
+  return MetagrinderWebResearchResultsSchema.parse({
+    inputId: approvedSourceResultsArtifact.inputId,
+    adapterMode: 'mock',
+    retrievedAt,
+    results
+  });
+}
+
+function buildEmptyWebResearchResults({ inputId, adapterMode = 'off', now = () => new Date().toISOString() }) {
+  return MetagrinderWebResearchResultsSchema.parse({
+    inputId,
+    adapterMode,
+    retrievedAt: now(),
+    results: []
+  });
+}
+
 module.exports = {
-  buildWebResearchResults
+  buildApprovedWebResearchResults,
+  buildEmptyWebResearchResults,
+  buildWebResearchResults,
+  createLiveWebResearchAdapter,
+  createMockWebResearchAdapter
 };

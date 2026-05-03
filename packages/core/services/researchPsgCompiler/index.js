@@ -35,6 +35,7 @@ function weightedChoiceNode({ id, label, choices, x, y, now, tags = [] }) {
     position: { x, y },
     data: {
       value: choices,
+      choices,
       editState: editState(now),
       normalizeWeights: true,
       showPercentages: true,

@@ -1,0 +1,42 @@
+# Medieval market scene grammar notes
+
+Source notes:
+The scene is a compact medieval market morning with vendors, shoppers, messengers, guards, and visiting traders. The crowd should feel practical and work-focused, with mud, damp paving, and busy movement.
+
+Weighted archetypes:
+Market vendor: stall keeper in linen apron, wool tunic, head cloth or cap, belt pouch, ledger, baskets, scales, fish crate, or herb bundle. Behavior includes selling, weighing, arranging goods, and calling to shoppers. Weight: 35-45%.
+
+Market shopper: town buyer in hooded cloak or simple veil, plain shoes, basket or purse. Behavior includes buying, bargaining, comparing goods, and pausing at stalls. Weight: 30-40%.
+
+Guild messenger: runner or courier with satchel, sealed note, guild token, short cloak, and quick movement through the gate. Weight: 10-15%.
+
+Foreign trader: visiting trader or outsider trader with merchant cloak, bundle of textiles, account tablet, and ordinary commercial behavior. Weight: 5-10%.
+
+Location zones:
+If location zone is stalls, increase vendors and shoppers, require market goods, and decrease running movement.
+If location zone is gate, increase messengers and arrivals, allow foreign traders, and bias toward carts and directional movement.
+If location zone is fountain, increase shoppers, children, water carriers, and conversation.
+
+Wardrobe and props:
+Market workwear includes linen aprons, wool tunics, head cloths, caps, belt pouches, and ledgers.
+Market public wear includes hooded cloaks, simple veils, plain shoes, baskets, purses, and modest wool layers.
+Props include baskets, scales, fish crates, herb bundles, satchels, sealed notes, and guild tokens.
+
+Behavior states:
+Selling goods, weighing goods, bargaining, carrying messages, pausing at the fountain, and moving through the gate.
+
+Environmental modifiers:
+Mud state affects hems, shoes, and stance. Crowded morning market density affects sightlines and movement. Light rain makes paving wet.
+
+Visual reference notes:
+Visual reference caption: close stall row with aproned vendors, baskets, scales, hanging goods, and shoppers leaning in to bargain.
+Visual reference caption: market gate with messengers, carts, guards, damp paving, and visiting traders entering.
+
+Negative constraints:
+Avoid plastic crates, modern signage, electric lamps, and modern vendor uniforms.
+Do not make the crowd only nobles or court figures; keep vendors, shoppers, messengers, and mixed public roles.
+Ethical constraint: do not depict foreign traders or outsiders only as thieves or criminals; keep them as ordinary commercial participants unless the source says otherwise.
+
+Research gaps:
+Vendor-to-shopper ratios need stronger visual citation before promotion.
+Fountain-zone child and water-carrier distribution needs more source support.
