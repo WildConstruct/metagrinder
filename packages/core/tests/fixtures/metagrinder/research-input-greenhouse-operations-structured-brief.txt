@@ -1,0 +1,39 @@
+# Greenhouse Operations Structured Brief
+
+## Irrigation Technician
+Weight: 35-45%
+- checks moisture sensors
+- carries handheld meter
+- adjusts drip valves
+
+## Pest Scout
+Weight: 15-20%
+- uses inspection cards
+- logs leaf damage
+- wears disposable gloves
+
+## Propagation Bench
+Humidity target: 70-80%.
+If context is propagation bench: increase mist checks, force clean trays, avoid standing water.
+
+## Shipping Bay
+Low frequency but high operational risk.
+If context is shipping bay: increase barcode scans and pallet checks; decrease open-water work.
+
+Constraints:
+- Do not mix sanitized propagation tools with shipping-floor carts.
+- Avoid unlabeled chemical bottles.
+- Must not ignore wilted starter trays.
+
+Implementation fields:
+```json
+{
+  "taskRole": "technician | scout | manager",
+  "zone": "propagation_bench | shipping_bay | headhouse",
+  "riskState": "normal | watch | urgent"
+}
+```
+
+Open question: confirm whether weekend staffing changes irrigation coverage.
+
+[1]: https://example.org/greenhouse-ops

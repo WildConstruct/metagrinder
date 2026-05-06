@@ -38,7 +38,7 @@ function sourceInputIdsFor(ingestArtifact, sourceChunkIds) {
 }
 
 function parseWeightRangeFromText(text, fallbackLabel) {
-  const weightMatch = text.match(/(?:weight|share|baseline|adult men|adult women|children|working|middle|affluent)[^0-9]{0,32}(\d+(?:\.\d+)?)\s*(?:-|to|–)\s*(\d+(?:\.\d+)?)\s*%/i);
+  const weightMatch = text.match(/(?:weight|share|baseline|adult men|adult women|children|working|middle|affluent)[^0-9]{0,32}(\d+(?:\.\d+)?)\s*(?:-|to|\u2013|\u2014)\s*(\d+(?:\.\d+)?)\s*%/i);
   if (!weightMatch) {
     if (/half to three[- ]fifths|half to 3\/5|three[- ]fifths/i.test(text)) {
       return {
@@ -79,12 +79,12 @@ function parseWeightRangeFromText(text, fallbackLabel) {
   };
 }
 
-function buildWeightRange({ label, min, max, sourceInputIds, sourceChunkIds, confidence = 'medium' }) {
+function buildWeightRange({ label, min, max, unit = 'percent', sourceInputIds, sourceChunkIds, confidence = 'medium' }) {
   return {
     label,
     min,
     max,
-    unit: 'percent',
+    unit,
     sourceInputIds,
     sourceChunkIds,
     confidence
@@ -309,6 +309,8 @@ function buildWardrobeSystem(ingestArtifact) {
     ['formal_daywear', ['sack suit', 'suit', 'waistcoat', 'tie'], ['sack suit', 'waistcoat', 'white shirt', 'tie']],
     ['heat_adjusted_daywear', ['shirtsleeves', 'suspenders', 'jacket removed'], ['white shirt', 'suspenders', 'jacket removed', 'dark trousers']],
     ['hat_system', ['boater', 'flat cap', 'panama', 'bowler'], ['straw boater', 'flat cap', 'Panama hat', 'bowler']],
+    ['lower_body_daywear', ['trousers', 'knickerbockers', 'long skirt', 'hobble skirt', 'matching suit skirt'], ['straight cuffed trousers', 'dark trousers', 'knickerbockers', 'long skirt', 'matching suit skirt']],
+    ['period_footwear', ['oxford', 'boots', 'laced shoes', 'spats', 'gaiters'], ['leather oxford shoes', 'lace-up boots', 'practical laced shoes', 'spats or gaiters']],
     ['female_public_daywear', ['shirtwaist', 'long skirt', 'large hat', 'parasol'], ['shirtwaist blouse', 'long skirt', 'large hat', 'gloves', 'parasol']],
     ['work_or_official_wear', ['dust coat', 'goggles', 'mechanic', 'official'], ['dust coat', 'cap', 'goggles', 'work gloves']],
     ['market_workwear', ['apron', 'wool tunic', 'head cloth', 'ledger'], ['linen apron', 'wool tunic', 'head cloth', 'belt pouch', 'ledger']],
@@ -721,24 +723,280 @@ function buildNegativeConstraints(ingestArtifact, compatibilityRules) {
   return constraints;
 }
 
+function weightFromStructuredWeight(weight, sourceInputIds, sourceChunkIds) {
+  return buildWeightRange({
+    label: weight.label,
+    min: weight.min,
+    max: weight.max,
+    unit: weight.unit || 'percent',
+    sourceInputIds: weight.sourceInputIds || sourceInputIds,
+    sourceChunkIds: weight.sourceChunkIds || sourceChunkIds,
+    confidence: weight.confidence || 'medium'
+  });
+}
+
+function uniqueById(records, idKey) {
+  const seen = new Set();
+  return records.filter((record) => {
+    const id = record[idKey];
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
+function structuredBriefWeightMap(structuredBriefArtifact) {
+  return new Map((structuredBriefArtifact?.weightedGroups || []).map((weight) => [weight.weightId, weight]));
+}
+
+function isLikelyRoleOrArchetypeLabel(label) {
+  const text = String(label || '').trim();
+  if (!text) return false;
+  const lower = text.toLowerCase();
+  if (/(source notes?|notes?|weights?|logic|systems?|constraints?|research gaps?|visual references?|implementation field model)$/i.test(text)) return false;
+  if (/(historical context|photo-derived|observations|wardrobe component library|specimen image strategy|rules?|constraints?|randomization|deliverables|templates?|resources|where to dig|avoid|think|handles|dataset shows|provided|variant|prompt|image strategy|field model)/i.test(text)) return false;
+  if (/^(in the|from the|would you like|if you want|so your prompt|for each|each image|each archetype|key insight|this is important)$/i.test(text)) return false;
+  if (text.split(/\s+/).length > 7) return false;
+  return /(archetype|spectator|vendor|shopper|trader|messenger|worker|official|role|agent|operator|handler|reviewer|steward|runner|archivist|participant|class|trackside|affluent|female|male|child|teen)/i.test(text) ||
+    /^[A-Z]\.\s+/.test(text);
+}
+
+function matchingStructuredAttributeCluster(structuredBriefArtifact, label) {
+  const target = String(label || '').toLowerCase().replace(/^archetype\s+[a-z]:\s*/i, '').replace(/\s*\([^)]*\)/g, '').trim();
+  return (structuredBriefArtifact.attributeClusters || []).find((cluster) => {
+    const clusterLabel = String(cluster.label || '').toLowerCase().replace(/\s*\([^)]*\)/g, '').trim();
+    return clusterLabel === target || clusterLabel.includes(target) || target.includes(clusterLabel);
+  });
+}
+
+function projectStructuredArchetypes(structuredBriefArtifact) {
+  if (!structuredBriefArtifact) return [];
+  const semanticProjection = hasCodexSemanticProjection(structuredBriefArtifact);
+  const weightsById = structuredBriefWeightMap(structuredBriefArtifact);
+  const entityRecords = structuredBriefArtifact.entities
+    .filter((entity) => ['archetype', 'specimen', 'role'].includes(entity.entityKind))
+    .filter((entity) => isLikelyRoleOrArchetypeLabel(entity.label));
+  const projectedEntityLabels = new Set(entityRecords.map((entity) => entity.label.toLowerCase()));
+  const weightBackedRecords = structuredBriefArtifact.weightedGroups
+    .filter((weight) => isLikelyRoleOrArchetypeLabel(weight.label))
+    .filter((weight) => !projectedEntityLabels.has(weight.label.toLowerCase()))
+    .map((weight) => {
+      const cluster = matchingStructuredAttributeCluster(structuredBriefArtifact, weight.label);
+      return {
+        entityId: weight.weightId.replace('_weight_', '_entity_from_weight_'),
+        label: weight.label,
+        entityKind: 'role',
+        summary: cluster?.items?.length ? `${weight.label}: ${cluster.items.join(', ')}` : weight.excerptText,
+        attributeRefs: cluster ? [cluster.clusterId] : [],
+        weightRefs: [weight.weightId],
+        ruleRefs: [],
+        sourceInputIds: weight.sourceInputIds,
+        sourceChunkIds: mergeUniqueStrings([...(weight.sourceChunkIds || []), ...((cluster && cluster.sourceChunkIds) || [])]),
+        excerptText: cluster?.excerptText || weight.excerptText,
+        attributionMode: weight.attributionMode,
+        confidence: weight.confidence
+      };
+    });
+  const projectedRecords = [...entityRecords, ...weightBackedRecords];
+  return projectedRecords
+    .map((entity) => {
+      const weight = entity.weightRefs.map((ref) => weightsById.get(ref)).find(Boolean) ||
+        structuredBriefArtifact.weightedGroups.find((candidate) => candidate.label.toLowerCase() === entity.label.toLowerCase());
+      const sourceInputIds = entity.sourceInputIds || [];
+      const sourceChunkIds = entity.sourceChunkIds || [];
+      return {
+        archetypeId: slugify(entity.label),
+        label: entity.label,
+        summary: entity.summary,
+        role: entity.entityKind === 'role' ? slugify(entity.label) : 'participant',
+        genderPresentation: 'unspecified',
+        classBand: 'unspecified',
+        weightRange: weight ? weightFromStructuredWeight(weight, sourceInputIds, sourceChunkIds) : undefined,
+        dominantAttributes: [],
+        optionalAttributes: [],
+        wardrobeRefs: [],
+        behaviorRefs: [],
+        locationZoneRefs: [],
+        promptText: entity.summary,
+        sourceInputIds,
+        sourceChunkIds,
+        confidence: entity.confidence || 'medium'
+      };
+    });
+}
+
+function projectStructuredDistributions(structuredBriefArtifact) {
+  if (!structuredBriefArtifact) return [];
+  const byAppliesTo = new Map();
+  structuredBriefArtifact.weightedGroups.forEach((weight) => {
+    const key = weight.appliesTo || 'structured_brief_distribution';
+    if (!byAppliesTo.has(key)) byAppliesTo.set(key, []);
+    byAppliesTo.get(key).push(weight);
+  });
+  return [...byAppliesTo.entries()].map(([label, weights]) => ({
+    distributionId: `${slugify(label)}_structured_distribution`,
+    label: `${label} structured distribution`,
+    appliesToRefs: [label],
+    sourceChunkIds: mergeUniqueStrings(weights.flatMap((weight) => weight.sourceChunkIds || [])),
+    entries: weights.map((weight) => weightFromStructuredWeight(
+      weight,
+      weight.sourceInputIds || [],
+      weight.sourceChunkIds || []
+    ))
+  }));
+}
+
+function projectStructuredWardrobeAndAttributes(structuredBriefArtifact) {
+  if (!structuredBriefArtifact) return [];
+  return structuredBriefArtifact.attributeClusters
+    .filter((cluster) => cluster.category === 'wardrobe-or-attribute')
+    .map((cluster) => ({
+      wardrobeId: slugify(cluster.label),
+      label: cluster.label,
+      items: cluster.items,
+      avoidItems: [],
+      sourceChunkIds: cluster.sourceChunkIds || []
+    }));
+}
+
+function projectStructuredBehaviorStates(structuredBriefArtifact) {
+  if (!structuredBriefArtifact) return [];
+  return structuredBriefArtifact.attributeClusters
+    .filter((cluster) => cluster.category === 'behavior')
+    .map((cluster) => ({
+      behaviorId: slugify(cluster.label),
+      label: cluster.label,
+      promptText: cluster.items.join(', ') || cluster.excerptText,
+      sourceChunkIds: cluster.sourceChunkIds || []
+    }));
+}
+
+function projectStructuredModifiers(structuredBriefArtifact) {
+  if (!structuredBriefArtifact) return [];
+  return structuredBriefArtifact.modifiers.map((modifier) => ({
+    modifierId: slugify(modifier.label),
+    label: modifier.label,
+    promptText: modifier.text,
+    sourceChunkIds: modifier.sourceChunkIds || []
+  }));
+}
+
+function projectStructuredLocationZones(structuredBriefArtifact) {
+  if (!structuredBriefArtifact) return [];
+  return structuredBriefArtifact.zonesOrContexts
+    .filter((context) => context.contextKind === 'location-zone')
+    .map((context) => ({
+      zoneId: slugify(context.label),
+      label: context.label,
+      promptText: context.description,
+      demographicDistributionRefs: context.weightRefs.map((ref) => `${ref}_distribution`),
+      archetypeBiases: [],
+      sourceChunkIds: context.sourceChunkIds || []
+    }));
+}
+
+function normalizeRuleAction(action) {
+  const normalized = String(action || '').toLowerCase().replace(/\s+/g, '-');
+  if (normalized === 'require') return 'requires';
+  if (normalized === 'bias-toward' || normalized === 'bias-away-from') return normalized;
+  if (['force', 'allow', 'avoid', 'increase', 'decrease', 'exclude', 'requires', 'incompatible-with'].includes(normalized)) return normalized;
+  return 'allow';
+}
+
+function projectStructuredCompatibilityRules(structuredBriefArtifact) {
+  if (!structuredBriefArtifact) return [];
+  return structuredBriefArtifact.rules
+    .filter((rule) => rule.effects.length > 0)
+    .map((rule) => ({
+      ruleId: slugify(rule.label || rule.ruleId),
+      label: rule.label,
+      condition: {
+        field: 'structured_condition',
+        operator: 'exists',
+        value: rule.conditionText || rule.label
+      },
+      effects: rule.effects.map((effect) => ({
+        action: normalizeRuleAction(effect.action),
+        target: slugify(effect.target)
+      })),
+      sourceChunkIds: rule.sourceChunkIds || [],
+      confidence: rule.confidence || 'medium'
+    }));
+}
+
+function projectStructuredNegativeConstraints(structuredBriefArtifact) {
+  if (!structuredBriefArtifact) return [];
+  return structuredBriefArtifact.constraints.map((constraint) => ({
+    constraintId: slugify(constraint.label || constraint.constraintId),
+    label: constraint.label,
+    text: constraint.text,
+    constraintType: constraint.constraintType === 'ethical' ? 'ethical-historical-representation' : 'negative',
+    appliesTo: [],
+    enforcedByRuleIds: [],
+    sourceChunkIds: constraint.sourceChunkIds || [],
+    confidence: constraint.confidence || 'medium'
+  }));
+}
+
+function projectStructuredVisualReferences(structuredBriefArtifact, archetypes) {
+  if (!structuredBriefArtifact) return [];
+  return structuredBriefArtifact.examples
+    .filter((example) => example.exampleType === 'specimen' || /specimen|reference image|catalog|prompt/i.test(example.text))
+    .map((example, index) => ({
+      referenceId: `${structuredBriefArtifact.inputId}_structured_reference_${String(index + 1).padStart(3, '0')}`,
+      kind: 'image-reference',
+      caption: example.text,
+      supports: [example.text],
+      linkedArchetypeIds: archetypes.slice(0, 3).map((archetype) => archetype.archetypeId),
+      rightsProfile: 'reference-only',
+      sourceChunkIds: example.sourceChunkIds || []
+    }));
+}
+
+function hasCodexSemanticProjection(structuredBriefArtifact) {
+  return (structuredBriefArtifact?.coverage || []).some((entry) =>
+    entry.category === 'codexSemanticValidation' && entry.status === 'extracted'
+  );
+}
 function buildSceneGrammarArtifact({
   ingestArtifact,
   extractArtifact,
   classifyArtifact,
   synthesizeArtifact,
-  sourceModeArtifact
+  sourceModeArtifact,
+  structuredBriefArtifact
 }) {
   const sourceInputIds = ingestArtifact.sourceInputs.map((source) => source.sourceInputId);
-  const behaviorStates = buildBehaviorStates(ingestArtifact);
-  const environmentalModifiers = buildEnvironmentalModifiers(ingestArtifact);
+  const semanticProjection = hasCodexSemanticProjection(structuredBriefArtifact);
+  const behaviorStates = semanticProjection ? [] : buildBehaviorStates(ingestArtifact);
+  const environmentalModifiers = semanticProjection ? [] : buildEnvironmentalModifiers(ingestArtifact);
   const wardrobeSystem = buildWardrobeSystem(ingestArtifact);
   const propsAndAccessories = buildPropsAndAccessories(ingestArtifact);
-  const archetypes = buildArchetypes(ingestArtifact, wardrobeSystem, behaviorStates);
-  const locationZones = buildLocationZones(ingestArtifact);
-  const demographicDistributions = buildDemographicDistributions(ingestArtifact, locationZones);
-  const compatibilityRules = buildCompatibilityRules(ingestArtifact, locationZones);
-  const negativeConstraints = buildNegativeConstraints(ingestArtifact, compatibilityRules);
-  const visualReferenceSets = buildVisualReferenceSets(ingestArtifact, archetypes);
+  const archetypes = semanticProjection ? [] : buildArchetypes(ingestArtifact, wardrobeSystem, behaviorStates);
+  const locationZones = semanticProjection ? [] : buildLocationZones(ingestArtifact);
+  const demographicDistributions = semanticProjection ? [] : buildDemographicDistributions(ingestArtifact, locationZones);
+  const compatibilityRules = semanticProjection ? [] : buildCompatibilityRules(ingestArtifact, locationZones);
+  const negativeConstraints = semanticProjection ? [] : buildNegativeConstraints(ingestArtifact, compatibilityRules);
+  const structuredArchetypes = projectStructuredArchetypes(structuredBriefArtifact);
+  const structuredLocationZones = projectStructuredLocationZones(structuredBriefArtifact);
+  const structuredDistributions = projectStructuredDistributions(structuredBriefArtifact);
+  const structuredWardrobeSystem = projectStructuredWardrobeAndAttributes(structuredBriefArtifact);
+  const structuredBehaviorStates = projectStructuredBehaviorStates(structuredBriefArtifact);
+  const structuredEnvironmentalModifiers = projectStructuredModifiers(structuredBriefArtifact);
+  const structuredCompatibilityRules = projectStructuredCompatibilityRules(structuredBriefArtifact);
+  const structuredNegativeConstraints = projectStructuredNegativeConstraints(structuredBriefArtifact);
+  const projectedArchetypes = uniqueById([...structuredArchetypes, ...archetypes], 'archetypeId');
+  const projectedLocationZones = uniqueById([...structuredLocationZones, ...locationZones], 'zoneId');
+  const projectedDemographicDistributions = uniqueById([...structuredDistributions, ...demographicDistributions], 'distributionId');
+  const projectedWardrobeSystem = uniqueById([...structuredWardrobeSystem, ...wardrobeSystem], 'wardrobeId');
+  const projectedBehaviorStates = uniqueById([...structuredBehaviorStates, ...behaviorStates], 'behaviorId');
+  const projectedEnvironmentalModifiers = uniqueById([...structuredEnvironmentalModifiers, ...environmentalModifiers], 'modifierId');
+  const projectedCompatibilityRules = uniqueById([...structuredCompatibilityRules, ...compatibilityRules], 'ruleId');
+  const projectedNegativeConstraints = uniqueById([...structuredNegativeConstraints, ...negativeConstraints], 'constraintId');
+  const visualReferenceSets = [
+    ...projectStructuredVisualReferences(structuredBriefArtifact, projectedArchetypes),
+    ...buildVisualReferenceSets(ingestArtifact, projectedArchetypes)
+  ];
 
   const evidence = extractArtifact.claims.map((claim) => ({
     evidenceId: claim.claimId,
@@ -750,7 +1008,7 @@ function buildSceneGrammarArtifact({
     sourceChunkIds: claim.sourceChunkIds
   }));
 
-  const baselineWeights = archetypes
+  const baselineWeights = projectedArchetypes
     .map((archetype) => archetype.weightRange)
     .filter(Boolean);
 
@@ -760,6 +1018,12 @@ function buildSceneGrammarArtifact({
   }
   if (visualReferenceSets.length > 0) {
     reviewFlags.push('visual-reference-routing-manifest-only');
+  }
+  if (structuredBriefArtifact) {
+    reviewFlags.push('structured-brief-projection');
+  }
+  if (semanticProjection) {
+    reviewFlags.push('codex-semantic-projection');
   }
   if (synthesizeArtifact.promptFragments.length < 4) {
     reviewFlags.push('sparse-prompt-fragment-coverage');
@@ -791,17 +1055,17 @@ function buildSceneGrammarArtifact({
       ],
       sourceChunkIds: mergeUniqueStrings(baselineWeights.flatMap((weight) => weight.sourceChunkIds))
     },
-    archetypes,
-    demographicDistributions,
-    wardrobeSystem,
+    archetypes: projectedArchetypes,
+    demographicDistributions: projectedDemographicDistributions,
+    wardrobeSystem: projectedWardrobeSystem,
     groomingAndHair: [],
     propsAndAccessories,
-    locationZones,
-    behaviorStates,
-    environmentalModifiers,
+    locationZones: projectedLocationZones,
+    behaviorStates: projectedBehaviorStates,
+    environmentalModifiers: projectedEnvironmentalModifiers,
     visualReferenceSets,
-    compatibilityRules,
-    negativeConstraints,
+    compatibilityRules: projectedCompatibilityRules,
+    negativeConstraints: projectedNegativeConstraints,
     uncertainties: extractArtifact.openQuestions.map((question) => question.text),
     reviewFlags
   });

@@ -1,0 +1,36 @@
+# API Migration Design Brief
+
+## Legacy Endpoint Cluster
+Priority: high.
+- handles account lookup
+- returns XML payloads
+- requires compatibility shim
+
+## Token Refresh Worker
+roughly 20-30% of migration risk.
+- retries expired tokens
+- writes audit events
+
+Rules:
+If service is account lookup: force response contract tests and increase fixture coverage.
+If token refresh fails: retry once, then avoid silent fallback.
+
+Constraints:
+- Do not log bearer tokens.
+- Must not change customer-visible account identifiers.
+- Avoid broad rewrites of billing code.
+
+Implementation fields:
+```json
+{
+  "serviceName": "string",
+  "riskBand": "low | medium | high",
+  "rolloutGate": "unit_tests | shadow_read | production"
+}
+```
+
+Example migration note: "convert one endpoint, record before/after response shape, and keep rollback path explicit."
+
+Open question: which partner integrations still depend on XML attributes?
+
+[DesignRef]: https://example.org/api-migration-brief

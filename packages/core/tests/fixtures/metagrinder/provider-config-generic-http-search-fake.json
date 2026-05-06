@@ -2,7 +2,7 @@
   "providerId": "generic-http-search",
   "endpoint": "https://example.invalid/search",
   "requiresApiKey": true,
-  "apiKey": "ralph11-fake-secret-do-not-log",
+  "apiKey": "metagrinder-fake-secret-do-not-log",
   "timeoutMs": 5000,
   "maxRetries": 0,
   "fakeResponses": {

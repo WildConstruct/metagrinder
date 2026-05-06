@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Metagrinder Workbench</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand">
+          <div class="brand-mark">M</div>
+          <div>
+            <h1>Metagrinder Workbench</h1>
+            <p id="folder-title">No folder loaded</p>
+          </div>
+        </div>
+        <div class="header-controls">
+          <button id="theme-toggle" class="theme-toggle" type="button">Light</button>
+        </div>
+      </header>
+
+      <main class="content">
+        <nav class="content-view-nav" aria-label="Workbench view">
+          <div class="view-picker-label">
+            <span>View</span>
+            <div id="screen-nav" class="screen-nav-menu" data-value="run">
+              <button id="screen-nav-button" class="screen-nav-button" type="button" aria-haspopup="listbox" aria-expanded="false">Run Setup</button>
+              <div id="screen-nav-options" class="screen-nav-options" role="listbox" aria-label="Workbench views"></div>
+            </div>
+          </div>
+        </nav>
+
+        <section id="screen-run" class="screen active">
+          <div class="section-head">
+            <h2>Run Setup</h2>
+            <button id="refresh-button" type="button">Refresh</button>
+          </div>
+          <div class="run-panel">
+            <div class="section-head compact run-panel-head">
+              <h3>New Run</h3>
+            </div>
+            <div class="new-run-form">
+              <label>
+                Run name
+                <input id="article-title" type="text" spellcheck="false" placeholder="Deep Research Article">
+              </label>
+              <div class="research-source-actions">
+                <button id="add-paste-input-button" type="button">Add text source</button>
+                <button id="add-file-input-button" type="button">Add file source</button>
+              </div>
+              <div id="research-input-list" class="research-input-list"></div>
+              <details class="advanced-panel">
+                <summary>Advanced run location</summary>
+                <div class="advanced-panel-body">
+                  <label>
+                    Runs folder
+                    <div class="path-input"><input id="output-root" type="text" spellcheck="false" value="tmp/metagrinder-workbench-runs"><button class="browse-button" type="button" data-picker-target="output-root" data-picker-kind="folder" aria-label="Select runs folder"><span class="folder-icon" aria-hidden="true"></span></button></div>
+                  </label>
+                </div>
+              </details>
+              <div class="run-action-bar">
+                <div id="run-status" class="run-status">Idle</div>
+                <button id="run-metagrinder-button" type="button">Run Metagrinder</button>
+              </div>
+              <details class="advanced-panel run-details">
+                <summary>Run details</summary>
+                <pre id="run-log" class="log-output"></pre>
+              </details>
+            </div>
+          </div>
+
+          <div class="run-panel recent-runs-panel">
+            <div class="section-head compact secondary-head">
+              <div>
+                <h3>Recent Runs</h3>
+                <p class="meta">Open an existing local Workbench run without rerunning Metagrinder or Codex.</p>
+              </div>
+              <button id="refresh-recent-runs-button" type="button">Refresh Runs</button>
+            </div>
+            <div id="recent-runs-list" class="recent-runs-list"></div>
+          </div>
+
+          <details class="run-panel advanced-panel">
+            <summary>Open existing run</summary>
+            <div class="advanced-panel-body">
+              <div class="section-head compact secondary-head">
+                <h3>Existing Run</h3>
+                <button id="open-folder-button" type="button">Open Run</button>
+              </div>
+              <div class="setup-grid existing-run-grid">
+                <label>
+                  Existing run folder
+                  <div class="path-input"><input id="output-dir" type="text" spellcheck="false" placeholder="tmp/metagrinder-workbench-runs/deep-research-article-2026-05-04T00-00-00-000Z"><button class="browse-button" type="button" data-picker-target="output-dir" data-picker-kind="folder" aria-label="Select existing run folder"><span class="folder-icon" aria-hidden="true"></span></button></div>
+                </label>
+                <details class="advanced-panel nested-advanced">
+                  <summary>Advanced rerun options</summary>
+                  <div class="advanced-panel-body">
+                    <label>
+                      Source input file
+                      <div class="path-input"><input id="input-path" type="text" spellcheck="false" placeholder="Optional for rerunning an existing run"><button class="browse-button" type="button" data-picker-target="input-path" data-picker-kind="file" aria-label="Select source input file"><span class="folder-icon" aria-hidden="true"></span></button></div>
+                    </label>
+                    <label>
+                      Compile target
+                      <select id="compile-grammar">
+                        <option value="accepted">accepted</option>
+                        <option value="base">base</option>
+                      </select>
+                    </label>
+                  </div>
+                </details>
+                <div class="button-row">
+                  <button id="rerun-button" type="button">Rerun Existing</button>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="run-panel advanced-panel">
+            <summary>Advanced retrieval settings</summary>
+            <div class="advanced-panel-body policy-editor">
+              <div class="section-head compact">
+                <h3>Retrieval Policy</h3>
+                <button id="save-policy-button" type="button">Save Policy</button>
+              </div>
+              <textarea id="policy-json" spellcheck="false"></textarea>
+            </div>
+          </details>
+        </section>
+
+        <section id="screen-dashboard" class="screen">
+          <div class="section-head">
+            <h2>Artifact Dashboard</h2>
+            <span id="artifact-count" class="status-pill">0 artifacts</span>
+          </div>
+          <div id="artifact-list" class="artifact-list"></div>
+        </section>
+
+        <section id="screen-semantic" class="screen">
+          <div class="section-head">
+            <div>
+              <h2>Codex Semantic Parse</h2>
+              <p class="meta">The seed parser indexes text. Codex should validate the subject, subcategories, evidence, characteristics, gaps, and graph plan.</p>
+            </div>
+            <div class="button-row">
+              <span id="semantic-mode-badge" class="parse-mode-badge seed-only">seed-only</span>
+              <button id="run-codex-button" type="button">Run Codex Semantic Parse</button>
+              <button type="button" data-artifact-open="codex-parse-request.md">Open Codex Task</button>
+              <button type="button" data-artifact-open="codex-parse-output.schema.json">Open Output Contract</button>
+            </div>
+          </div>
+          <div id="semantic-status-note" class="semantic-status-note"></div>
+          <div id="semantic-summary" class="summary-grid"></div>
+          <div class="semantic-layout">
+            <section>
+              <h3>Parsed Subject</h3>
+              <div id="semantic-subject" class="structured-list"></div>
+            </section>
+            <section>
+              <h3>Subcategory Evidence Check</h3>
+              <div id="semantic-subcategories" class="structured-list"></div>
+            </section>
+            <section>
+              <h3>Characteristics</h3>
+              <div id="semantic-characteristics" class="structured-list"></div>
+            </section>
+            <section>
+              <h3>Coverage / Gaps</h3>
+              <div id="semantic-gaps" class="structured-list"></div>
+            </section>
+            <section>
+              <h3>Prompt Graph Assembly Plan</h3>
+              <div id="semantic-graph-plan" class="structured-list"></div>
+            </section>
+            <section>
+              <h3>Semantic Choice Graph</h3>
+              <div id="semantic-choice-graph" class="structured-list"></div>
+            </section>
+            <details class="advanced-panel">
+              <summary>Force Codex rerun</summary>
+              <div class="advanced-panel-body">
+                <p class="meta">This spends a new local Codex run even if codex-parse-result.json already exists.</p>
+                <button id="force-codex-button" class="danger-button" type="button">Force Rerun Codex</button>
+              </div>
+            </details>
+            <details class="advanced-panel">
+              <summary>Import Codex parse result</summary>
+              <div class="advanced-panel-body">
+                <p id="codex-import-note" class="meta"></p>
+                <textarea id="codex-result-json" spellcheck="false" placeholder="Paste codex-parse-result.json here"></textarea>
+                <div class="button-row">
+                  <button id="import-codex-result-button" type="button">Import Codex Result</button>
+                  <button type="button" data-artifact-open="codex-parse-result.json">Preview Imported Result</button>
+                </div>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section id="screen-structure" class="screen">
+          <div class="section-head">
+            <div>
+              <h2>Seed Structure</h2>
+              <p class="meta">Deterministic pre-parser output used only as a chunk/evidence index for Codex semantic parsing.</p>
+            </div>
+            <button type="button" data-artifact-open="structured-brief.seed.json">Open Seed JSON</button>
+          </div>
+          <div id="structured-summary" class="summary-grid"></div>
+          <div class="structured-layout">
+            <section>
+              <h3>Coverage</h3>
+              <div id="structured-coverage" class="coverage-list"></div>
+            </section>
+            <section>
+              <h3>Extracted Records</h3>
+              <div id="structured-records"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="screen-grammar" class="screen">
+          <div class="section-head">
+            <div>
+              <h2>Scene Grammar Projection</h2>
+              <p class="meta">Scene-specific archetypes, zones, rules, constraints, and PSG choices projected from parsed structure.</p>
+            </div>
+            <button type="button" data-artifact-open="scene-grammar.json">Open JSON</button>
+          </div>
+          <div id="grammar-summary" class="summary-grid"></div>
+          <pre id="grammar-json" class="json-pane"></pre>
+        </section>
+
+        <section id="screen-candidates" class="screen">
+          <div class="section-head">
+            <h2>Candidate Review</h2>
+            <button id="save-approvals-button" type="button">Save Approvals</button>
+          </div>
+          <div id="candidate-review" class="review-list"></div>
+        </section>
+
+        <section id="screen-claims" class="screen">
+          <div class="section-head">
+            <h2>Source Evidence / Claim Review</h2>
+            <button id="save-claim-review-button" type="button">Save Claim Review</button>
+          </div>
+          <div id="claim-review" class="review-list"></div>
+        </section>
+
+        <section id="screen-revisions" class="screen">
+          <div class="section-head">
+            <h2>Grammar Revision Review</h2>
+            <button id="save-revision-state-button" type="button">Save Revision State</button>
+          </div>
+          <div id="revision-review" class="review-list"></div>
+        </section>
+
+        <section id="screen-deltas" class="screen">
+          <div class="section-head">
+            <h2>Accepted Grammar / Delta Compare</h2>
+            <button type="button" data-artifact-open="accepted-grammar-deltas.json">Open Deltas</button>
+          </div>
+          <div id="delta-list" class="review-list"></div>
+        </section>
+
+        <section id="screen-psg" class="screen">
+          <div class="section-head">
+            <div>
+              <h2>PSG Export / Open in Prompt Spaghetti</h2>
+              <p class="meta">Export generated PSG files and review the semantic prompt graph before opening it in Prompt Spaghetti.</p>
+            </div>
+            <div class="button-row">
+              <button type="button" data-artifact-open="psg-compile-diff.json">Open Diff</button>
+              <button id="copy-output-folder-button" type="button">Copy Output Folder</button>
+            </div>
+          </div>
+          <div id="psg-export-summary" class="export-summary"></div>
+          <section class="run-panel readability-panel">
+            <div class="section-head compact">
+              <div>
+                <h3>Readability Flight</h3>
+                <p class="meta">Sample 20 prompt outputs, flag awkward fragments, and optionally run Codex to sweeten existing choice text only.</p>
+              </div>
+              <span id="readability-status-badge" class="parse-mode-badge seed-only">missing</span>
+            </div>
+            <div class="button-row">
+              <button id="run-flight-button" type="button">Run 20-output Flight</button>
+              <button id="run-sweeten-button" class="primary" type="button">Run Readability Review</button>
+            </div>
+            <div id="readability-summary" class="semantic-status-note"></div>
+            <details class="advanced-panel" open>
+              <summary>Sample outputs</summary>
+              <div id="readability-samples" class="readability-samples"></div>
+            </details>
+            <details class="advanced-panel">
+              <summary>Choice text changes</summary>
+              <div id="readability-rewrites" class="structured-list"></div>
+            </details>
+          </section>
+          <div id="psg-list" class="artifact-list"></div>
+          <pre id="artifact-preview" class="json-pane"></pre>
+        </section>
+      </main>
+    </div>
+    <div id="workbench-toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <div id="path-picker-modal" class="modal-backdrop" hidden>
+      <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="path-picker-title">
+        <div class="section-head compact">
+          <h3 id="path-picker-title">Select Path</h3>
+          <button id="path-picker-close" type="button">Close</button>
+        </div>
+        <div class="path-picker-current">
+          <button id="path-picker-up" type="button">Up</button>
+          <code id="path-picker-current-path"></code>
+          <button id="path-picker-use-current" type="button">Use Folder</button>
+        </div>
+        <div id="path-picker-list" class="path-picker-list"></div>
+      </div>
+    </div>
+
+    <div id="artifact-preview-modal" class="modal-backdrop" hidden>
+      <div class="modal-panel artifact-modal" role="dialog" aria-modal="true" aria-labelledby="artifact-preview-title">
+        <div class="section-head compact">
+          <div>
+            <h3 id="artifact-preview-title">Artifact Preview</h3>
+            <p id="artifact-preview-path" class="meta"></p>
+          </div>
+          <button id="artifact-preview-close" type="button">Close</button>
+        </div>
+        <div id="artifact-visualization" class="artifact-visualization"></div>
+        <pre id="artifact-preview-modal-text" class="json-pane artifact-preview-text"></pre>
+      </div>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>

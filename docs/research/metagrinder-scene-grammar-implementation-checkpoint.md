@@ -1,12 +1,13 @@
 # Metagrinder Scene Grammar Implementation Checkpoint
 
-This checkpoint records the current Metagrinder scene-grammar implementation after the RALPH source-lifecycle loops. It is a handoff document, not a feature proposal.
+This checkpoint records the current Metagrinder scene-grammar implementation after the source-lifecycle hardening loops. It is a handoff document, not a feature proposal.
 
 ## What Changed From The Original MVP
 
 The original MVP produced basic research artifacts and PSG outputs from source text. The current implementation adds a scene-grammar branch with:
 
-- Scene grammar extraction for archetypes, location zones, compatibility rules, negative constraints, ethical constraints, visual references, samples, evaluations, and PSG v2 branch graphs.
+- Scene grammar extraction for archetypes, location zones, compatibility rules, negative constraints, ethical constraints, visual references, samples, evaluations, and Prompt Spaghetti-compatible flat PSG branch graphs.
+- A semantic choice graph boundary (`semantic-choice-graph.json`) between Codex brief analysis and PSG export, so choice axes can be inspected before Prompt Spaghetti import.
 - Research gaps and query planning derived from the scene grammar.
 - Retrieval policy and retrieval boundary artifacts for mock, dry-run, cache-replay, fixture-live, and guarded generic HTTP provider runs.
 - Candidate-only live provider output with cache writes, response logs, source typing, and inspection reports.
@@ -21,6 +22,7 @@ No page scraping, automatic live source-claim extraction, broad live search, or 
 ingest
 -> extract/classify
 -> scene grammar
+-> semantic choice graph
 -> gaps/query plan
 -> retrieval policy
 -> candidates
@@ -31,12 +33,12 @@ ingest
 -> revision state
 -> accepted deltas
 -> accepted grammar
--> PSG v2 compile
+-> Prompt Spaghetti PSG compile
 ```
 
 ## Agentic Scene Grammar Architecture
 
-Scene grammar is treated as a derived artifact from original inputs. The base grammar is source-of-record for extracted scene structure until an operator accepts grammar revisions. Accepted grammar is a separate artifact. Sampling, evaluation, plausibility review, PSG v2 graph generation, and branch graph generation consume either the base grammar or accepted grammar depending on the explicit compile target.
+Scene grammar is treated as a derived artifact from original inputs. The base grammar is source-of-record for extracted scene structure until an operator accepts grammar revisions. Accepted grammar is a separate artifact. Sampling, evaluation, plausibility review, flat Prompt Spaghetti graph generation, and branch graph generation consume either the base grammar or accepted grammar depending on the explicit compile target.
 
 The historical crowd fixture, medieval market fixture, and perturbed historical wording fixture prove the grammar extractor is not limited to one exact input phrasing.
 
@@ -113,7 +115,7 @@ The generic HTTP adapter can run with injected/fake HTTP in tests and can accept
 - No real endpoint config is committed.
 - Selector extraction from pages is not implemented.
 - Source typing remains deterministic heuristics.
-- Operator workflow is file-based, not a UI.
+- Operator workflow is still file-backed. The Workbench now provides a partial local review surface for opening runs, viewing artifacts, reusing Codex semantic parses, and writing review/state files.
 
 ## What Remains Intentionally Disabled
 
@@ -122,6 +124,20 @@ The generic HTTP adapter can run with injected/fake HTTP in tests and can accept
 - Automatic grammar revision creation from live candidates.
 - Automatic accepted-scene-grammar mutation during live runs.
 - Broad live search beyond the one-query guarded provider boundary.
+
+## Deferred Roadmap Status
+
+| Item | Status | Note |
+|---|---|---|
+| Workbench artifact dashboard | Implemented | Local file-backed surface exists for runs, artifacts, semantic parse review, PSG export, and operator state files. |
+| Previous run history | Partially implemented | Recent local runs are discoverable from the Workbench runs folder; no database or global workspace index. |
+| Codex semantic parsing | Partially implemented | Local Codex runner and import/rebuild path exist; quality depends on reviewed Codex output contracts. |
+| Linear semantic PSG graph | Partially implemented | Semantic PSG now renders from `semantic-choice-graph.json` as age/sex plus sex-conditioned wardrobe lanes; fully conditional role/type subgraphs remain future work. |
+| Real provider retrieval | Intentionally deferred | Provider contract and guarded adapter scaffolding exist, but broad live retrieval remains disabled. |
+| Page scraping and selector extraction | Intentionally deferred | No page content fetching or selector extraction is enabled. |
+| Automatic source-claim extraction | Intentionally deferred | Candidates and pasted citations do not become verified claims without review gates. |
+| Automatic grammar mutation | Intentionally deferred | Accepted grammar only changes through accepted, citation-gated revisions. |
+| Operator approval UX | Partially implemented | Workbench writes review/state files, but there is no collaboration, auth, or full product shell. |
 
 ## What Must Never Happen
 

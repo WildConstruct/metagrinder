@@ -11,8 +11,12 @@ import {
   MetagrinderAgentRunArtifactSchema,
   MetagrinderAssumptionReviewArtifactSchema,
   MetagrinderAugmentationPlanArtifactSchema,
+  MetagrinderBriefAnalysisArtifactSchema,
   MetagrinderCategoryHypothesisArtifactSchema,
   MetagrinderClassifyArtifactSchema,
+    MetagrinderCodexParseOutputSchemaArtifactSchema,
+    MetagrinderCodexParseRequestArtifactSchema,
+    MetagrinderCodexParseResultArtifactSchema,
     MetagrinderExtractArtifactSchema,
     MetagrinderGrammarRevisionArtifactSchema,
     MetagrinderIngestArtifactSchema,
@@ -21,7 +25,11 @@ import {
     MetagrinderMutationReviewArtifactSchema,
     MetagrinderPlausibilityReviewArtifactSchema,
     MetagrinderPsgCompileDiffArtifactSchema,
+    MetagrinderPsgOutputFlightArtifactSchema,
+    MetagrinderPsgReadabilityReviewArtifactSchema,
     MetagrinderPsgV2FileSchema,
+    MetagrinderSemanticChoiceGraphArtifactSchema,
+    MetagrinderCodexSweetenResultArtifactSchema,
     MetagrinderResearchGapArtifactSchema,
     MetagrinderResearchQueryPlanSchema,
     MetagrinderRetrievalPolicySchema,
@@ -53,6 +61,7 @@ import {
     MetagrinderScoreArtifactSchema,
     MetagrinderSceneGrammarArtifactSchema,
     MetagrinderSceneGrammarEvaluationSchema,
+    MetagrinderStructuredBriefArtifactSchema,
     MetagrinderSourceClaimsArtifactSchema,
     MetagrinderSourceEvidenceArtifactSchema,
     MetagrinderSourceClaimReviewArtifactSchema,
@@ -91,7 +100,14 @@ const {
       buildPromptSynthesisPsg,
       buildAgentRunsArtifact,
       buildSourceModeArtifact,
+      buildStructuredBriefArtifact,
+      buildBriefAnalysisFromSeed,
+      buildCodexParseOutputSchemaArtifact,
+      buildCodexParseRequestArtifact,
+      buildProjectionStructuredBriefFromAnalysis,
+      normalizeCodexParseResult,
       buildSceneGrammarArtifact,
+      buildSemanticChoiceGraphArtifact,
       buildResearchGapArtifact,
       buildResearchQueryPlan,
       buildWebResearchResults,
@@ -128,6 +144,11 @@ const researchScoreService = require('../services/researchScore/index.js');
 const researchSynthesizeService = require('../services/researchSynthesize/index.js');
 const researchWebResearchService = require('../services/researchWebResearch/index.js');
 const { buildApprovedSourceResultsArtifact } = require('../services/researchSourceIntakeApproval/index.js');
+const { buildPsgOutputFlightArtifact } = require('../services/researchPsgOutputFlight/index.js');
+const { buildPsgReadabilityReviewArtifact } = require('../services/researchPsgReadabilityReview/index.js');
+const { applySweetenRewrites, validateSweetenResult } = require('../services/researchCodexPsgSweeten/index.js');
+const metagrinderWorkbenchService = require('../services/metagrinderWorkbench/index.js');
+const metagrinderWorkbenchServer = require('../scripts/serve-metagrinder-workbench.js');
 
 const readFixture = (name: string) => {
   const fixturePath = path.join(
@@ -149,6 +170,118 @@ const readTextFixture = (name: string) => {
   return fs.readFileSync(fixturePath, 'utf-8');
 };
 
+const expectPromptSpaghettiPsg = (psg: any) => {
+  expect(() => MetagrinderPsgV2FileSchema.parse(psg)).not.toThrow();
+  expect(psg.version).toBe('1.0.0');
+  expect(psg.metadata?.type).toBe('ASSET_FRAGMENT');
+  expect(psg.metadata?.source).toBe('metagrinder');
+  expect(psg.graph).toBeUndefined();
+  expect(psg.fileType).toBeUndefined();
+  expect(psg.formatVersion).toBeUndefined();
+  expect(Array.isArray(psg.nodes)).toBe(true);
+  expect(Array.isArray(psg.edges)).toBe(true);
+  const nodeIds = new Set(psg.nodes.map((node: any) => node.id));
+  psg.nodes.forEach((node: any) => {
+    expect(node.id).toBeTruthy();
+    expect(node.type).toBeTruthy();
+    expect(typeof node.x).toBe('number');
+    expect(typeof node.y).toBe('number');
+    expect(node.position).toBeUndefined();
+    if (node.type === 'WeightedChoice') {
+      expect(Array.isArray(node.options)).toBe(true);
+      expect(node.options.length).toBeGreaterThan(0);
+      expect(node.options.every((choice: any) =>
+        typeof choice.text === 'string' && typeof choice.weight === 'number'
+      )).toBe(true);
+      expect(node.data?.choices).toBeUndefined();
+    }
+  });
+  psg.edges.forEach((edge: any) => {
+    expect(edge.id).toBeTruthy();
+    expect(nodeIds.has(edge.source)).toBe(true);
+    expect(nodeIds.has(edge.target)).toBe(true);
+    const target = psg.nodes.find((node: any) => node.id === edge.target);
+    if (target?.type === 'Concat') {
+      expect(['input1', 'input2']).toContain(edge.targetHandle);
+    }
+    if (target?.type === 'Output') {
+      expect(edge.targetHandle).toBeUndefined();
+    }
+  });
+};
+
+const testSemanticChoiceGraph = () => MetagrinderSemanticChoiceGraphArtifactSchema.parse({
+  inputId: 'readability-test',
+  analysisMode: 'codex-semantic',
+  subject: {
+    label: '1909 spectator prompt graph',
+    subjectType: 'scene-brief',
+    summary: 'Prompt graph for period spectator characters.'
+  },
+  sourceArtifacts: ['brief-analysis.json'],
+  axes: [
+    {
+      axisId: 'age',
+      label: 'Age Choice',
+      axisType: 'age',
+      order: 1,
+      choices: [
+        { choiceId: 'age_adult', text: 'adult', weight: 85 },
+        { choiceId: 'age_child_if_supported', text: 'Child if supported', weight: 15 }
+      ]
+    },
+    {
+      axisId: 'sex',
+      label: 'Sex Choice',
+      axisType: 'sex',
+      order: 2,
+      choices: [
+        { choiceId: 'sex_male', text: 'male', weight: 80 },
+        { choiceId: 'sex_female', text: 'female', weight: 20 }
+      ]
+    },
+    {
+      axisId: 'male_hat_hair',
+      label: 'Male Hat / Hair',
+      axisType: 'hat-hair',
+      order: 4,
+      appliesWhen: [{ choiceId: 'sex_male', text: 'male', weight: 80 }],
+      choices: [
+        { choiceId: 'male_boater', text: 'wearing a straw boater hat', weight: 70 },
+        { choiceId: 'male_bareheaded', text: 'bareheaded', weight: 30 }
+      ]
+    },
+    {
+      axisId: 'male_condition_behavior',
+      label: 'Male Condition / Behavior',
+      axisType: 'condition-behavior',
+      order: 9,
+      appliesWhen: [{ choiceId: 'sex_male', text: 'male', weight: 80 }],
+      choices: [
+        { choiceId: 'male_dust', text: 'dust accumulation', weight: 50 },
+        { choiceId: 'male_walk', text: 'walking group', weight: 50 }
+      ]
+    },
+    {
+      axisId: 'female_hat_hair',
+      label: 'Female Hat / Hair',
+      axisType: 'hat-hair',
+      order: 4,
+      appliesWhen: [{ choiceId: 'sex_female', text: 'female', weight: 20 }],
+      choices: [
+        { choiceId: 'female_picture_hat', text: 'wearing a wide-brimmed picture hat', weight: 100 }
+      ]
+    }
+  ],
+  edges: [
+    { edgeId: 'age_to_sex', sourceAxisId: 'age', targetAxisId: 'sex', relation: 'linear' },
+    { edgeId: 'sex_to_male_hat', sourceAxisId: 'sex', sourceChoiceId: 'sex_male', targetAxisId: 'male_hat_hair', relation: 'branch' },
+    { edgeId: 'sex_to_female_hat', sourceAxisId: 'sex', sourceChoiceId: 'sex_female', targetAxisId: 'female_hat_hair', relation: 'branch' },
+    { edgeId: 'male_hat_to_condition', sourceAxisId: 'male_hat_hair', targetAxisId: 'male_condition_behavior', relation: 'linear' }
+  ],
+  warnings: [],
+  coverage: []
+});
 describe('metagrinder schemas', () => {
   test('parses research package fixture', () => {
     const fixture = readFixture('research-package.json');
@@ -960,6 +1093,7 @@ describe('metagrinder schemas', () => {
       buildPromptMutationsPsg,
       buildAgentRunsArtifact,
       buildSourceModeArtifact,
+      buildStructuredBriefArtifact,
       buildSceneGrammarArtifact,
       buildResearchGapArtifact,
       buildResearchQueryPlan,
@@ -2824,7 +2958,7 @@ describe('metagrinder schemas', () => {
           runId: 'run_001',
           passName: 'scene-grammar',
           mode: 'deterministic',
-          strategyVersion: 'ralph-loop-1',
+          strategyVersion: 'scene-grammar-checkpoint',
           inputArtifactIds: ['ingest.json'],
           outputArtifactIds: ['scene-grammar.json']
         }
@@ -3001,6 +3135,773 @@ describe('metagrinder schemas', () => {
     expect(plausibility.reviews[0].verdict).toBe('plausible');
   });
 
+
+  test('builds structured brief artifacts from scene and non-scene research briefs', () => {
+    const cases = [
+      ['research-input-historical-crowd-grammar.txt', 'historical-crowd-structured-brief'],
+      ['research-input-medieval-market-scene-grammar.txt', 'medieval-market-structured-brief'],
+      ['research-input-greenhouse-operations-structured-brief.txt', 'greenhouse-ops-structured-brief'],
+      ['research-input-technical-design-structured-brief.txt', 'api-migration-structured-brief']
+    ];
+
+    cases.forEach(([fixtureName, inputId]) => {
+      const ingestArtifact = buildIngestArtifact({
+        inputPath: fixtureName,
+        rawText: readTextFixture(fixtureName),
+        inputId,
+        title: inputId,
+        createdAt: '2026-05-02T12:00:00.000Z'
+      });
+      const structuredBriefArtifact = buildStructuredBriefArtifact({ ingestArtifact });
+
+      expect(() => MetagrinderStructuredBriefArtifactSchema.parse(structuredBriefArtifact)).not.toThrow();
+      expect(structuredBriefArtifact.entities.length).toBeGreaterThan(0);
+      expect(structuredBriefArtifact.weightedGroups.length).toBeGreaterThan(0);
+      expect(structuredBriefArtifact.constraints.length).toBeGreaterThan(0);
+      expect(structuredBriefArtifact.coverage.every((entry: any) => entry.status)).toBe(true);
+      [...structuredBriefArtifact.entities, ...structuredBriefArtifact.weightedGroups, ...structuredBriefArtifact.constraints]
+        .forEach((record: any) => {
+          expect(record.sourceInputIds.length).toBeGreaterThan(0);
+          expect(record.sourceChunkIds.length).toBeGreaterThan(0);
+          expect(record.excerptText.length).toBeGreaterThan(0);
+          expect(record.attributionMode).toBe('paraphrased');
+          expect(record.confidence).toBeTruthy();
+        });
+    });
+  });
+
+  test('emits Codex semantic parse handoff artifacts and seed-only brief analysis', () => {
+    const rawText = readTextFixture('research-input-greenhouse-operations-structured-brief.txt');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'greenhouse-operations.txt',
+      rawText,
+      inputId: 'greenhouse-operations',
+      title: 'Greenhouse Operations Brief',
+      createdAt: '2026-05-02T12:00:00.000Z'
+    });
+    const structuredBriefSeedArtifact = buildStructuredBriefArtifact({ ingestArtifact });
+    const request = buildCodexParseRequestArtifact({
+      ingestArtifact,
+      structuredBriefSeedArtifact
+    });
+    const outputSchema = buildCodexParseOutputSchemaArtifact({ inputId: ingestArtifact.inputId });
+    const briefAnalysis = buildBriefAnalysisFromSeed({
+      ingestArtifact,
+      structuredBriefSeedArtifact
+    });
+
+    expect(() => MetagrinderCodexParseRequestArtifactSchema.parse(request)).not.toThrow();
+    expect(() => MetagrinderCodexParseOutputSchemaArtifactSchema.parse(outputSchema)).not.toThrow();
+    expect(() => MetagrinderBriefAnalysisArtifactSchema.parse(briefAnalysis)).not.toThrow();
+    expect(request.expectedOutputPath).toBe('codex-parse-result.json');
+    expect(request.instructions.join(' ')).toMatch(/main subject/i);
+    expect(briefAnalysis.analysisMode).toBe('seed-only');
+    expect(briefAnalysis.mainSubject.label).toBe('Greenhouse Operations Brief');
+    expect(briefAnalysis.coverage.some((entry: any) =>
+      entry.category === 'codexSemanticValidation' && entry.status === 'not_found'
+    )).toBe(true);
+  });
+
+  test('imported Codex parse result drives scene projection without fixture-prefilled labels', () => {
+    const rawText = [
+      '# Aquatic Archive Handling Brief',
+      '',
+      'The main subject is a conservation workbench for wet archive specimens.',
+      'Laminar Tray Handler appears frequently, around 45-55%.',
+      'Seal Log Reviewer appears less often, around 15-25%.',
+      'If context is Wet Intake Bench, increase Laminar Tray Handler and avoid dry cotton gloves.',
+      'Do not allow unsealed sample jars.',
+      '[a]: https://example.org/archive-handling'
+    ].join('\n');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'aquatic-archive.txt',
+      rawText,
+      inputId: 'aquatic-archive',
+      title: 'Aquatic Archive Handling Brief',
+      createdAt: '2026-05-02T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({ ingestArtifact });
+    const classifyArtifact = buildClassifyArtifact({ ingestArtifact, extractArtifact });
+    const synthesizeArtifact = buildSynthesizeArtifact({ ingestArtifact, extractArtifact });
+    const sourceModeArtifact = buildSourceModeArtifact({ ingestArtifact });
+    const structuredBriefSeedArtifact = buildStructuredBriefArtifact({ ingestArtifact });
+    const codexResult = normalizeCodexParseResult({
+      ingestArtifact,
+      codexParseResult: {
+        inputId: 'aquatic-archive',
+        analysisMode: 'codex-semantic',
+        sourceInputIds: ['aquatic-archive'],
+        mainSubject: {
+          subjectId: 'aquatic_archive_main_subject',
+          label: 'wet archive specimen handling workbench',
+          subjectType: 'operations-brief',
+          summary: 'A local operations brief for handling wet archive specimens.',
+          sourceInputIds: ['aquatic-archive'],
+          sourceChunkIds: [ingestArtifact.chunks[0].chunkId],
+          excerptText: ingestArtifact.chunks[0].text,
+          attributionMode: 'paraphrased',
+          confidence: 'high',
+          validationStatus: 'supported'
+        },
+        subjectType: 'operations-brief',
+        subcategoryCandidates: [
+          {
+            subcategoryId: 'laminar_tray_handler',
+            label: 'Laminar Tray Handler',
+            parentSubjectId: 'aquatic_archive_main_subject',
+            supportStatus: 'supported',
+            evidenceSummary: 'The text explicitly states this role appears frequently.',
+            sourceInputIds: ['aquatic-archive'],
+            sourceChunkIds: [ingestArtifact.chunks[0].chunkId],
+            excerptText: 'Laminar Tray Handler appears frequently, around 45-55%.',
+            attributionMode: 'quoted',
+            confidence: 'high',
+            validationStatus: 'supported'
+          },
+          {
+            subcategoryId: 'seal_log_reviewer',
+            label: 'Seal Log Reviewer',
+            parentSubjectId: 'aquatic_archive_main_subject',
+            supportStatus: 'supported',
+            evidenceSummary: 'The text explicitly names the reviewer role.',
+            sourceInputIds: ['aquatic-archive'],
+            sourceChunkIds: [ingestArtifact.chunks[0].chunkId],
+            excerptText: 'Seal Log Reviewer appears less often, around 15-25%.',
+            attributionMode: 'quoted',
+            confidence: 'high',
+            validationStatus: 'supported'
+          },
+          {
+            subcategoryId: 'unsupported_gallery_guide',
+            label: 'Gallery Guide',
+            parentSubjectId: 'aquatic_archive_main_subject',
+            supportStatus: 'contradicted',
+            evidenceSummary: 'No gallery guide role is present in the source text.',
+            sourceInputIds: ['aquatic-archive'],
+            sourceChunkIds: [ingestArtifact.chunks[0].chunkId],
+            excerptText: 'No supporting excerpt.',
+            attributionMode: 'inferred',
+            confidence: 'low',
+            validationStatus: 'contradicted'
+          }
+        ],
+        subcategoryEvidenceChecks: [],
+        subcategoryCharacteristics: [
+          {
+            characteristicId: 'laminar_tools',
+            subcategoryId: 'laminar_tray_handler',
+            label: 'wet tray handling tools',
+            characteristicType: 'wardrobe-or-attribute',
+            values: ['laminar tray', 'sealed jar tag'],
+            sourceInputIds: ['aquatic-archive'],
+            sourceChunkIds: [ingestArtifact.chunks[0].chunkId],
+            excerptText: 'wet archive specimens',
+            attributionMode: 'paraphrased',
+            confidence: 'medium',
+            validationStatus: 'supported'
+          }
+        ],
+        weightedGroups: [
+          {
+            weightId: 'laminar_weight',
+            label: 'Laminar Tray Handler',
+            min: 45,
+            max: 55,
+            unit: 'percent',
+            appliesTo: 'Laminar Tray Handler',
+            sourceInputIds: ['aquatic-archive'],
+            sourceChunkIds: [ingestArtifact.chunks[0].chunkId],
+            excerptText: 'Laminar Tray Handler appears frequently, around 45-55%.',
+            attributionMode: 'quoted',
+            confidence: 'high',
+            validationStatus: 'supported'
+          }
+        ],
+        rules: [],
+        constraints: [],
+        examples: [],
+        implementationFields: [],
+        citations: [{
+          citationId: 'citation_a',
+          label: 'a',
+          url: 'https://example.org/archive-handling',
+          citationText: 'Pasted reference',
+          verificationStatus: 'unverified-pasted-citation',
+          sourceInputIds: ['aquatic-archive'],
+          sourceChunkIds: [ingestArtifact.chunks[0].chunkId],
+          excerptText: '[a]: https://example.org/archive-handling',
+          attributionMode: 'quoted',
+          confidence: 'low',
+          validationStatus: 'needs_review'
+        }],
+        researchGaps: [],
+        graphAssemblyPlan: {
+          readiness: 'ready',
+          nodes: [{
+            nodeId: 'laminar_tray_handler',
+            label: 'Laminar Tray Handler',
+            nodeType: 'weighted-choice',
+            sourceRecordIds: ['laminar_tray_handler'],
+            reviewStatus: 'needs_review'
+          }],
+          edges: [],
+          notes: []
+        },
+        coverage: []
+      }
+    });
+    const structuredBriefArtifact = buildProjectionStructuredBriefFromAnalysis({
+      structuredBriefSeedArtifact,
+      briefAnalysisArtifact: codexResult
+    });
+    const sceneGrammarArtifact = buildSceneGrammarArtifact({
+      ingestArtifact,
+      extractArtifact,
+      classifyArtifact,
+      synthesizeArtifact,
+      sourceModeArtifact,
+      structuredBriefArtifact
+    });
+
+    expect(() => MetagrinderCodexParseResultArtifactSchema.parse(codexResult)).not.toThrow();
+    expect(codexResult.analysisMode).toBe('codex-semantic');
+    expect(codexResult.coverage.some((entry: any) => entry.category === 'codexSemanticValidation')).toBe(true);
+    expect(sceneGrammarArtifact.reviewFlags).toContain('codex-semantic-projection');
+    expect(sceneGrammarArtifact.archetypes.map((entry: any) => entry.label)).toEqual(expect.arrayContaining([
+      'Laminar Tray Handler',
+      'Seal Log Reviewer'
+    ]));
+    expect(sceneGrammarArtifact.archetypes.map((entry: any) => entry.label)).not.toContain('Gallery Guide');
+    expect(sceneGrammarArtifact.archetypes.map((entry: any) => entry.label)).not.toContain('Middle-class spectator');
+    expect(sceneGrammarArtifact.archetypes.find((entry: any) =>
+      entry.label === 'Laminar Tray Handler'
+    ).weightRange).toMatchObject({ min: 45, max: 55 });
+    expect(codexResult.citations[0].verificationStatus).toBe('unverified-pasted-citation');
+    const semanticChoiceGraphArtifact = buildSemanticChoiceGraphArtifact({
+      briefAnalysisArtifact: codexResult,
+      sceneGrammarArtifact
+    });
+    expect(() => MetagrinderSemanticChoiceGraphArtifactSchema.parse(semanticChoiceGraphArtifact)).not.toThrow();
+    expect(semanticChoiceGraphArtifact.analysisMode).toBe('codex-semantic');
+    expect(semanticChoiceGraphArtifact.sourceArtifacts).toEqual(expect.arrayContaining([
+      'brief-analysis.json',
+      'scene-grammar.json'
+    ]));
+    const semanticPsg = buildSceneGrammarPsg({
+      sceneGrammarArtifact,
+      semanticChoiceGraphArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+    expect(semanticPsg.metadata.semanticProjection.choiceGraphPath).toBe('semantic-choice-graph.json');
+    const labels = semanticPsg.nodes.map((node: any) => node.name);
+    expect(labels).toEqual(expect.arrayContaining([
+      'Age Choice',
+      'Sex Choice',
+      'Male Role / Type',
+      'Male Hat / Hair',
+      'Male Top',
+      'Male Bottom',
+      'Male Footwear',
+      'Male Accessories',
+      'Male Condition / Behavior',
+      'Female Role / Type',
+      'Female Hat / Hair',
+      'Female Top',
+      'Female Bottom',
+      'Female Footwear',
+      'Female Accessories',
+      'Female Condition / Behavior'
+    ]));
+    expect(semanticPsg.edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({ source: 'age-choice', target: 'sex-choice' }),
+      expect.objectContaining({ source: 'sex-choice', sourceHandle: 'branch-0', target: 'male-role-choice' }),
+      expect.objectContaining({ source: 'sex-choice', sourceHandle: 'branch-1', target: 'female-role-choice' }),
+      expect.objectContaining({ source: 'male-modifier-choice', target: 'male-prompt-output' }),
+      expect.objectContaining({ source: 'female-modifier-choice', target: 'female-prompt-output' })
+    ]));
+    expect(semanticPsg.nodes.some((node: any) => node.id === 'scene-context')).toBe(false);
+    expect(semanticPsg.nodes.filter((node: any) => node.type === 'TextBlock').length).toBe(0);
+    expect(semanticPsg.nodes.some((node: any) => node.type === 'Concat')).toBe(false);
+    expect(semanticPsg.edges.some((edge: any) => edge.targetHandle === 'input1' || edge.targetHandle === 'input2')).toBe(false);
+    expect(semanticPsg.edges.some((edge: any) =>
+      edge.source === 'male-role-choice' && edge.target === 'female-prompt-output'
+    )).toBe(false);
+    const roleChoice = semanticPsg.nodes.find((node: any) => node.id === 'male-role-choice');
+    expect(roleChoice.options.length).toBeLessThanOrEqual(6);
+    expect(roleChoice.options.every((option: any) => option.text.length <= 72)).toBe(true);
+    expect(semanticPsg.nodes.filter((node: any) => /^role-detail-/.test(node.id)).length).toBe(0);
+    expectPromptSpaghettiPsg(semanticPsg);
+  });
+
+  test('keeps semantic PSG weighted choices in coherent attribute buckets', () => {
+    const sceneGrammarArtifact = {
+      inputId: 'semantic-bucket-regression',
+      sceneContext: {
+        title: 'Semantic Bucket Regression',
+        summary: 'A test scene grammar with deliberately mixed wardrobe notes.'
+      },
+      reviewFlags: ['codex-semantic-projection'],
+      archetypes: [
+        {
+          archetypeId: 'adult_male_spectator',
+          label: 'Adult male spectator baseline',
+          promptText: 'Adult male spectator baseline.',
+          weightRange: { min: 80, max: 90, unit: 'percent' }
+        },
+        {
+          archetypeId: 'adult_female_spectator',
+          label: 'Adult female spectator baseline',
+          promptText: 'Adult female spectator in shirtwaist blouse and long skirt.',
+          weightRange: { min: 8, max: 12, unit: 'percent' }
+        },
+        {
+          archetypeId: 'trackside_rail_zone',
+          label: 'Trackside rail / fence',
+          promptText: 'A location zone, not a role.',
+          weightRange: { min: 1, max: 1, unit: 'percent' }
+        },
+        {
+          archetypeId: 'male_spectator_wardrobe',
+          label: 'Male Spectator Wardrobe',
+          promptText: 'A wardrobe section heading, not a role.',
+          weightRange: { min: 1, max: 1, unit: 'percent' }
+        }
+      ],
+      wardrobeSystem: [
+        {
+          label: 'Male Spectator Wardrobe',
+          items: [
+            'Headwear: straw boater hat with dark band - flat cap',
+            'Upper Body: white shirt with suspenders + dark sack suit jacket',
+            'Lower Body: straight cuffed trousers - dark trousers - long skirt',
+            'Footwear: leather oxford shoes - lace-up boots - spats or gaiters',
+            'Accessories/Shoes: Starched collars, ties, and sturdy boots or oxfords.'
+          ]
+        },
+        {
+          label: 'Female Spectator Wardrobe',
+          items: [
+            'Headwear: large wide-brimmed picture hat - smaller ornate hat or toque with veil',
+            'Upper Body: white shirtwaist blouse + tailored jacket or bolero - full Edwardian day dress',
+            'Lower Body: long dark skirt - hobble skirt - matching suit skirt',
+            'Footwear: practical laced shoes with lower heels',
+            'Accessories: parasol - gloves - small handbag or fan'
+          ]
+        },
+        {
+          label: 'Palette Constraints',
+          items: ['muted', 'dusty', 'outdoor-appropriate', 'mostly dark suits + white shirts']
+        },
+        {
+          label: 'Environmental Modifiers',
+          items: ['dust accumulation', 'sweat / heat fatigue', 'fabric wear']
+        },
+        {
+          label: 'Behavioral Modifiers',
+          items: ['leaning on rail', 'watching track', 'walking group']
+        }
+      ],
+      propsAndAccessories: [],
+      behaviorStates: [],
+      environmentalModifiers: []
+    };
+    const semanticChoiceGraphArtifact = buildSemanticChoiceGraphArtifact({
+      briefAnalysisArtifact: {
+        inputId: 'semantic-bucket-regression',
+        analysisMode: 'codex-semantic',
+        mainSubject: {
+          subjectId: 'semantic_bucket_regression',
+          label: 'semantic bucket regression',
+          subjectType: 'scene',
+          summary: 'A test semantic bucket regression.',
+          sourceInputIds: [],
+          sourceChunkIds: [],
+          excerptText: '',
+          attributionMode: 'inferred',
+          confidence: 'medium',
+          validationStatus: 'supported'
+        },
+        subjectType: 'scene',
+        graphAssemblyPlan: {
+          readiness: 'ready',
+          nodes: [],
+          edges: [],
+          notes: []
+        },
+        coverage: []
+      },
+      sceneGrammarArtifact
+    });
+    expect(() => MetagrinderSemanticChoiceGraphArtifactSchema.parse(semanticChoiceGraphArtifact)).not.toThrow();
+    const axisOptionsFor = (axisId: string) => semanticChoiceGraphArtifact.axes
+      .find((axis: any) => axis.axisId === axisId)
+      .choices
+      .map((option: any) => option.text)
+      .join(' | ');
+    expect(axisOptionsFor('male_top')).toMatch(/shirt|suspenders|suit jacket/i);
+    expect(axisOptionsFor('male_top')).not.toMatch(/blouse|bolero|day dress|skirt|parasol/i);
+    expect(axisOptionsFor('female_bottom')).toMatch(/skirt/i);
+    expect(axisOptionsFor('female_bottom')).not.toMatch(/trouser|suspenders/i);
+    const semanticPsg = buildSceneGrammarPsg({
+      sceneGrammarArtifact,
+      semanticChoiceGraphArtifact,
+      now: () => '2026-05-02T12:00:00.000Z'
+    });
+    const optionsFor = (id: string) => semanticPsg.nodes
+      .find((node: any) => node.id === id)
+      .options
+      .map((option: any) => option.text)
+      .join(' | ');
+
+    expect(semanticPsg.nodes.some((node: any) => node.id === 'scene-context')).toBe(false);
+    expect(semanticPsg.nodes.filter((node: any) => node.type === 'TextBlock').length).toBe(0);
+    expect(optionsFor('male-role-choice')).toMatch(/who is a .*spectator/i);
+    expect(optionsFor('male-role-choice')).not.toMatch(/female|rail|wardrobe/i);
+    expect(optionsFor('female-role-choice')).toMatch(/who is a .*spectator/i);
+    expect(optionsFor('female-role-choice')).not.toMatch(/\bmale\b|rail|wardrobe/i);
+    expect(optionsFor('age-choice')).toMatch(/an adult/i);
+    expect(optionsFor('age-choice')).not.toMatch(/if supported|when supported|needs reviewed/i);
+    expect(optionsFor('male-role-choice')).toMatch(/who is a .*spectator/i);
+    expect(optionsFor('male-headwear-choice')).toMatch(/straw boater|flat cap/i);
+    expect(optionsFor('male-headwear-choice')).toMatch(/with .*straw boater|bareheaded/i);
+    expect(optionsFor('male-headwear-choice')).not.toMatch(/shirt|trouser|boot|tie|dust|picture hat|toque|veil/i);
+    expect(optionsFor('female-headwear-choice')).toMatch(/picture hat|toque|veil/i);
+    expect(optionsFor('female-headwear-choice')).not.toMatch(/flat cap|trouser|boot|tie|dust/i);
+    expect(optionsFor('male-upper-body-choice')).toMatch(/shirt|suspenders|suit jacket/i);
+    expect(optionsFor('male-upper-body-choice')).toMatch(/wearing/i);
+    expect(optionsFor('male-upper-body-choice')).not.toMatch(/blouse|bolero|day dress|skirt|parasol|dust/i);
+    expect(optionsFor('female-upper-body-choice')).toMatch(/shirtwaist blouse|tailored jacket|bolero|day dress/i);
+    expect(optionsFor('female-upper-body-choice')).not.toMatch(/suspenders|waistcoat|trouser|oxford|starched collar|tie|dust/i);
+    expect(optionsFor('male-lower-body-choice')).toMatch(/trouser/i);
+    expect(optionsFor('male-lower-body-choice')).toMatch(/with/i);
+    expect(optionsFor('male-lower-body-choice')).not.toMatch(/skirt|hobble|shirt|boot|tie|dust/i);
+    expect(optionsFor('female-lower-body-choice')).toMatch(/skirt/i);
+    expect(optionsFor('female-lower-body-choice')).not.toMatch(/trouser|suspenders|hat|shirt|boot|tie|dust/i);
+    expect(optionsFor('male-footwear-choice')).toMatch(/oxford|boot|spats|gaiters/i);
+    expect(optionsFor('male-footwear-choice')).not.toMatch(/hat|shirt|trouser|tie|dust|heels/i);
+    expect(optionsFor('female-footwear-choice')).toMatch(/laced shoes|heels/i);
+    expect(optionsFor('female-footwear-choice')).not.toMatch(/trouser|suspenders|tie|dust/i);
+    expect(optionsFor('male-accessories-choice')).toMatch(/starched collars|ties/i);
+    expect(optionsFor('male-accessories-choice')).not.toMatch(/boot|oxford|shirt|trouser|dust|parasol|handbag/i);
+    expect(optionsFor('female-accessories-choice')).toMatch(/parasol|gloves|handbag|fan/i);
+    expect(optionsFor('female-accessories-choice')).not.toMatch(/trouser|suspenders|boot|oxford|dust/i);
+    expect(optionsFor('male-modifier-choice')).toMatch(/dust accumulation|sweat|leaning|watching|walking/i);
+    expect(optionsFor('male-modifier-choice')).toMatch(/showing dust|showing sweat|leaning|watching|walking/i);
+    expect(optionsFor('female-modifier-choice')).toMatch(/dust accumulation|sweat|leaning|watching|walking/i);
+    expect(optionsFor('male-modifier-choice')).not.toMatch(/starched collar|tie|hat|shirt|boot/i);
+    expect(optionsFor('female-modifier-choice')).not.toMatch(/starched collar|tie|hat|shirt|boot/i);
+    semanticPsg.nodes
+      .filter((node: any) => node.type === 'WeightedChoice')
+      .flatMap((node: any) => node.options)
+      .forEach((option: any) => {
+        expect(option.text).not.toMatch(/\b(if|when)\s+supported\b|needs reviewed/i);
+      });
+    expect(semanticPsg.nodes.some((node: any) => node.type === 'Concat')).toBe(false);
+    expect(semanticPsg.edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({ source: 'sex-choice', sourceHandle: 'branch-0', target: 'male-role-choice' }),
+      expect.objectContaining({ source: 'sex-choice', sourceHandle: 'branch-1', target: 'female-role-choice' }),
+      expect.objectContaining({ source: 'male-modifier-choice', target: 'male-prompt-output' }),
+      expect.objectContaining({ source: 'female-modifier-choice', target: 'female-prompt-output' })
+    ]));
+    expect(semanticPsg.edges.some((edge: any) =>
+      edge.target === 'male-prompt-output' && edge.source !== 'male-modifier-choice'
+    )).toBe(false);
+    expect(semanticPsg.edges.some((edge: any) =>
+      edge.target === 'female-prompt-output' && edge.source !== 'female-modifier-choice'
+    )).toBe(false);
+    expectPromptSpaghettiPsg(semanticPsg);
+  });
+
+  test('generates deterministic PSG readability flights from semantic choices', () => {
+    const semanticChoiceGraphArtifact = testSemanticChoiceGraph();
+    const psgArtifact = {
+      fileType: 'psg',
+      formatVersion: '2.0.0',
+      metadata: {},
+      graph: { nodes: [], edges: [] }
+    };
+    const first = buildPsgOutputFlightArtifact({
+      inputId: semanticChoiceGraphArtifact.inputId,
+      graphPath: 'scene-grammar.psg',
+      psgArtifact,
+      semanticChoiceGraphArtifact,
+      sampleCount: 20,
+      createdAt: '2026-05-06T00:00:00.000Z'
+    });
+    const second = buildPsgOutputFlightArtifact({
+      inputId: semanticChoiceGraphArtifact.inputId,
+      graphPath: 'scene-grammar.psg',
+      psgArtifact,
+      semanticChoiceGraphArtifact,
+      sampleCount: 20,
+      createdAt: '2026-05-06T00:00:00.000Z'
+    });
+
+    expect(() => MetagrinderPsgOutputFlightArtifactSchema.parse(first)).not.toThrow();
+    expect(first.samples).toHaveLength(20);
+    expect(first).toEqual(second);
+    expect(first.samples[0].selectedChoices.map((choice: any) => choice.choiceId)).toEqual(
+      expect.arrayContaining(['age_adult', 'sex_male'])
+    );
+    first.samples.forEach((sample: any) => {
+      expect(sample.outputText).toMatch(/\b(adult|Child if supported)\b/);
+      expect(sample.selectedChoices.length).toBeGreaterThan(1);
+    });
+  });
+
+  test('flags readability issues and applies only text-only choice rewrites', () => {
+    const semanticChoiceGraphArtifact = testSemanticChoiceGraph();
+    const psgArtifact = {
+      fileType: 'psg',
+      formatVersion: '2.0.0',
+      metadata: {},
+      graph: { nodes: [], edges: [] }
+    };
+    const outputFlight = buildPsgOutputFlightArtifact({
+      inputId: semanticChoiceGraphArtifact.inputId,
+      graphPath: 'scene-grammar.psg',
+      psgArtifact,
+      semanticChoiceGraphArtifact,
+      sampleCount: 20,
+      createdAt: '2026-05-06T00:00:00.000Z'
+    });
+    const review = buildPsgReadabilityReviewArtifact({
+      inputId: semanticChoiceGraphArtifact.inputId,
+      flightArtifact: outputFlight,
+      semanticChoiceGraphArtifact,
+      createdAt: '2026-05-06T00:00:00.000Z'
+    });
+
+    expect(() => MetagrinderPsgReadabilityReviewArtifactSchema.parse(review)).not.toThrow();
+    expect(review.findings.map((finding: any) => finding.findingType)).toEqual(expect.arrayContaining([
+      'scaffold-phrase',
+      'missing-phrase-lead'
+    ]));
+
+    const resultArtifact = MetagrinderCodexSweetenResultArtifactSchema.parse({
+      inputId: semanticChoiceGraphArtifact.inputId,
+      rewrites: [
+        {
+          choiceId: 'age_child_if_supported',
+          beforeText: 'Child if supported',
+          afterText: 'a child spectator when the source material supports children',
+          reason: 'Make the age fragment read as a sentence phrase.'
+        },
+        {
+          choiceId: 'male_dust',
+          beforeText: 'dust accumulation',
+          afterText: 'showing dust on clothing and shoes',
+          reason: 'Turn the condition label into a prompt phrase.'
+        }
+      ]
+    });
+    const rewrites = validateSweetenResult({
+      semanticChoiceGraphArtifact,
+      resultArtifact
+    });
+    const nextGraphResult = applySweetenRewrites({
+      semanticChoiceGraphArtifact,
+      rewrites
+    });
+    const nextGraph = nextGraphResult.semanticChoiceGraphArtifact;
+    const ageChoice = nextGraph.axes.find((axis: any) => axis.axisId === 'age').choices
+      .find((choice: any) => choice.choiceId === 'age_child_if_supported');
+    const dustChoice = nextGraph.axes.find((axis: any) => axis.axisId === 'male_condition_behavior').choices
+      .find((choice: any) => choice.choiceId === 'male_dust');
+
+    expect(ageChoice.text).toBe('a child spectator when the source material supports children');
+    expect(ageChoice.weight).toBe(15);
+    expect(dustChoice.text).toBe('showing dust on clothing and shoes');
+    expect(nextGraph.axes.map((axis: any) => axis.axisId)).toEqual(semanticChoiceGraphArtifact.axes.map((axis: any) => axis.axisId));
+    expect(nextGraph.edges).toEqual(semanticChoiceGraphArtifact.edges);
+    expect(() => validateSweetenResult({
+      semanticChoiceGraphArtifact,
+      resultArtifact: {
+        inputId: semanticChoiceGraphArtifact.inputId,
+        rewrites: [{
+          choiceId: 'unknown_choice',
+          beforeText: 'nope',
+          afterText: 'new text',
+          reason: 'bad'
+        }]
+      }
+    })).toThrow(/unknown choiceId/i);
+    expect(() => validateSweetenResult({
+      semanticChoiceGraphArtifact,
+      resultArtifact: {
+        inputId: semanticChoiceGraphArtifact.inputId,
+        rewrites: [{
+          choiceId: 'male_dust',
+          beforeText: 'wrong text',
+          afterText: 'showing dust on clothing and shoes',
+          reason: 'bad'
+        }]
+      }
+    })).toThrow(/beforeText mismatch/);
+  });
+
+  test('projects scene grammar from generic structured records without known fixture labels', () => {
+    const rawText = [
+      '# Greenhouse Canopy Specimen Brief',
+      '',
+      '## Canopy Surveyor Agent',
+      'Canopy Surveyor Agent: 40-50%.',
+      '- copper visor',
+      '- field notebook',
+      '- clipped sampling tags',
+      '',
+      '## Mist Calibrator Role',
+      'Mist Calibrator Role: 20-30%.',
+      '- brass nozzle key',
+      '- damp apron',
+      '- timing card',
+      '',
+      '## Deck Platform Zone',
+      'Deck Platform Zone: worker group 60-70%.',
+      'If context is Deck Platform Zone: increase Canopy Surveyor Agent, force clipped sampling tags, avoid bare hands.',
+      '',
+      '## Lower Pump Aisle Zone',
+      'Rare but critical maintenance context.',
+      'If context is Lower Pump Aisle Zone: increase Mist Calibrator Role and decrease visitors.',
+      '',
+      'Constraints:',
+      '- Do not include plastic safety cones.',
+      '- Must not mix visitor clothing with calibrated work aprons.',
+      '',
+      'Implementation fields:',
+      '{',
+      '  "role": "surveyor | calibrator",',
+      '  "context": "deck_platform | lower_pump_aisle",',
+      '  "conditionState": "dry | misted | overflow"',
+      '}',
+      '',
+      'Example specimen prompt: "full body greenhouse canopy surveyor, neutral stance, copper visor, field notebook, controlled studio lighting."',
+      '',
+      '[1]: https://example.org/greenhouse-canopy'
+    ].join('\n');
+    const ingestArtifact = buildIngestArtifact({
+      inputPath: 'greenhouse-canopy-brief.txt',
+      rawText,
+      inputId: 'greenhouse-canopy-brief',
+      title: 'Greenhouse Canopy Brief',
+      createdAt: '2026-05-02T12:00:00.000Z'
+    });
+    const extractArtifact = buildExtractArtifact({ ingestArtifact });
+    const classifyArtifact = buildClassifyArtifact({ ingestArtifact, extractArtifact });
+    const synthesizeArtifact = buildSynthesizeArtifact({ ingestArtifact, extractArtifact });
+    const sourceModeArtifact = buildSourceModeArtifact({ ingestArtifact });
+    const structuredBriefArtifact = buildStructuredBriefArtifact({ ingestArtifact });
+    const sceneGrammarArtifact = buildSceneGrammarArtifact({
+      ingestArtifact,
+      extractArtifact,
+      classifyArtifact,
+      synthesizeArtifact,
+      sourceModeArtifact,
+      structuredBriefArtifact
+    });
+
+    expect(structuredBriefArtifact.weightedGroups.some((weight: any) =>
+      weight.label === 'Canopy Surveyor Agent' && weight.min === 40 && weight.max === 50
+    )).toBe(true);
+    expect(structuredBriefArtifact.rules.length).toBeGreaterThanOrEqual(2);
+    expect(structuredBriefArtifact.constraints.some((constraint: any) => /plastic safety cones/i.test(constraint.text))).toBe(true);
+    expect(structuredBriefArtifact.implementationFields.some((field: any) => field.name === 'role')).toBe(true);
+    expect(structuredBriefArtifact.citations[0]).toMatchObject({
+      url: 'https://example.org/greenhouse-canopy',
+      verificationStatus: 'unverified-pasted-citation'
+    });
+
+    const archetypeLabels = sceneGrammarArtifact.archetypes.map((archetype: any) => archetype.label);
+    expect(archetypeLabels).toEqual(expect.arrayContaining(['Canopy Surveyor Agent', 'Mist Calibrator Role']));
+    const canopy = sceneGrammarArtifact.archetypes.find((archetype: any) => archetype.label === 'Canopy Surveyor Agent');
+    expect(canopy.weightRange).toMatchObject({ min: 40, max: 50, unit: 'percent' });
+    expect(sceneGrammarArtifact.locationZones.some((zone: any) => zone.label === 'Deck Platform Zone')).toBe(true);
+    expect(sceneGrammarArtifact.compatibilityRules.some((rule: any) =>
+      /Deck Platform Zone/i.test(rule.condition?.value) && rule.effects.some((effect: any) => /canopy_surveyor/i.test(effect.target))
+    )).toBe(true);
+    expect(sceneGrammarArtifact.negativeConstraints.some((constraint: any) => /plastic safety cones/i.test(constraint.text))).toBe(true);
+    expect(sceneGrammarArtifact.reviewFlags).toContain('structured-brief-projection');
+  });
+
+
+  test('structured brief extraction is input-driven and not fixture-prefilled', () => {
+    const buildProjected = (labelA: string, weightA: string, labelB: string, weightB: string) => {
+      const slug = labelA.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const rawText = [
+        '# Synthetic Operations Brief',
+        '',
+        '## ' + labelA,
+        labelA + ': ' + weightA + '.',
+        '- amber checklist',
+        '- numbered wrist tags',
+        '',
+        '## ' + labelB,
+        labelB + ': ' + weightB + '.',
+        '- blue routing ledger',
+        '- sealed sample case',
+        '',
+        '## North Service Deck Zone',
+        'If context is North Service Deck Zone: increase ' + labelA + ', force amber checklist, avoid untagged cases.',
+        '',
+        'Constraints:',
+        '- Do not include visitor badges.',
+        '- Must not mix blue routing ledgers with amber checklists.',
+        '',
+        'Implementation fields:',
+        '{',
+        '  "role": "string",',
+        '  "zone": "north_service_deck | sample_lockup"',
+        '}'
+      ].join('\n');
+      const ingestArtifact = buildIngestArtifact({
+        inputPath: slug + '.txt',
+        rawText,
+        inputId: slug + '-input',
+        title: labelA,
+        createdAt: '2026-05-02T12:00:00.000Z'
+      });
+      const extractArtifact = buildExtractArtifact({ ingestArtifact });
+      const classifyArtifact = buildClassifyArtifact({ ingestArtifact, extractArtifact });
+      const synthesizeArtifact = buildSynthesizeArtifact({ ingestArtifact, extractArtifact });
+      const sourceModeArtifact = buildSourceModeArtifact({ ingestArtifact });
+      const structuredBriefArtifact = buildStructuredBriefArtifact({ ingestArtifact });
+      const sceneGrammarArtifact = buildSceneGrammarArtifact({
+        ingestArtifact,
+        extractArtifact,
+        classifyArtifact,
+        synthesizeArtifact,
+        sourceModeArtifact,
+        structuredBriefArtifact
+      });
+      return { structuredBriefArtifact, sceneGrammarArtifact };
+    };
+
+    const first = buildProjected('Quartz Archivist Role', '31-37%', 'Cedar Relay Operator', '12-18%');
+    const second = buildProjected('Mica Dispatch Steward', '44-49%', 'Harbor Sample Runner', '7-11%');
+
+    expect(first.structuredBriefArtifact.weightedGroups).toEqual(expect.arrayContaining([
+      expect.objectContaining({ label: 'Quartz Archivist Role', min: 31, max: 37 }),
+      expect.objectContaining({ label: 'Cedar Relay Operator', min: 12, max: 18 })
+    ]));
+    expect(second.structuredBriefArtifact.weightedGroups).toEqual(expect.arrayContaining([
+      expect.objectContaining({ label: 'Mica Dispatch Steward', min: 44, max: 49 }),
+      expect.objectContaining({ label: 'Harbor Sample Runner', min: 7, max: 11 })
+    ]));
+
+    const firstLabels = first.sceneGrammarArtifact.archetypes.map((archetype: any) => archetype.label);
+    const secondLabels = second.sceneGrammarArtifact.archetypes.map((archetype: any) => archetype.label);
+    expect(firstLabels).toEqual(expect.arrayContaining(['Quartz Archivist Role', 'Cedar Relay Operator']));
+    expect(secondLabels).toEqual(expect.arrayContaining(['Mica Dispatch Steward', 'Harbor Sample Runner']));
+    expect(firstLabels).not.toEqual(expect.arrayContaining(['Mica Dispatch Steward', 'Harbor Sample Runner']));
+    expect(secondLabels).not.toEqual(expect.arrayContaining(['Quartz Archivist Role', 'Cedar Relay Operator']));
+    expect([...firstLabels, ...secondLabels].some((label: string) => /middle-class spectator|heat-adjusted spectator|working-class trackside/i.test(label))).toBe(false);
+
+    const firstQuartz = first.sceneGrammarArtifact.archetypes.find((archetype: any) => archetype.label === 'Quartz Archivist Role');
+    const secondMica = second.sceneGrammarArtifact.archetypes.find((archetype: any) => archetype.label === 'Mica Dispatch Steward');
+    expect(firstQuartz.weightRange).toMatchObject({ min: 31, max: 37 });
+    expect(secondMica.weightRange).toMatchObject({ min: 44, max: 49 });
+  });
+
   test('builds generic scene grammar artifacts from historical crowd fixture', () => {
     const rawText = readTextFixture('research-input-historical-crowd-grammar.txt');
     const ingestArtifact = buildIngestArtifact({
@@ -3127,14 +4028,9 @@ describe('metagrinder schemas', () => {
     expect(plausibilityReviewArtifact.reviews.some((review: any) =>
       review.failureReasons.some((reason: string) => reason.includes('Pit zone should force'))
     )).toBe(true);
-    expect(sceneGrammarPsg.fileType).toBe('psg');
-    expect(sceneGrammarPsg.formatVersion).toBe('2.0.0');
-    expect(sceneGrammarPsg.graph.nodes.some((node: any) => node.type === 'WeightedChoice')).toBe(true);
-    expect(sceneGrammarPsg.graph.nodes.every((node: any) => node.id && node.position && node.data)).toBe(true);
-    const psgNodeIds = new Set(sceneGrammarPsg.graph.nodes.map((node: any) => node.id));
-    expect(psgNodeIds.size).toBe(sceneGrammarPsg.graph.nodes.length);
-    expect(sceneGrammarPsg.graph.edges.every((edge: any) => psgNodeIds.has(edge.source) && psgNodeIds.has(edge.target))).toBe(true);
-    expect(() => MetagrinderPsgV2FileSchema.parse(sceneGrammarPsg)).not.toThrow();
+    expectPromptSpaghettiPsg(sceneGrammarPsg);
+    expect(sceneGrammarPsg.nodes.some((node: any) => node.type === 'WeightedChoice')).toBe(true);
+    expect(sceneGrammarPsg.nodes.some((node: any) => node.type === 'Concat')).toBe(false);
     expect(Object.keys(branchGraphPsgs)).toEqual(expect.arrayContaining([
       'scene-global-baseline.psg',
       'scene-grandstand-branch.psg',
@@ -3144,12 +4040,11 @@ describe('metagrinder schemas', () => {
       'scene-specimen-reference-router.psg'
     ]));
     Object.values(branchGraphPsgs).forEach((graph: any) => {
-      expect(() => MetagrinderPsgV2FileSchema.parse(graph)).not.toThrow();
-      expect(graph.graph).toBeDefined();
-      expect(graph.nodes).toBeUndefined();
+      expectPromptSpaghettiPsg(graph);
+      expect(graph.nodes.some((node: any) => node.type === 'Concat')).toBe(false);
     });
-    const pitChoice = branchGraphPsgs['scene-pit-branch.psg'].graph.nodes.find((node: any) => node.type === 'WeightedChoice');
-    expect(pitChoice.data.value.every((choice: any) => /worker|official|mechanic|driver|press/i.test(choice.text))).toBe(true);
+    const pitChoice = branchGraphPsgs['scene-pit-branch.psg'].nodes.find((node: any) => node.type === 'WeightedChoice');
+    expect(pitChoice.options.every((choice: any) => /worker|official|mechanic|driver|press/i.test(choice.text))).toBe(true);
   });
 
   test('extracts generic scene grammar from medieval market fixture', () => {
@@ -3190,13 +4085,13 @@ describe('metagrinder schemas', () => {
     expect(sceneGrammarArtifact.visualReferenceSets.length).toBeGreaterThanOrEqual(1);
     expect(researchGapArtifact.gaps.length).toBeGreaterThan(0);
     expect(samplePromptsArtifact.samples.length).toBeGreaterThan(0);
-    expect(() => MetagrinderPsgV2FileSchema.parse(sceneGrammarPsg)).not.toThrow();
+    expectPromptSpaghettiPsg(sceneGrammarPsg);
     Object.values(branchGraphPsgs).forEach((graph: any) => {
-      expect(() => MetagrinderPsgV2FileSchema.parse(graph)).not.toThrow();
-      graph.graph.nodes
+      expectPromptSpaghettiPsg(graph);
+      graph.nodes
         .filter((node: any) => node.type === 'WeightedChoice')
         .forEach((node: any) => {
-          expect(node.data.choices.every((choice: any) =>
+          expect(node.options.every((choice: any) =>
             typeof choice.text === 'string' && typeof choice.weight === 'number'
           )).toBe(true);
         });
@@ -3271,7 +4166,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     )).toBe(true);
   });
 
-  test('enforces sampler, evaluator, PSG v2, and mock web adapter contracts', () => {
+  test('enforces sampler, evaluator, Prompt Spaghetti PSG, and mock web adapter contracts', () => {
     const rawText = readTextFixture('research-input-historical-crowd-grammar.txt');
     const ingestArtifact = buildIngestArtifact({
       inputPath: 'research-input-historical-crowd-grammar.txt',
@@ -3362,30 +4257,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     )).toBe(false);
 
     Object.values(branchGraphPsgs).forEach((graph: any) => {
-      expect(graph.fileType).toBe('psg');
-      expect(graph.formatVersion).toBe('2.0.0');
-      expect(graph.graph).toBeDefined();
-      expect(graph.nodes).toBeUndefined();
-      const nodeIds = new Set(graph.graph.nodes.map((node: any) => node.id));
-      const edgeIds = new Set(graph.graph.edges.map((edge: any) => edge.id));
-      expect(nodeIds.size).toBe(graph.graph.nodes.length);
-      expect(edgeIds.size).toBe(graph.graph.edges.length);
-      graph.graph.nodes.forEach((node: any) => {
-        expect(node.id).toBeTruthy();
-        expect(node.type).toBeTruthy();
-        expect(node.position).toBeTruthy();
-        expect(node.data).toBeTruthy();
-        if (node.type === 'WeightedChoice') {
-          expect(node.data.choices.every((choice: any) =>
-            typeof choice.text === 'string' && typeof choice.weight === 'number'
-          )).toBe(true);
-        }
-      });
-      graph.graph.edges.forEach((edge: any) => {
-        expect(edge.id).toBeTruthy();
-        expect(nodeIds.has(edge.source)).toBe(true);
-        expect(nodeIds.has(edge.target)).toBe(true);
-      });
+      expectPromptSpaghettiPsg(graph);
     });
 
     expect(webResearchResults.adapterMode).toBe('mock');
@@ -3628,8 +4500,10 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     expect(acceptedSceneGrammarArtifact.populationModel.notes.length).toBeGreaterThan(
       sceneGrammarArtifact.populationModel.notes.length
     );
-    expect(baseSceneGrammarPsg.metadata.name).toContain(sceneGrammarArtifact.sceneContext.title);
-    expect(acceptedSceneGrammarPsg.graph.nodes.length).toBe(baseSceneGrammarPsg.graph.nodes.length);
+    expect(baseSceneGrammarPsg.name).toContain(sceneGrammarArtifact.sceneContext.title);
+    expectPromptSpaghettiPsg(baseSceneGrammarPsg);
+    expectPromptSpaghettiPsg(acceptedSceneGrammarPsg);
+    expect(acceptedSceneGrammarPsg.nodes.length).toBe(baseSceneGrammarPsg.nodes.length);
   });
 
   test('parses revision state files and rejects duplicate revision entries', () => {
@@ -3664,7 +4538,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const baseResult = runMetagrinderMvp({
       inputPath,
       outputDir,
-      title: 'RALPH 6 Delta Unit',
+      title: 'Material Delta Unit',
       compileGrammar: 'base'
     });
     const claimId = baseResult.sourceClaimsArtifact.claims[0].sourceClaimId;
@@ -3873,13 +4747,13 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const baseResult = runMetagrinderMvp({
       inputPath,
       outputDir: baseOutputDir,
-      title: 'RALPH 5 Base Grammar',
+      title: 'Base Grammar Checkpoint',
       compileGrammar: 'base'
     });
     const acceptedResult = runMetagrinderMvp({
       inputPath,
       outputDir: acceptedOutputDir,
-      title: 'RALPH 5 Accepted Grammar',
+      title: 'Accepted Grammar Checkpoint',
       revisionStateFilePath,
       applyAcceptedRevisions: true,
       compileGrammar: 'accepted'
@@ -3946,18 +4820,18 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     )).toBe(true);
     expect(() => MetagrinderPsgCompileDiffArtifactSchema.parse(acceptedResult.psgCompileDiffArtifact)).not.toThrow();
     expect(() => MetagrinderLiveRetrievalReadinessArtifactSchema.parse(acceptedResult.liveRetrievalReadinessArtifact)).not.toThrow();
-    expect(() => MetagrinderPsgV2FileSchema.parse(baseResult.sceneGrammarPsg)).not.toThrow();
-    expect(() => MetagrinderPsgV2FileSchema.parse(acceptedResult.sceneGrammarPsg)).not.toThrow();
+    expectPromptSpaghettiPsg(baseResult.sceneGrammarPsg);
+    expectPromptSpaghettiPsg(acceptedResult.sceneGrammarPsg);
     Object.values(acceptedResult.branchGraphPsgs).forEach((graph: any) => {
-      expect(() => MetagrinderPsgV2FileSchema.parse(graph)).not.toThrow();
+      expectPromptSpaghettiPsg(graph);
     });
-    const baseContext = baseResult.sceneGrammarPsg.graph.nodes.find((node: any) => node.id === 'scene-context');
-    const acceptedContext = acceptedResult.sceneGrammarPsg.graph.nodes.find((node: any) => node.id === 'scene-context');
-    const baseArchetypeChoice = baseResult.sceneGrammarPsg.graph.nodes.find((node: any) => node.id === 'archetype-choice');
-    const acceptedArchetypeChoice = acceptedResult.sceneGrammarPsg.graph.nodes.find((node: any) => node.id === 'archetype-choice');
-    expect(baseContext.data.value).not.toBe(acceptedContext.data.value);
-    expect(acceptedContext.data.value).toContain('Accepted revision count: 1');
-    expect(baseArchetypeChoice.data.choices).not.toEqual(acceptedArchetypeChoice.data.choices);
+    const baseContext = baseResult.sceneGrammarPsg.nodes.find((node: any) => node.id === 'scene-context');
+    const acceptedContext = acceptedResult.sceneGrammarPsg.nodes.find((node: any) => node.id === 'scene-context');
+    const baseArchetypeChoice = baseResult.sceneGrammarPsg.nodes.find((node: any) => node.id === 'archetype-choice');
+    const acceptedArchetypeChoice = acceptedResult.sceneGrammarPsg.nodes.find((node: any) => node.id === 'archetype-choice');
+    expect(baseContext.value).not.toBe(acceptedContext.value);
+    expect(acceptedContext.value).toContain('Accepted revision count: 1');
+    expect(baseArchetypeChoice.options).not.toEqual(acceptedArchetypeChoice.options);
   });
 
   test('material-delta revision state fixture drives accepted PSG graph differences beyond summary text', () => {
@@ -3981,7 +4855,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const result = runMetagrinderMvp({
       inputPath,
       outputDir,
-      title: 'RALPH 6 Accepted Grammar',
+      title: 'Accepted Grammar Material Delta Checkpoint',
       revisionStateFilePath,
       applyAcceptedRevisions: true,
       compileGrammar: 'accepted'
@@ -4033,7 +4907,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const result = runMetagrinderMvp({
       inputPath,
       outputDir,
-      title: 'RALPH 7 Dry Run',
+      title: 'Dry Run Retrieval Checkpoint',
       webResearchMode: 'dry-run',
       maxQueriesTotal: 3,
       maxResultsPerQuery: 2
@@ -4067,7 +4941,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const result = runMetagrinderMvp({
       inputPath,
       outputDir,
-      title: 'RALPH 7 Cache Replay',
+      title: 'Checkpoint Cache Replay',
       webResearchMode: 'cache-replay',
       retrievalCacheDir: path.join(__dirname, 'fixtures', 'metagrinder', 'retrieval-cache-historical-crowd.json'),
       sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd.json')
@@ -4113,14 +4987,14 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const reviewed = runMetagrinderMvp({
       ...commonArgs,
       outputDir: reviewedOutputDir,
-      title: 'RALPH 8 Citation Reviewed',
+      title: 'Checkpoint Citation Reviewed',
       sourceClaimReviewFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-claim-review-historical-crowd.json'),
       revisionStateFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'revision-state-historical-crowd-citation-gated.json')
     });
     const blocked = runMetagrinderMvp({
       ...commonArgs,
       outputDir: blockedOutputDir,
-      title: 'RALPH 8 Citation Blocked',
+      title: 'Checkpoint Citation Blocked',
       sourceClaimReviewFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-claim-review-historical-crowd-blocked.json'),
       revisionStateFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'revision-state-historical-crowd-citation-blocked.json')
     });
@@ -4220,20 +5094,20 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const mockResult = runMetagrinderMvp({
       inputPath,
       outputDir: mockOutputDir,
-      title: 'RALPH 7 Mock',
+      title: 'Checkpoint Mock',
       webResearchMode: 'mock',
       maxResultsPerQuery: 2
     });
     const liveBoundaryResult = runMetagrinderMvp({
       inputPath,
       outputDir: liveOutputDir,
-      title: 'RALPH 7 Live Candidate Boundary',
+      title: 'Checkpoint Live Candidate Boundary',
       webResearchMode: 'live-candidate-only'
     });
     const allowlistResult = runMetagrinderMvp({
       inputPath,
       outputDir: allowlistOutputDir,
-      title: 'RALPH 7 Allowlist Boundary',
+      title: 'Checkpoint Allowlist Boundary',
       webResearchMode: 'mock',
       maxQueriesTotal: 1,
       maxResultsPerQuery: 5,
@@ -4273,7 +5147,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const blocked = runMetagrinderMvp({
       inputPath,
       outputDir: blockedOutputDir,
-      title: 'RALPH 9 Live Preflight Blocked',
+      title: 'Checkpoint Live Preflight Blocked',
       webResearchMode: 'live-candidate-only',
       maxQueriesTotal: 2,
       maxResultsPerQuery: 2
@@ -4293,7 +5167,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const live = runMetagrinderMvp({
       inputPath,
       outputDir: liveOutputDir,
-      title: 'RALPH 9 Live Fixture Candidate',
+      title: 'Checkpoint Live Fixture Candidate',
       webResearchMode: 'live-candidate-only',
       enableLiveRetrieval: true,
       liveProvider: 'fixture-live',
@@ -4324,7 +5198,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const replay = runMetagrinderMvp({
       inputPath,
       outputDir: replayOutputDir,
-      title: 'RALPH 9 Live Cache Replay',
+      title: 'Checkpoint Live Cache Replay',
       webResearchMode: 'cache-replay',
       retrievalCacheDir: path.join(liveOutputDir, 'retrieval-cache-manifest.json'),
       sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd-live.json'),
@@ -4365,7 +5239,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const blocked = runMetagrinderMvp({
       inputPath,
       outputDir: blockedOutputDir,
-      title: 'RALPH 10 Provider Blocked',
+      title: 'Checkpoint Provider Blocked',
       webResearchMode: 'live-candidate-only',
       enableLiveRetrieval: true,
       liveProvider: 'generic-search',
@@ -4396,7 +5270,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const typing = runMetagrinderMvp({
       inputPath,
       outputDir: typingOutputDir,
-      title: 'RALPH 10 Fixture Typing',
+      title: 'Checkpoint Fixture Typing',
       webResearchMode: 'live-candidate-only',
       enableLiveRetrieval: true,
       liveProvider: 'fixture-live',
@@ -4430,7 +5304,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     const policyBlocked = runMetagrinderMvp({
       inputPath,
       outputDir: policyOutputDir,
-      title: 'RALPH 10 Policy Blocking',
+      title: 'Checkpoint Policy Blocking',
       webResearchMode: 'live-candidate-only',
       enableLiveRetrieval: true,
       liveProvider: 'fixture-live',
@@ -4471,7 +5345,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
       const blocked = runMetagrinderMvp({
         inputPath,
         outputDir: blockedOutputDir,
-        title: 'RALPH 11 Env Blocked',
+        title: 'Checkpoint Env Blocked',
         webResearchMode: 'live-candidate-only',
         enableLiveRetrieval: true,
         liveProvider: 'generic-http-search',
@@ -4502,7 +5376,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
       const missingEndpoint = runMetagrinderMvp({
         inputPath,
         outputDir: missingEndpointOutputDir,
-        title: 'RALPH 11 Missing Endpoint',
+        title: 'Checkpoint Missing Endpoint',
         webResearchMode: 'live-candidate-only',
         enableLiveRetrieval: true,
         liveProvider: 'generic-http-search',
@@ -4524,7 +5398,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
       const fake = runMetagrinderMvp({
         inputPath,
         outputDir: fakeOutputDir,
-        title: 'RALPH 11 Fake Provider',
+        title: 'Checkpoint Fake Provider',
         webResearchMode: 'live-candidate-only',
         enableLiveRetrieval: true,
         liveProvider: 'generic-http-search',
@@ -4567,13 +5441,13 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
         fake.retrievalCacheManifestArtifact,
         fake.liveRetrievalCacheWriteArtifact
       ].map((artifact) => JSON.stringify(artifact)).join('\n');
-      expect(serializedArtifacts).not.toContain('ralph11-fake-secret-do-not-log');
+      expect(serializedArtifacts).not.toContain('metagrinder-fake-secret-do-not-log');
 
       const replayOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-http-replay-'));
       const replay = runMetagrinderMvp({
         inputPath,
         outputDir: replayOutputDir,
-        title: 'RALPH 11 Provider Cache Replay',
+        title: 'Checkpoint Provider Cache Replay',
         webResearchMode: 'cache-replay',
         retrievalCacheDir: path.join(fakeOutputDir, 'retrieval-cache-manifest.json'),
         sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd-live.json'),
@@ -4621,7 +5495,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
         const result = runMetagrinderMvp({
           inputPath,
           outputDir,
-          title: `RALPH 11 ${errorCase.name}`,
+          title: `Checkpoint ${errorCase.name}`,
           webResearchMode: 'live-candidate-only',
           enableLiveRetrieval: true,
           liveProvider: 'generic-http-search',
@@ -4661,7 +5535,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
       const result = runMetagrinderMvp({
         inputPath,
         outputDir,
-        title: 'RALPH 12 No Auth Fake Provider',
+        title: 'Checkpoint No Auth Fake Provider',
         webResearchMode: 'live-candidate-only',
         enableLiveRetrieval: true,
         liveProvider: 'generic-http-search',
@@ -4723,7 +5597,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
       const failed = runMetagrinderMvp({
         inputPath,
         outputDir: failedOutputDir,
-        title: 'RALPH 12 Failed Provider',
+        title: 'Checkpoint Failed Provider',
         webResearchMode: 'live-candidate-only',
         enableLiveRetrieval: true,
         liveProvider: 'generic-http-search',
@@ -4744,7 +5618,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
       const replay = runMetagrinderMvp({
         inputPath,
         outputDir: replayOutputDir,
-        title: 'RALPH 12 Pilot Cache Replay',
+        title: 'Checkpoint Pilot Cache Replay',
         webResearchMode: 'cache-replay',
         retrievalCacheDir: path.join(outputDir, 'retrieval-cache-manifest.json'),
         sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd-live.json'),
@@ -4782,7 +5656,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
       const missing = runMetagrinderMvp({
         inputPath,
         outputDir: missingOutputDir,
-        title: 'RALPH 13 Real Config Missing',
+        title: 'Checkpoint Real Config Missing',
         webResearchMode: 'live-candidate-only',
         enableLiveRetrieval: true,
         liveProvider: 'generic-http-search',
@@ -4809,7 +5683,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
       const inspected = runMetagrinderMvp({
         inputPath,
         outputDir,
-        title: 'RALPH 13 Candidate Inspection',
+        title: 'Checkpoint Candidate Inspection',
         webResearchMode: 'live-candidate-only',
         enableLiveRetrieval: true,
         liveProvider: 'generic-http-search',
@@ -4839,7 +5713,7 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
       const replay = runMetagrinderMvp({
         inputPath,
         outputDir: replayOutputDir,
-        title: 'RALPH 13 Cache Replay Review',
+        title: 'Checkpoint Cache Replay Review',
         webResearchMode: 'cache-replay',
         retrievalCacheDir: path.join(outputDir, 'retrieval-cache-manifest.json'),
         sourceIntakeApprovalFilePath: path.join(__dirname, 'fixtures', 'metagrinder', 'source-intake-approval-historical-crowd-selector.json'),
@@ -4882,6 +5756,712 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
     }
   });
 
+  test('metagrinder workbench loads artifact folders, protects generated grammar, and imports Codex results', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-historical-crowd-grammar.txt'
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-'));
+    runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'Workbench Artifact Test',
+      webResearchMode: 'mock'
+    });
+
+    const folder = metagrinderWorkbenchService.loadWorkbenchFolder(outputDir);
+    expect(folder.packagePresent).toBe(true);
+    expect(folder.collections.some((collection: any) =>
+      collection.path === 'research-package.json' && collection.present
+    )).toBe(true);
+    expect(folder.collections.some((collection: any) =>
+      collection.path === 'codex-parse-request.md' && collection.present
+    )).toBe(true);
+    expect(folder.collections.some((collection: any) =>
+      collection.path === 'brief-analysis.json' && collection.present
+    )).toBe(true);
+    expect(folder.collections.some((collection: any) =>
+      collection.type === 'branch-graph' && collection.present
+    )).toBe(true);
+    expect(folder.stateDrafts['source-intake-approval.json'].approvals.length).toBeGreaterThan(0);
+    expect(folder.stateDrafts['source-claim-review.json'].claimReviews.length).toBeGreaterThan(0);
+    expect(folder.stateDrafts['revision-state.json'].revisionStates.length).toBeGreaterThan(0);
+
+    const writeResult = metagrinderWorkbenchService.writeOperatorStateFile({
+      outputDir,
+      fileName: 'revision-state.json',
+      data: {
+        inputId: folder.inputId,
+        revisionStates: []
+      }
+    });
+    expect(writeResult.fileName).toBe('revision-state.json');
+    expect(JSON.parse(fs.readFileSync(path.join(outputDir, 'revision-state.json'), 'utf8'))).toEqual({
+      inputId: folder.inputId,
+      revisionStates: []
+    });
+    expect(() => metagrinderWorkbenchService.writeOperatorStateFile({
+      outputDir,
+      fileName: 'accepted-scene-grammar.json',
+      data: {}
+    })).toThrow(/operator state files/);
+
+    const codexWrite = metagrinderWorkbenchService.writeCodexParseResultFile({
+      outputDir,
+      data: {
+        inputId: folder.inputId,
+        analysisMode: 'codex-semantic',
+        sourceInputIds: [folder.inputId],
+        mainSubject: {
+          subjectId: 'subject',
+          label: 'reviewed subject',
+          subjectType: 'brief',
+          summary: 'Reviewed by Codex.',
+          sourceInputIds: [folder.inputId],
+          sourceChunkIds: ['chunk'],
+          excerptText: 'Reviewed by Codex.',
+          attributionMode: 'paraphrased',
+          confidence: 'medium',
+          validationStatus: 'supported'
+        },
+        subjectType: 'brief',
+        subcategoryCandidates: [],
+        subcategoryEvidenceChecks: [],
+        subcategoryCharacteristics: [],
+        weightedGroups: [],
+        rules: [],
+        constraints: [],
+        examples: [],
+        implementationFields: [],
+        citations: [],
+        researchGaps: [],
+        graphAssemblyPlan: { readiness: 'not_ready', nodes: [], edges: [], notes: [] },
+        coverage: []
+      }
+    });
+    expect(codexWrite.fileName).toBe('codex-parse-result.json');
+  });
+
+
+  test('metagrinder workbench prepares pasted article runs and invokes the pipeline boundary', async () => {
+    const outputRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-paste-'));
+    const prepared = metagrinderWorkbenchService.preparePastedArticleRun({
+      title: 'Deep Research Article: 1910 Crowd',
+      articleText: 'A deep research article about period crowd structure.',
+      outputRoot,
+      now: new Date('2026-05-04T12:34:56.000Z')
+    });
+
+    expect(path.basename(prepared.outputDir)).toBe('deep-research-article-1910-crowd-2026-05-04T12-34-56-000Z');
+    expect(prepared.inputPath).toBe(path.join(prepared.outputDir, 'source-input.txt'));
+    expect(fs.readFileSync(prepared.inputPath, 'utf8')).toBe('A deep research article about period crowd structure.\n');
+    expect(() => metagrinderWorkbenchService.preparePastedArticleRun({
+      articleText: '   ',
+      outputRoot
+    })).toThrow(/Paste article text/);
+
+    const calls: any[] = [];
+    const runResult = await metagrinderWorkbenchServer.runPastedArticle({
+      title: 'Deep Research Article',
+      articleText: 'Another article body.',
+      outputRoot,
+      pipelineRunner: async (args: any) => {
+        calls.push(args);
+        return {
+          code: 0,
+          stdout: 'ok',
+          stderr: '',
+          args: ['node', 'run-metagrinder-mvp.js']
+        };
+      }
+    });
+
+    expect(runResult.exitCode).toBe(0);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toMatchObject({
+      inputPath: runResult.inputPath,
+      outputDir: runResult.outputDir,
+      title: 'Deep Research Article',
+      compileGrammar: 'accepted'
+    });
+    expect(fs.existsSync(runResult.inputPath)).toBe(true);
+  });
+
+  test('copies multiple workbench research inputs into a new run folder', () => {
+    const outputRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-multi-'));
+    const fileInput = path.join(outputRoot, 'external-note.txt');
+    fs.writeFileSync(fileInput, 'External research note.\n', 'utf8');
+    const prepared = metagrinderWorkbenchService.prepareResearchInputRun({
+      title: 'Multi Source Research',
+      outputRoot,
+      now: new Date('2026-05-04T12:00:00.000Z'),
+      inputs: [
+        { kind: 'paste', title: 'Pasted Observation', text: 'Pasted article body.' },
+        { kind: 'file', path: fileInput }
+      ]
+    });
+
+    expect(prepared.inputPaths).toHaveLength(2);
+    expect(prepared.inputPath).toBe(prepared.inputPaths[0]);
+    expect(path.basename(prepared.outputDir)).toBe('multi-source-research-2026-05-04T12-00-00-000Z');
+    expect(path.basename(prepared.inputPaths[0])).toBe('01-pasted-observation.txt');
+    expect(path.basename(prepared.inputPaths[1])).toBe('02-external-note.txt');
+    expect(fs.readFileSync(prepared.inputPaths[0], 'utf8')).toBe('Pasted article body.\n');
+    expect(fs.readFileSync(prepared.inputPaths[1], 'utf8')).toBe('External research note.\n');
+  });
+
+  test('workbench lists recent local runs and ignores folders without packages', () => {
+    const outputRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-recent-'));
+    const validDir = path.join(outputRoot, 'valid-run');
+    const ignoredDir = path.join(outputRoot, 'not-a-run');
+    fs.mkdirSync(ignoredDir, { recursive: true });
+    fs.writeFileSync(path.join(ignoredDir, 'note.txt'), 'not a package\n', 'utf8');
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-greenhouse-operations-structured-brief.txt'
+    );
+    runMetagrinderMvp({
+      inputPath,
+      outputDir: validDir,
+      title: 'Recent Run Listing Test',
+      webResearchMode: 'mock'
+    });
+
+    const recent = metagrinderWorkbenchService.listRecentWorkbenchRuns({
+      root: outputRoot,
+      limit: 10
+    });
+
+    expect(recent.root).toBe(path.resolve(outputRoot));
+    expect(recent.runs).toHaveLength(1);
+    expect(recent.runs[0]).toMatchObject({
+      outputDir: validDir,
+      title: 'Recent Run Listing Test',
+      packagePresent: true,
+      analysisMode: 'seed-only',
+      codexParseResultPresent: false
+    });
+  });
+
+  test('workbench rebuilds from an existing Codex result without invoking Codex', async () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-greenhouse-operations-structured-brief.txt'
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-reuse-codex-'));
+    runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'Workbench Reuse Existing Codex Result',
+      webResearchMode: 'mock'
+    });
+    const folder = metagrinderWorkbenchService.loadWorkbenchFolder(outputDir);
+    const chunkId = JSON.parse(fs.readFileSync(path.join(outputDir, 'ingest.json'), 'utf8')).chunks[0].chunkId;
+    metagrinderWorkbenchService.writeCodexParseResultFile({
+      outputDir,
+      data: {
+        inputId: folder.inputId,
+        analysisMode: 'codex-semantic',
+        sourceInputIds: [folder.inputId],
+        mainSubject: {
+          subjectId: 'reuse_subject',
+          label: 'greenhouse reuse subject',
+          subjectType: 'operations-brief',
+          summary: 'Codex result already exists and should be reused.',
+          sourceInputIds: [folder.inputId],
+          sourceChunkIds: [chunkId],
+          excerptText: 'Greenhouse operations planning brief.',
+          attributionMode: 'paraphrased',
+          confidence: 'high',
+          validationStatus: 'supported'
+        },
+        subjectType: 'operations-brief',
+        subcategoryCandidates: [{
+          subcategoryId: 'reuse_operator',
+          label: 'Reuse Operator',
+          parentSubjectId: 'reuse_subject',
+          supportStatus: 'supported',
+          evidenceSummary: 'The existing Codex result supports this role.',
+          sourceInputIds: [folder.inputId],
+          sourceChunkIds: [chunkId],
+          excerptText: 'Reuse Operator appears around 30-40%.',
+          attributionMode: 'paraphrased',
+          confidence: 'high',
+          validationStatus: 'supported'
+        }],
+        subcategoryEvidenceChecks: [],
+        subcategoryCharacteristics: [],
+        weightedGroups: [{
+          weightId: 'reuse_operator_weight',
+          label: 'Reuse Operator',
+          min: 30,
+          max: 40,
+          unit: 'percent',
+          appliesTo: 'Reuse Operator',
+          sourceInputIds: [folder.inputId],
+          sourceChunkIds: [chunkId],
+          excerptText: 'Reuse Operator appears around 30-40%.',
+          attributionMode: 'paraphrased',
+          confidence: 'high',
+          validationStatus: 'supported'
+        }],
+        rules: [],
+        constraints: [],
+        examples: [],
+        implementationFields: [],
+        citations: [],
+        researchGaps: [],
+        graphAssemblyPlan: { readiness: 'ready', nodes: [], edges: [], notes: [] },
+        coverage: []
+      }
+    });
+    const calls: any[] = [];
+    const result = await metagrinderWorkbenchServer.rebuildFromExistingCodexResult({
+      outputDir,
+      pipelineRunner: async (args: any) => {
+        calls.push(args);
+        runMetagrinderMvp({
+          inputPath: args.inputPaths[0],
+          outputDir: args.outputDir,
+          title: 'Workbench Reuse Existing Codex Result',
+          webResearchMode: 'mock'
+        });
+        return {
+          code: 0,
+          stdout: 'rebuilt from existing codex',
+          stderr: '',
+          args: ['node', 'run-metagrinder-mvp.js']
+        };
+      }
+    });
+
+    expect(calls).toHaveLength(1);
+    expect(result.reusedCodexParseResult).toBe(true);
+    expect(result.analysisMode).toBe('codex-semantic');
+    expect(JSON.parse(fs.readFileSync(path.join(outputDir, 'brief-analysis.json'), 'utf8')).mainSubject.label).toBe('greenhouse reuse subject');
+    expect(metagrinderWorkbenchService.loadWorkbenchFolder(outputDir).semanticStatus.codexParseResultPresent).toBe(true);
+  });
+
+  test('workbench labels seed-only runs and rejects malformed Codex parse results', () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-greenhouse-operations-structured-brief.txt'
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-seed-'));
+    runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'Workbench Seed Only Test',
+      webResearchMode: 'mock'
+    });
+
+    const folder = metagrinderWorkbenchService.loadWorkbenchFolder(outputDir);
+    expect(folder.semanticStatus.analysisMode).toBe('seed-only');
+    expect(folder.semanticStatus.codexParseResultPresent).toBe(false);
+    expect(() => metagrinderWorkbenchService.writeCodexParseResultFile({
+      outputDir,
+      data: {
+        inputId: folder.inputId,
+        analysisMode: 'codex-semantic'
+      }
+    })).toThrow();
+  });
+
+  test('local Codex semantic runner imports final-message JSON, logs status, and rebuilds projection', async () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-greenhouse-operations-structured-brief.txt'
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-codex-'));
+    runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'Workbench Codex Runner Test',
+      webResearchMode: 'mock'
+    });
+    const folder = metagrinderWorkbenchService.loadWorkbenchFolder(outputDir);
+    const codexResult = {
+      inputId: folder.inputId,
+      analysisMode: 'codex-semantic',
+      sourceInputIds: [folder.inputId],
+      mainSubject: {
+        subjectId: 'greenhouse_main_subject',
+        label: 'greenhouse operations brief',
+        subjectType: 'operations-brief',
+        summary: 'Codex identified a greenhouse operations planning brief.',
+        sourceInputIds: [folder.inputId],
+        sourceChunkIds: [`${folder.inputId}_chunk_001`],
+        excerptText: 'Greenhouse operations planning brief.',
+        attributionMode: 'paraphrased',
+        confidence: 'high',
+        validationStatus: 'supported'
+      },
+      subjectType: 'operations-brief',
+      subcategoryCandidates: [
+        {
+          subcategoryId: 'irrigation_coordinator',
+          label: 'Irrigation Coordinator',
+          parentSubjectId: 'greenhouse_main_subject',
+          supportStatus: 'supported',
+          evidenceSummary: 'The brief discusses irrigation coordination as a supported component.',
+          sourceInputIds: [folder.inputId],
+          sourceChunkIds: [`${folder.inputId}_chunk_001`],
+          excerptText: 'Irrigation Coordinator appears around 40-50%.',
+          attributionMode: 'paraphrased',
+          confidence: 'high',
+          validationStatus: 'supported'
+        }
+      ],
+      subcategoryEvidenceChecks: [],
+      subcategoryCharacteristics: [],
+      weightedGroups: [
+        {
+          weightId: 'irrigation_coordinator_weight',
+          label: 'Irrigation Coordinator',
+          min: 40,
+          max: 50,
+          unit: 'percent',
+          appliesTo: 'Irrigation Coordinator',
+          sourceInputIds: [folder.inputId],
+          sourceChunkIds: [`${folder.inputId}_chunk_001`],
+          excerptText: 'Irrigation Coordinator appears around 40-50%.',
+          attributionMode: 'paraphrased',
+          confidence: 'high',
+          validationStatus: 'supported'
+        }
+      ],
+      rules: [],
+      constraints: [],
+      examples: [],
+      implementationFields: [],
+      citations: [],
+      researchGaps: [],
+      graphAssemblyPlan: {
+        readiness: 'ready',
+        nodes: [
+          {
+            nodeId: 'irrigation_coordinator',
+            label: 'Irrigation Coordinator',
+            nodeType: 'candidate-subcategory',
+            sourceRecordIds: ['irrigation_coordinator'],
+            reviewStatus: 'supported'
+          }
+        ],
+        edges: [],
+        notes: ['Use the supported Codex component as a prompt graph choice.']
+      },
+      coverage: []
+    };
+
+    const result = await metagrinderWorkbenchServer.runCodexSemanticParse({
+      outputDir,
+      command: 'fake-codex',
+      args: ['exec'],
+      commandRunner: async () => {
+        fs.writeFileSync(
+          path.join(outputDir, 'codex-last-message.txt'),
+          `${JSON.stringify(codexResult, null, 2)}\n`,
+          'utf8'
+        );
+        return { code: 0, stdout: 'codex ok', stderr: '' };
+      },
+      pipelineRunner: async (args: any) => {
+        runMetagrinderMvp({
+          inputPath: args.inputPaths[0],
+          outputDir: args.outputDir,
+          title: 'Workbench Codex Runner Test',
+          webResearchMode: 'mock'
+        });
+        return {
+          code: 0,
+          stdout: 'rebuilt',
+          stderr: '',
+          args: ['node', 'run-metagrinder-mvp.js']
+        };
+      }
+    });
+
+    expect(result.status).toBe('complete');
+    expect(result.analysisMode).toBe('codex-semantic');
+    expect(JSON.parse(fs.readFileSync(path.join(outputDir, 'codex-parse-result.json'), 'utf8')).mainSubject.label).toBe('greenhouse operations brief');
+    expect(JSON.parse(fs.readFileSync(path.join(outputDir, 'brief-analysis.json'), 'utf8')).analysisMode).toBe('codex-semantic');
+    expect(fs.existsSync(path.join(outputDir, 'codex-run-log.json'))).toBe(true);
+    expect(JSON.parse(fs.readFileSync(path.join(outputDir, 'codex-run-status.json'), 'utf8')).status).toBe('complete');
+  });
+
+  test('local Codex semantic runner restores protected artifacts on direct mutation', async () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-greenhouse-operations-structured-brief.txt'
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-protected-'));
+    runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'Workbench Protected Artifact Test',
+      webResearchMode: 'mock'
+    });
+    const acceptedBefore = fs.readFileSync(path.join(outputDir, 'accepted-scene-grammar.json'), 'utf8');
+
+    const result = await metagrinderWorkbenchServer.runCodexSemanticParse({
+      outputDir,
+      command: 'fake-codex',
+      args: ['exec'],
+      commandRunner: async () => {
+        fs.writeFileSync(path.join(outputDir, 'accepted-scene-grammar.json'), '{"mutated":true}\n', 'utf8');
+        fs.writeFileSync(
+          path.join(outputDir, 'codex-parse-result.json'),
+          `${JSON.stringify({
+            inputId: 'bad',
+            analysisMode: 'codex-semantic',
+            sourceInputIds: ['bad'],
+            mainSubject: {
+              subjectId: 'bad_subject',
+              label: 'bad',
+              subjectType: 'brief',
+              summary: 'bad',
+              sourceInputIds: ['bad'],
+              sourceChunkIds: ['bad_chunk'],
+              excerptText: 'bad',
+              attributionMode: 'paraphrased',
+              confidence: 'low',
+              validationStatus: 'weak'
+            },
+            subjectType: 'brief',
+            subcategoryCandidates: [],
+            subcategoryEvidenceChecks: [],
+            subcategoryCharacteristics: [],
+            weightedGroups: [],
+            rules: [],
+            constraints: [],
+            examples: [],
+            implementationFields: [],
+            citations: [],
+            researchGaps: [],
+            graphAssemblyPlan: { readiness: 'not_ready', nodes: [], edges: [], notes: [] },
+            coverage: []
+          }, null, 2)}\n`,
+          'utf8'
+        );
+        return { code: 0, stdout: '', stderr: '' };
+      },
+      pipelineRunner: async () => {
+        throw new Error('Pipeline should not rebuild after protected mutation.');
+      }
+    });
+
+    expect(result.status).toBe('failed');
+    expect(result.warnings.join(' ')).toMatch(/protected artifacts/);
+    expect(fs.readFileSync(path.join(outputDir, 'accepted-scene-grammar.json'), 'utf8')).toBe(acceptedBefore);
+  });
+
+  test('workbench readability sweetening rewrites only existing choice text and rebuilds PSG', async () => {
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-readability-'));
+    const semanticChoiceGraphArtifact = testSemanticChoiceGraph();
+    const sceneGrammarArtifact = {
+      inputId: semanticChoiceGraphArtifact.inputId,
+      sceneContext: {
+        title: 'Readability Test',
+        summary: 'A prompt graph readability test.'
+      },
+      reviewFlags: ['codex-semantic-projection'],
+      archetypes: [],
+      locationZones: [],
+      wardrobeSystem: [],
+      propsAndAccessories: [],
+      behaviorStates: [],
+      environmentalModifiers: []
+    };
+    const psgArtifact = buildSceneGrammarPsg({
+      sceneGrammarArtifact,
+      semanticChoiceGraphArtifact,
+      now: () => '2026-05-06T00:00:00.000Z'
+    });
+    fs.writeFileSync(path.join(outputDir, 'semantic-choice-graph.json'), `${JSON.stringify(semanticChoiceGraphArtifact, null, 2)}\n`, 'utf8');
+    fs.writeFileSync(path.join(outputDir, 'scene-grammar.json'), `${JSON.stringify(sceneGrammarArtifact, null, 2)}\n`, 'utf8');
+    fs.writeFileSync(path.join(outputDir, 'scene-grammar.psg'), `${JSON.stringify(psgArtifact, null, 2)}\n`, 'utf8');
+    fs.writeFileSync(path.join(outputDir, 'accepted-scene-grammar.json'), '{"protected":true}\n', 'utf8');
+    const acceptedBefore = fs.readFileSync(path.join(outputDir, 'accepted-scene-grammar.json'), 'utf8');
+
+    const result = await metagrinderWorkbenchServer.runCodexReadabilitySweeten({
+      outputDir,
+      command: 'fake-codex',
+      args: ['exec'],
+      commandRunner: async () => ({
+        code: 0,
+        status: 'exited',
+        stdout: JSON.stringify({
+          inputId: semanticChoiceGraphArtifact.inputId,
+          rewrites: [
+            {
+              choiceId: 'age_child_if_supported',
+              beforeText: 'Child if supported',
+              afterText: 'a child spectator when children are supported by the source',
+              reason: 'Make the age choice read like a prompt phrase.'
+            }
+          ]
+        }),
+        stderr: ''
+      })
+    });
+
+    const nextGraph = JSON.parse(fs.readFileSync(path.join(outputDir, 'semantic-choice-graph.json'), 'utf8'));
+    const nextPsg = JSON.parse(fs.readFileSync(path.join(outputDir, 'scene-grammar.psg'), 'utf8'));
+    expect(result.status).toBe('complete');
+    expect(result.appliedRewriteCount).toBe(1);
+    expect(nextGraph.axes.find((axis: any) => axis.axisId === 'age').choices
+      .find((choice: any) => choice.choiceId === 'age_child_if_supported').text)
+      .toBe('a child spectator when children are supported by the source');
+    expect(nextGraph.axes.find((axis: any) => axis.axisId === 'age').choices
+      .find((choice: any) => choice.choiceId === 'age_child_if_supported').weight)
+      .toBe(15);
+    expect(fs.readFileSync(path.join(outputDir, 'accepted-scene-grammar.json'), 'utf8')).toBe(acceptedBefore);
+    expect(JSON.parse(fs.readFileSync(path.join(outputDir, 'codex-sweeten-run-status.json'), 'utf8')).status).toBe('complete');
+    expect(JSON.parse(fs.readFileSync(path.join(outputDir, 'psg-output-flight.json'), 'utf8')).samples).toHaveLength(20);
+    expectPromptSpaghettiPsg(nextPsg);
+  });
+
+  test('workbench Codex runner uses shell launch on Windows', () => {
+    const invocation = metagrinderWorkbenchServer.codexSpawnInvocation({
+      command: 'codex.cmd',
+      args: ['exec', '-C', 'H:\\Other computers\\My Computer\\Documents\\Cascade Projects\\metagrinder', '-']
+    });
+    if (process.platform === 'win32') {
+      expect(path.basename(invocation.command).toLowerCase()).toBe(path.basename(process.execPath).toLowerCase());
+      expect(invocation.args[0]).toMatch(/@openai[\\/]codex[\\/]bin[\\/]codex\.js$/);
+      expect(invocation.args).toContain('H:\\Other computers\\My Computer\\Documents\\Cascade Projects\\metagrinder');
+    } else {
+      expect(invocation.command).toBe('codex.cmd');
+    }
+    expect(metagrinderWorkbenchService.normalizeCodexRunStatus({
+      status: 'running',
+      startedAt: '2026-05-05T00:00:00.000Z',
+      completedAt: null
+    }, new Date('2026-05-05T00:20:00.000Z')).status).toBe('stale');
+    const previousArgs = process.env.METAGRINDER_CODEX_ARGS;
+    delete process.env.METAGRINDER_CODEX_ARGS;
+    try {
+      const args = metagrinderWorkbenchServer.defaultCodexArgs('output folder');
+      expect(args).toEqual(expect.arrayContaining(['-m', process.env.METAGRINDER_CODEX_MODEL || 'gpt-5.2']));
+      expect(args).toEqual(expect.arrayContaining(['--sandbox', 'read-only', '--output-schema']));
+      expect(args[args.indexOf('--output-schema') + 1]).toMatch(/codex-parse-result\.schema\.json$/);
+    } finally {
+      if (previousArgs === undefined) delete process.env.METAGRINDER_CODEX_ARGS;
+      else process.env.METAGRINDER_CODEX_ARGS = previousArgs;
+    }
+  });
+
+  test('workbench Codex runner records spawn failures and stale running status', async () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-greenhouse-operations-structured-brief.txt'
+    );
+    const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-spawn-fail-'));
+    runMetagrinderMvp({
+      inputPath,
+      outputDir,
+      title: 'Workbench Spawn Failure Test',
+      webResearchMode: 'mock'
+    });
+    fs.writeFileSync(path.join(outputDir, 'codex-run-status.json'), `${JSON.stringify({
+      inputId: 'stale',
+      status: 'running',
+      startedAt: '2026-05-05T00:00:00.000Z',
+      completedAt: null,
+      message: 'old run'
+    }, null, 2)}\n`, 'utf8');
+
+    const result = await metagrinderWorkbenchServer.runCodexSemanticParse({
+      outputDir,
+      command: 'fake-codex',
+      args: ['exec'],
+      commandRunner: async () => {
+        throw new Error('spawn EINVAL');
+      },
+      pipelineRunner: async () => {
+        throw new Error('Pipeline should not rebuild after spawn failure.');
+      }
+    });
+
+    const status = JSON.parse(fs.readFileSync(path.join(outputDir, 'codex-run-status.json'), 'utf8'));
+    const logArtifact = JSON.parse(fs.readFileSync(path.join(outputDir, 'codex-run-log.json'), 'utf8'));
+    expect(result.status).toBe('failed');
+    expect(status.status).toBe('failed');
+    expect(status.warnings.join(' ')).toMatch(/Previous Codex semantic parse/);
+    expect(logArtifact.stderr).toMatch(/spawn EINVAL/);
+    expect(fs.existsSync(path.join(outputDir, 'codex-parse-result.json'))).toBe(false);
+  });
+
+  test('workbench Codex runner logs missing parse output and timeout results', async () => {
+    const inputPath = path.join(
+      __dirname,
+      'fixtures',
+      'metagrinder',
+      'research-input-greenhouse-operations-structured-brief.txt'
+    );
+    const missingOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-missing-result-'));
+    runMetagrinderMvp({
+      inputPath,
+      outputDir: missingOutputDir,
+      title: 'Workbench Missing Result Test',
+      webResearchMode: 'mock'
+    });
+
+    const missingResult = await metagrinderWorkbenchServer.runCodexSemanticParse({
+      outputDir: missingOutputDir,
+      command: 'fake-codex',
+      args: ['exec'],
+      commandRunner: async () => ({ code: 0, status: 'exited', stdout: 'No JSON result.', stderr: '' }),
+      pipelineRunner: async () => {
+        throw new Error('Pipeline should not rebuild without codex-parse-result.json.');
+      }
+    });
+    const missingStatus = JSON.parse(fs.readFileSync(path.join(missingOutputDir, 'codex-run-status.json'), 'utf8'));
+    expect(missingResult.status).toBe('failed');
+    expect(missingStatus.status).toBe('failed');
+    expect(missingStatus.warnings.join(' ')).toMatch(/did not return a usable semantic parse JSON result/);
+
+    const timeoutOutputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-workbench-timeout-'));
+    runMetagrinderMvp({
+      inputPath,
+      outputDir: timeoutOutputDir,
+      title: 'Workbench Timeout Test',
+      webResearchMode: 'mock'
+    });
+    const timeoutResult = await metagrinderWorkbenchServer.runCodexSemanticParse({
+      outputDir: timeoutOutputDir,
+      command: 'fake-codex',
+      args: ['exec'],
+      timeoutMs: 25,
+      commandRunner: async ({ timeoutMs }: any) => ({
+        code: 124,
+        status: 'timeout',
+        stdout: '',
+        stderr: `Codex runner timed out after ${timeoutMs} ms.`
+      }),
+      pipelineRunner: async () => {
+        throw new Error('Pipeline should not rebuild after timeout.');
+      }
+    });
+    const timeoutStatus = JSON.parse(fs.readFileSync(path.join(timeoutOutputDir, 'codex-run-status.json'), 'utf8'));
+    expect(timeoutResult.status).toBe('timeout');
+    expect(timeoutStatus.status).toBe('timeout');
+    expect(JSON.parse(fs.readFileSync(path.join(timeoutOutputDir, 'codex-run-log.json'), 'utf8')).timeoutMs).toBe(25);
+  });
   test('revision state application reports unknown ids and missing operator notes', () => {
     const grammarRevisionArtifact = MetagrinderGrammarRevisionArtifactSchema.parse({
       inputId: 'scene',

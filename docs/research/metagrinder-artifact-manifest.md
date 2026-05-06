@@ -10,10 +10,11 @@ This manifest describes the current scene-grammar and retrieval-source artifact 
 | `prompt-synthesis.psg` | Prompt synthesis PSG output. | `researchPackage` | package consumers | Derived | No | No |
 | `prompt-mutations.psg` | Prompt mutation PSG output. | `researchPackage` | package consumers | Derived | No | No |
 | `scene-grammar.json` | Base scene grammar derived from source inputs. | `researchSceneGrammar` | gaps, sampling, PSG compiler, revision applicator | Source-of-record | Yes, as base input | No |
+| `semantic-choice-graph.json` | Inspectable semantic choice-axis model between `brief-analysis.json`/`scene-grammar.json` and the primary semantic PSG. It separates age, sex, sex-conditioned wardrobe axes, condition/behavior axes, provenance, and warnings before export. | `researchSemanticChoiceGraph` | `researchPsgCompiler`, Workbench semantic review | Derived/review-only | Indirect, through PSG projection only | Review recommended before export |
 | `sample-prompts.json` | Samples generated from scene grammar for evaluation. | scene grammar sampler | evaluation/plausibility review | Derived | No direct effect | No |
 | `scene-grammar-evaluation.json` | Distribution and constraint evaluation of generated samples. | scene grammar evaluator | review/package | Review-only | No | No |
 | `plausibility-review.json` | Pass/fail plausibility review for samples. | plausibility reviewer | review/package | Review-only | No | No |
-| `scene-grammar.psg` (`scene-grammar-psg`) | PSG v2 graph compiled from base or accepted grammar. | `researchPsgCompiler` | downstream graph consumers | Derived | No | Compile target determines source |
+| `scene-grammar.psg` (`scene-grammar-psg`) | Flat Prompt Spaghetti PSG compiled from base or accepted grammar. | `researchPsgCompiler` | Prompt Spaghetti / downstream graph consumers | Derived | No | Compile target determines source |
 | `research-gaps.json` | Gaps requiring more support or review. | `researchGaps` | `researchQueryPlan`, revisions | Derived | Indirect | No |
 | `research-query-plan.json` | Query plan generated from gaps. | `researchQueryPlan` | retrieval boundary, provider request shapes | Proposed | Indirect | No |
 | `retrieval-policy.json` | Run policy for retrieval mode, budgets, cache, source allowlists, and safety controls. | `researchRetrievalPolicy` | retrieval boundary, provider preflight | Source-of-record for retrieval run | Indirect | Operator-supplied policy may be used |
@@ -60,4 +61,5 @@ This manifest describes the current scene-grammar and retrieval-source artifact 
 - Rejected or `needs_review` citations must block material grammar deltas unless an explicit override is present.
 - Low-quality sources must not create high-confidence revisions.
 - Accepted grammar must only apply accepted revisions.
+- Semantic PSG export should read `semantic-choice-graph.json` as the choice-axis boundary rather than re-bucketing flattened text at export time.
 - PSG compile target must be explicit: `base` or `accepted`.

@@ -14,7 +14,7 @@ function buildAgentRunsArtifact({
       runId: run.runId || `${inputId}_agent_run_${String(index + 1).padStart(3, '0')}`,
       passName: run.passName,
       mode: run.mode || 'deterministic',
-      strategyVersion: run.strategyVersion || 'ralph-loop-1',
+      strategyVersion: run.strategyVersion || 'scene-grammar-checkpoint',
       inputArtifactIds: run.inputArtifactIds || [],
       outputArtifactIds: run.outputArtifactIds || [],
       warnings: run.warnings || []

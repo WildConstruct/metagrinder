@@ -15,6 +15,9 @@ const researchPipelineService = require('../../services/researchPipeline/index.j
 const researchAgentRunsService = require('../../services/researchAgentRuns/index.js');
 const researchSourceModeService = require('../../services/researchSourceMode/index.js');
 const researchSceneGrammarService = require('../../services/researchSceneGrammar/index.js');
+const researchSemanticChoiceGraphService = require('../../services/researchSemanticChoiceGraph/index.js');
+const researchStructuredBriefService = require('../../services/researchStructuredBrief/index.js');
+const researchCodexSemanticParseService = require('../../services/researchCodexSemanticParse/index.js');
 const researchGapAnalysisService = require('../../services/researchGapAnalysis/index.js');
 const researchQueryPlanService = require('../../services/researchQueryPlan/index.js');
 const researchWebResearchService = require('../../services/researchWebResearch/index.js');
@@ -208,6 +211,13 @@ function buildResearchPackageManifest({
   ingestArtifact,
   scoreArtifact,
   mutationArtifact,
+  structuredBriefSeedArtifact,
+  structuredBriefArtifact,
+  briefAnalysisArtifact,
+  semanticChoiceGraphArtifact,
+  codexParseRequestArtifact,
+  codexParseOutputSchemaArtifact,
+  codexParseResultArtifact,
   sceneGrammarArtifact,
   researchGapArtifact,
   samplePromptsArtifact,
@@ -255,6 +265,13 @@ function buildResearchPackageManifest({
     ingestArtifact,
     scoreArtifact,
     mutationArtifact,
+    structuredBriefSeedArtifact,
+    structuredBriefArtifact,
+    briefAnalysisArtifact,
+    semanticChoiceGraphArtifact,
+    codexParseRequestArtifact,
+    codexParseOutputSchemaArtifact,
+    codexParseResultArtifact,
     sceneGrammarArtifact,
     researchGapArtifact,
     samplePromptsArtifact,
@@ -313,19 +330,76 @@ function buildSourceModeArtifact({ ingestArtifact }) {
   });
 }
 
+function buildStructuredBriefArtifact({ ingestArtifact }) {
+  return researchStructuredBriefService.buildStructuredBriefArtifact({ ingestArtifact });
+}
+
+function buildBriefAnalysisFromSeed({ ingestArtifact, structuredBriefSeedArtifact }) {
+  return researchCodexSemanticParseService.buildBriefAnalysisFromSeed({
+    ingestArtifact,
+    structuredBriefSeedArtifact
+  });
+}
+
+function buildCodexParseOutputSchemaArtifact({ inputId }) {
+  return researchCodexSemanticParseService.buildCodexParseOutputSchemaArtifact({ inputId });
+}
+
+function buildCodexParseRequestArtifact({ ingestArtifact, structuredBriefSeedArtifact }) {
+  return researchCodexSemanticParseService.buildCodexParseRequestArtifact({
+    ingestArtifact,
+    structuredBriefSeedArtifact
+  });
+}
+
+function buildCodexParseRequestMarkdown({ codexParseRequestArtifact }) {
+  return researchCodexSemanticParseService.buildCodexParseRequestMarkdown({
+    codexParseRequestArtifact
+  });
+}
+
+function buildProjectionStructuredBriefFromAnalysis({
+  structuredBriefSeedArtifact,
+  briefAnalysisArtifact
+}) {
+  return researchCodexSemanticParseService.buildProjectionStructuredBriefFromAnalysis({
+    structuredBriefSeedArtifact,
+    briefAnalysisArtifact
+  });
+}
+
+function normalizeCodexParseResult({ ingestArtifact, codexParseResult }) {
+  return researchCodexSemanticParseService.normalizeCodexParseResult({
+    ingestArtifact,
+    codexParseResult
+  });
+}
+
 function buildSceneGrammarArtifact({
   ingestArtifact,
   extractArtifact,
   classifyArtifact,
   synthesizeArtifact,
-  sourceModeArtifact
+  sourceModeArtifact,
+  structuredBriefArtifact
 }) {
   return researchSceneGrammarService.buildSceneGrammarArtifact({
     ingestArtifact,
     extractArtifact,
     classifyArtifact,
     synthesizeArtifact,
-    sourceModeArtifact
+    sourceModeArtifact,
+    structuredBriefArtifact
+  });
+}
+
+function buildSemanticChoiceGraphArtifact({
+  briefAnalysisArtifact,
+  sceneGrammarArtifact
+}) {
+  return researchSemanticChoiceGraphService.buildSemanticChoiceGraphArtifact({
+    briefAnalysisArtifact,
+    sceneGrammarArtifact
   });
 }
 
@@ -551,9 +625,10 @@ function buildPlausibilityReviewArtifact({ sceneGrammarArtifact, samplePromptsAr
   });
 }
 
-function buildSceneGrammarPsg({ sceneGrammarArtifact, now }) {
+function buildSceneGrammarPsg({ sceneGrammarArtifact, semanticChoiceGraphArtifact, now }) {
   return researchPsgCompilerService.buildSceneGrammarPsg({
     sceneGrammarArtifact,
+    semanticChoiceGraphArtifact,
     now
   });
 }
@@ -576,6 +651,13 @@ function validatePackageArtifacts({
   classifyArtifact,
   synthesizeArtifact,
   sourceModeArtifact,
+  structuredBriefSeedArtifact,
+  structuredBriefArtifact,
+  briefAnalysisArtifact,
+  codexParseRequestArtifact,
+  codexParseOutputSchemaArtifact,
+  codexParseResultArtifact,
+  semanticChoiceGraphArtifact,
   sceneGrammarArtifact,
   researchGapArtifact,
   researchQueryPlan,
@@ -627,6 +709,13 @@ function validatePackageArtifacts({
     classifyArtifact,
     synthesizeArtifact,
     sourceModeArtifact,
+    structuredBriefSeedArtifact,
+    structuredBriefArtifact,
+    briefAnalysisArtifact,
+    codexParseRequestArtifact,
+    codexParseOutputSchemaArtifact,
+    codexParseResultArtifact,
+    semanticChoiceGraphArtifact,
     sceneGrammarArtifact,
     researchGapArtifact,
     researchQueryPlan,
@@ -748,7 +837,15 @@ function runMetagrinderMvp({
     buildPromptMutationsPsg,
     buildAgentRunsArtifact,
     buildSourceModeArtifact,
+    buildStructuredBriefArtifact,
+    buildBriefAnalysisFromSeed,
+    buildCodexParseOutputSchemaArtifact,
+    buildCodexParseRequestArtifact,
+    buildCodexParseRequestMarkdown,
+    buildProjectionStructuredBriefFromAnalysis,
+    normalizeCodexParseResult,
     buildSceneGrammarArtifact,
+    buildSemanticChoiceGraphArtifact,
     buildResearchGapArtifact,
     buildResearchQueryPlan,
     buildWebResearchResults,
@@ -810,7 +907,15 @@ module.exports = {
   buildPromptSynthesisPsg,
   buildAgentRunsArtifact,
   buildSourceModeArtifact,
+  buildStructuredBriefArtifact,
+  buildBriefAnalysisFromSeed,
+  buildCodexParseOutputSchemaArtifact,
+  buildCodexParseRequestArtifact,
+  buildCodexParseRequestMarkdown,
+  buildProjectionStructuredBriefFromAnalysis,
+  normalizeCodexParseResult,
   buildSceneGrammarArtifact,
+  buildSemanticChoiceGraphArtifact,
   buildResearchGapArtifact,
   buildResearchQueryPlan,
   buildWebResearchResults,

@@ -3,6 +3,8 @@ const path = require('path');
 const researchRetrievalPolicyService = require('../researchRetrievalPolicy/index.js');
 const researchRetrievalCandidatesService = require('../researchRetrievalCandidates/index.js');
 const researchRetrievalCacheService = require('../researchRetrievalCache/index.js');
+const researchCodexSemanticParseService = require('../researchCodexSemanticParse/index.js');
+const researchSemanticChoiceGraphService = require('../researchSemanticChoiceGraph/index.js');
 const researchLiveRetrievalService = require('../researchLiveRetrieval/index.js');
 const researchLiveProviderContractService = require('../researchLiveProviderContract/index.js');
 const researchProviderConfigService = require('../researchProviderConfig/index.js');
@@ -48,8 +50,7 @@ function writeJson(filePath, value) {
 }
 
 function normalizeChoices(node) {
-  return (node?.data?.choices || []).map((choice) => ({
-    id: choice.id,
+  return (node?.options || []).map((choice) => ({
     text: choice.text,
     weight: choice.weight
   }));
@@ -64,8 +65,8 @@ function compareWeightedChoiceGraphs({ inputId, baseGraphs, acceptedGraphs }) {
   Object.entries(baseGraphs).forEach(([graphPath, baseGraph]) => {
     const acceptedGraph = acceptedGraphs[graphPath];
     if (!acceptedGraph) return;
-    const acceptedNodesById = new Map(acceptedGraph.graph.nodes.map((node) => [node.id, node]));
-    baseGraph.graph.nodes
+    const acceptedNodesById = new Map((acceptedGraph.nodes || []).map((node) => [node.id, node]));
+    (baseGraph.nodes || [])
       .filter((node) => node.type === 'WeightedChoice')
       .forEach((baseNode) => {
         const acceptedNode = acceptedNodesById.get(baseNode.id);
@@ -267,7 +268,15 @@ function runPipeline({
   buildPromptMutationsPsg,
   buildAgentRunsArtifact,
   buildSourceModeArtifact,
+  buildStructuredBriefArtifact,
+  buildBriefAnalysisFromSeed,
+  buildCodexParseOutputSchemaArtifact,
+  buildCodexParseRequestArtifact,
+  buildCodexParseRequestMarkdown,
+  buildProjectionStructuredBriefFromAnalysis,
+  normalizeCodexParseResult,
   buildSceneGrammarArtifact,
+  buildSemanticChoiceGraphArtifact,
   buildResearchGapArtifact,
   buildResearchQueryPlan,
   buildWebResearchResults,
@@ -458,12 +467,55 @@ function runPipeline({
   const sourceModeArtifact = buildSourceModeArtifact({
     ingestArtifact
   });
+  const buildSeedBriefAnalysis = buildBriefAnalysisFromSeed || researchCodexSemanticParseService.buildBriefAnalysisFromSeed;
+  const buildCodexOutputSchema = buildCodexParseOutputSchemaArtifact || researchCodexSemanticParseService.buildCodexParseOutputSchemaArtifact;
+  const buildCodexRequest = buildCodexParseRequestArtifact || researchCodexSemanticParseService.buildCodexParseRequestArtifact;
+  const buildCodexRequestMd = buildCodexParseRequestMarkdown || researchCodexSemanticParseService.buildCodexParseRequestMarkdown;
+  const buildProjectionSeed = buildProjectionStructuredBriefFromAnalysis || researchCodexSemanticParseService.buildProjectionStructuredBriefFromAnalysis;
+  const normalizeCodexResult = normalizeCodexParseResult || researchCodexSemanticParseService.normalizeCodexParseResult;
+  const structuredBriefSeedArtifact = buildStructuredBriefArtifact({
+    ingestArtifact
+  });
+  const codexParseOutputSchemaArtifact = buildCodexOutputSchema({
+    inputId
+  });
+  const codexParseRequestArtifact = buildCodexRequest({
+    ingestArtifact,
+    structuredBriefSeedArtifact
+  });
+  const codexParseRequestMarkdown = buildCodexRequestMd({
+    codexParseRequestArtifact
+  });
+  const existingCodexParseResultPath = path.join(resolvedOutputDir, 'codex-parse-result.json');
+  const codexParseResultArtifact = fs.existsSync(existingCodexParseResultPath)
+    ? JSON.parse(readTextFile(existingCodexParseResultPath))
+    : undefined;
+  const briefAnalysisArtifact = codexParseResultArtifact
+    ? normalizeCodexResult({
+        ingestArtifact,
+        codexParseResult: codexParseResultArtifact
+      })
+    : buildSeedBriefAnalysis({
+        ingestArtifact,
+        structuredBriefSeedArtifact
+      });
+  const structuredBriefArtifact = buildProjectionSeed({
+    structuredBriefSeedArtifact,
+    briefAnalysisArtifact
+  });
   const sceneGrammarArtifact = buildSceneGrammarArtifact({
     ingestArtifact,
     extractArtifact,
     classifyArtifact,
     synthesizeArtifact,
-    sourceModeArtifact
+    sourceModeArtifact,
+    structuredBriefArtifact
+  });
+  const buildSemanticChoiceGraph = buildSemanticChoiceGraphArtifact ||
+    researchSemanticChoiceGraphService.buildSemanticChoiceGraphArtifact;
+  const semanticChoiceGraphArtifact = buildSemanticChoiceGraph({
+    briefAnalysisArtifact,
+    sceneGrammarArtifact
   });
   const researchGapArtifact = buildResearchGapArtifact({
     sceneGrammarArtifact
@@ -688,6 +740,7 @@ function runPipeline({
     sourceClaimsArtifact
   });
   const proposedGrammarRevisionArtifact = buildGrammarRevisionArtifact({
+    structuredBriefArtifact,
     sceneGrammarArtifact,
     researchGapArtifact,
     webResearchResults,
@@ -776,6 +829,7 @@ function runPipeline({
   });
   const baseSceneGrammarPsg = buildSceneGrammarPsg({
     sceneGrammarArtifact,
+    semanticChoiceGraphArtifact,
     now: () => createdAt
   });
   const baseBranchGraphPsgs = buildBranchSceneGrammarPsgs({
@@ -784,6 +838,7 @@ function runPipeline({
   });
   const acceptedSceneGrammarPsg = buildSceneGrammarPsg({
     sceneGrammarArtifact: acceptedSceneGrammarArtifact,
+    semanticChoiceGraphArtifact,
     now: () => createdAt
   });
   const acceptedBranchGraphPsgs = buildBranchSceneGrammarPsgs({
@@ -836,6 +891,13 @@ function runPipeline({
     ingestArtifact,
     scoreArtifact,
     mutationArtifact,
+    structuredBriefSeedArtifact,
+    structuredBriefArtifact,
+    briefAnalysisArtifact,
+    semanticChoiceGraphArtifact,
+    codexParseRequestArtifact,
+    codexParseOutputSchemaArtifact,
+    codexParseResultArtifact,
     sceneGrammarArtifact,
     researchGapArtifact,
     samplePromptsArtifact,
@@ -891,6 +953,13 @@ function runPipeline({
     classifyArtifact,
     synthesizeArtifact,
     sourceModeArtifact,
+    structuredBriefSeedArtifact,
+    structuredBriefArtifact,
+    briefAnalysisArtifact,
+    semanticChoiceGraphArtifact,
+    codexParseRequestArtifact,
+    codexParseOutputSchemaArtifact,
+    codexParseResultArtifact,
     sceneGrammarArtifact,
     researchGapArtifact,
     researchQueryPlan,
@@ -955,6 +1024,18 @@ function runPipeline({
   writeJson(path.join(resolvedOutputDir, 'extract.json'), extractArtifact);
   writeJson(path.join(resolvedOutputDir, 'classify.json'), classifyArtifact);
   writeJson(path.join(resolvedOutputDir, 'synthesize.json'), synthesizeArtifact);
+  writeJson(path.join(resolvedOutputDir, 'structured-brief.seed.json'), structuredBriefSeedArtifact);
+  writeJson(path.join(resolvedOutputDir, 'structured-brief.json'), structuredBriefArtifact);
+  writeJson(path.join(resolvedOutputDir, 'brief-analysis.json'), briefAnalysisArtifact);
+  if (semanticChoiceGraphArtifact) {
+    writeJson(path.join(resolvedOutputDir, 'semantic-choice-graph.json'), semanticChoiceGraphArtifact);
+  }
+  writeJson(path.join(resolvedOutputDir, 'codex-parse-request.json'), codexParseRequestArtifact);
+  fs.writeFileSync(path.join(resolvedOutputDir, 'codex-parse-request.md'), codexParseRequestMarkdown, 'utf8');
+  writeJson(path.join(resolvedOutputDir, 'codex-parse-output.schema.json'), codexParseOutputSchemaArtifact);
+  if (codexParseResultArtifact) {
+    writeJson(path.join(resolvedOutputDir, 'codex-parse-result.json'), codexParseResultArtifact);
+  }
   writeJson(path.join(resolvedOutputDir, 'scene-grammar.json'), sceneGrammarArtifact);
   writeJson(path.join(resolvedOutputDir, 'research-gaps.json'), researchGapArtifact);
   writeJson(path.join(resolvedOutputDir, 'research-query-plan.json'), researchQueryPlan);
@@ -1031,6 +1112,13 @@ function runPipeline({
     classifyArtifact,
     synthesizeArtifact,
     sourceModeArtifact,
+    structuredBriefSeedArtifact,
+    structuredBriefArtifact,
+    briefAnalysisArtifact,
+    semanticChoiceGraphArtifact,
+    codexParseRequestArtifact,
+    codexParseOutputSchemaArtifact,
+    codexParseResultArtifact,
     sceneGrammarArtifact,
     researchGapArtifact,
     researchQueryPlan,

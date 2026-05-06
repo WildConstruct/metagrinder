@@ -1,8 +1,8 @@
-# Metagrinder RALPH Checkpoint Review
+# Metagrinder Checkpoint Review
 
 ## 1. What Changed
 
-This checkpoint turns the Metagrinder MVP into a guarded scene-grammar and research-source pipeline. The staged work adds scene grammar extraction, generic fixtures, PSG v2 scene/branch graph output, source registry and evidence artifacts, revision-state handling, accepted grammar deltas, candidate-only retrieval boundaries, provider contracts, candidate inspection reports, selector-based approval, and consolidation documentation.
+This checkpoint turns the Metagrinder MVP into a guarded scene-grammar and research-source pipeline. The staged work adds scene grammar extraction, semantic choice graph projection, generic fixtures, flat Prompt Spaghetti scene/branch graph output, source registry and evidence artifacts, revision-state handling, accepted grammar deltas, candidate-only retrieval boundaries, provider contracts, candidate inspection reports, selector-based approval, and consolidation documentation.
 
 ## 2. Why It Changed
 
@@ -31,12 +31,12 @@ ingest
 -> revision state
 -> accepted deltas
 -> accepted grammar
--> PSG v2 compile
+-> Prompt Spaghetti PSG compile
 ```
 
 ## 4. Artifact Lifecycle
 
-Base artifacts such as `scene-grammar.json` and `retrieval-policy.json` define the current run. Proposed artifacts such as `retrieval-candidates.json`, `source-claims.json`, and `grammar-revisions.json` remain inspectable but cannot mutate accepted grammar by themselves. Accepted artifacts such as `approved-source-results.json`, `accepted-grammar-deltas.json`, and `accepted-scene-grammar.json` are produced only after approval and review gates pass.
+Base artifacts such as `scene-grammar.json` and `retrieval-policy.json` define the current run. `semantic-choice-graph.json` is a derived review boundary that turns brief analysis and scene grammar into explicit choice axes before PSG export. Proposed artifacts such as `retrieval-candidates.json`, `source-claims.json`, and `grammar-revisions.json` remain inspectable but cannot mutate accepted grammar by themselves. Accepted artifacts such as `approved-source-results.json`, `accepted-grammar-deltas.json`, and `accepted-scene-grammar.json` are produced only after approval and review gates pass.
 
 `research-package.json` records the emitted collections. Candidate inspection and provider proof artifacts are review-only and do not feed accepted grammar directly.
 
@@ -49,7 +49,7 @@ Base artifacts such as `scene-grammar.json` and `retrieval-policy.json` define t
 - Rejected or ambiguous candidate approvals do not promote.
 - Rejected or `needs_review` citations block material deltas unless explicit override is present.
 - Accepted grammar mutates only through accepted, citation-gated revisions.
-- PSG output must remain PSG v2-compatible.
+- PSG output must remain compatible with Prompt Spaghetti's flat source-document contract.
 - PSG compile target must be explicit: `base` or `accepted`.
 - Local real provider configs are ignored and must not be committed.
 
@@ -59,7 +59,7 @@ The audit suite currently covers:
 
 - Generic scene grammar extraction and perturbation resistance.
 - Historical crowd and medieval market fixtures.
-- Sampler/evaluator constraints and PSG v2 validation.
+- Sampler/evaluator constraints and Prompt Spaghetti PSG validation.
 - Source registry, source evidence, source claims, and source claim review.
 - Revision-state handling and accepted grammar deltas.
 - Dry-run, mock, cache replay, fixture-live, and generic HTTP fake provider flows.
@@ -87,7 +87,7 @@ The audit suite currently covers:
 - Automatic source-claim creation from live candidates.
 - Automatic grammar revision creation from live candidates.
 - Automatic accepted-scene-grammar mutation during live runs.
-- Review UI.
+- Full product review UI. A partial local, file-backed Workbench exists for artifact review and operator state files.
 
 ## 9. Recommended Next Work
 
@@ -97,3 +97,17 @@ The next branch should either:
 2. Split this checkpoint into reviewable commits if a reviewer wants smaller history: schema/runtime contracts, scene grammar services, retrieval/source lifecycle, provider boundary, tests/fixtures, and docs.
 
 Do not add page scraping or automatic claim extraction until the one-query real-provider proof has passed with candidate-only output and cache replay review.
+
+## Deferred Roadmap Status
+
+| Item | Status | Note |
+|---|---|---|
+| Workbench surface | Implemented | Local artifact dashboard can run/open runs, view semantic output, review artifacts, and export PSG files. |
+| Workbench run reuse/history | Partially implemented | Recent runs are local-folder based and existing Codex parses are reused by default. |
+| Codex semantic parser harness | Partially implemented | Local Codex runner, import, status, and rebuild paths exist; no OpenAI API key management or remote service integration. |
+| Linear semantic PSG | Partially implemented | Semantic graph compiles from `semantic-choice-graph.json` as age/sex plus sex-conditioned lanes; fully conditional role/type subgraphs remain future work. |
+| Broad live retrieval | Intentionally deferred | Live provider scaffolding remains guarded and candidate-only. |
+| Page scraping / selector extraction | Intentionally deferred | No page fetching, scraping, or selector extraction is implemented. |
+| Automatic source-claim extraction | Intentionally deferred | Source claims remain approval/citation-gated. |
+| Automatic grammar mutation | Intentionally deferred | Accepted grammar mutates only through accepted, citation-gated revisions. |
+| Real provider reliability | Blocked by product decision | Requires a real local provider config and explicit external endpoint proof. |

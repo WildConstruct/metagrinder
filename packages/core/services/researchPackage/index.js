@@ -3,8 +3,13 @@ const {
   MetagrinderAgentRunArtifactSchema,
   MetagrinderAssumptionReviewArtifactSchema,
   MetagrinderAugmentationPlanArtifactSchema,
+  MetagrinderBriefAnalysisArtifactSchema,
+  MetagrinderSemanticChoiceGraphArtifactSchema,
   MetagrinderCategoryHypothesisArtifactSchema,
   MetagrinderClassifyArtifactSchema,
+  MetagrinderCodexParseOutputSchemaArtifactSchema,
+  MetagrinderCodexParseRequestArtifactSchema,
+  MetagrinderCodexParseResultArtifactSchema,
   MetagrinderExtractArtifactSchema,
   MetagrinderGrammarRevisionArtifactSchema,
   MetagrinderIngestArtifactSchema,
@@ -42,6 +47,7 @@ const {
   MetagrinderReviewArtifactSchema,
   MetagrinderSamplePromptsArtifactSchema,
   MetagrinderScoreArtifactSchema,
+  MetagrinderStructuredBriefArtifactSchema,
   MetagrinderSceneGrammarArtifactSchema,
   MetagrinderSceneGrammarEvaluationSchema,
   MetagrinderSourceClaimsArtifactSchema,
@@ -315,6 +321,13 @@ function buildResearchPackageManifest({
   ingestArtifact,
   scoreArtifact,
   mutationArtifact,
+  structuredBriefSeedArtifact,
+  structuredBriefArtifact,
+  briefAnalysisArtifact,
+  semanticChoiceGraphArtifact,
+  codexParseRequestArtifact,
+  codexParseOutputSchemaArtifact,
+  codexParseResultArtifact,
   sceneGrammarArtifact,
   researchGapArtifact,
   samplePromptsArtifact,
@@ -369,6 +382,28 @@ function buildResearchPackageManifest({
       path: 'prompt-mutations.psg'
     }
   ];
+  if (structuredBriefSeedArtifact) {
+    collections.push({ id: 'col_structured_brief_seed', type: 'structured-brief-seed', path: 'structured-brief.seed.json' });
+  }
+  if (structuredBriefArtifact) {
+    collections.push({ id: 'col_structured_brief', type: 'structured-brief', path: 'structured-brief.json' });
+  }
+  if (briefAnalysisArtifact) {
+    collections.push({ id: 'col_brief_analysis', type: 'brief-analysis', path: 'brief-analysis.json' });
+  }
+  if (semanticChoiceGraphArtifact) {
+    collections.push({ id: 'col_semantic_choice_graph', type: 'semantic-choice-graph', path: 'semantic-choice-graph.json' });
+  }
+  if (codexParseRequestArtifact) {
+    collections.push({ id: 'col_codex_parse_request', type: 'codex-parse-request', path: 'codex-parse-request.json' });
+    collections.push({ id: 'col_codex_parse_request_md', type: 'codex-parse-request-markdown', path: 'codex-parse-request.md' });
+  }
+  if (codexParseOutputSchemaArtifact) {
+    collections.push({ id: 'col_codex_parse_output_schema', type: 'codex-parse-output-schema', path: 'codex-parse-output.schema.json' });
+  }
+  if (codexParseResultArtifact) {
+    collections.push({ id: 'col_codex_parse_result', type: 'codex-parse-result', path: 'codex-parse-result.json' });
+  }
   if (sceneGrammarArtifact) {
     collections.push({ id: 'col_scene_grammar', type: 'scene-grammar', path: 'scene-grammar.json' });
   }
@@ -503,7 +538,7 @@ function buildResearchPackageManifest({
   const hasMutationSupport = Boolean(mutationArtifact);
   const hasSceneGrammarSupport = Boolean(sceneGrammarArtifact);
   const strategyVersion = hasSceneGrammarSupport
-    ? 'ralph-loop-1-scene-grammar'
+    ? 'scene-grammar-checkpoint'
     : hasMutationSupport
       ? 'epic3-story4'
     : ingestArtifact.sourceInputs.length > 1
@@ -572,6 +607,13 @@ function validatePackageArtifacts({
   classifyArtifact,
   synthesizeArtifact,
   sourceModeArtifact,
+  structuredBriefSeedArtifact,
+  structuredBriefArtifact,
+  briefAnalysisArtifact,
+  semanticChoiceGraphArtifact,
+  codexParseRequestArtifact,
+  codexParseOutputSchemaArtifact,
+  codexParseResultArtifact,
   sceneGrammarArtifact,
   researchGapArtifact,
   researchQueryPlan,
@@ -640,6 +682,27 @@ function validatePackageArtifacts({
     if (!sourceModeArtifact.inputId || !Array.isArray(sourceModeArtifact.chunkModes)) {
       throw new Error('source-mode artifact must contain inputId and chunkModes.');
     }
+  }
+  if (structuredBriefSeedArtifact) {
+    MetagrinderStructuredBriefArtifactSchema.parse(structuredBriefSeedArtifact);
+  }
+  if (structuredBriefArtifact) {
+    MetagrinderStructuredBriefArtifactSchema.parse(structuredBriefArtifact);
+  }
+  if (briefAnalysisArtifact) {
+    MetagrinderBriefAnalysisArtifactSchema.parse(briefAnalysisArtifact);
+  }
+  if (semanticChoiceGraphArtifact) {
+    MetagrinderSemanticChoiceGraphArtifactSchema.parse(semanticChoiceGraphArtifact);
+  }
+  if (codexParseRequestArtifact) {
+    MetagrinderCodexParseRequestArtifactSchema.parse(codexParseRequestArtifact);
+  }
+  if (codexParseOutputSchemaArtifact) {
+    MetagrinderCodexParseOutputSchemaArtifactSchema.parse(codexParseOutputSchemaArtifact);
+  }
+  if (codexParseResultArtifact) {
+    MetagrinderCodexParseResultArtifactSchema.parse(codexParseResultArtifact);
   }
   if (sceneGrammarArtifact) {
     MetagrinderSceneGrammarArtifactSchema.parse(sceneGrammarArtifact);
@@ -791,15 +854,15 @@ function validatePsgV2File(psgFile, fileLabel) {
   const parsed = MetagrinderPsgV2FileSchema.parse(psgFile);
   const nodeIds = new Set();
 
-  parsed.graph.nodes.forEach((node) => {
+  parsed.nodes.forEach((node) => {
     if (nodeIds.has(node.id)) {
       throw new Error(`${fileLabel} contains duplicate node id ${node.id}.`);
     }
     if (node.type === 'WeightedChoice') {
-      if (!Array.isArray(node.data.choices)) {
-        throw new Error(`${fileLabel} WeightedChoice node ${node.id} is missing data.choices.`);
+      if (!Array.isArray(node.options)) {
+        throw new Error(`${fileLabel} WeightedChoice node ${node.id} is missing options.`);
       }
-      node.data.choices.forEach((choice, index) => {
+      node.options.forEach((choice, index) => {
         if (typeof choice.text !== 'string' || typeof choice.weight !== 'number') {
           throw new Error(`${fileLabel} WeightedChoice node ${node.id} choice ${index} must include text and weight.`);
         }
@@ -808,7 +871,7 @@ function validatePsgV2File(psgFile, fileLabel) {
     nodeIds.add(node.id);
   });
 
-  parsed.graph.edges.forEach((edge) => {
+  parsed.edges.forEach((edge) => {
     if (!nodeIds.has(edge.source) || !nodeIds.has(edge.target)) {
       throw new Error(`${fileLabel} edge ${edge.id} references a missing endpoint.`);
     }

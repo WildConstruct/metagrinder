@@ -30,6 +30,21 @@ const MetagrinderCollectionTypeSchema = z.enum([
   'concept-clusters',
   'prompt-synthesis',
   'prompt-mutations',
+  'structured-brief',
+  'structured-brief-seed',
+  'brief-analysis',
+  'semantic-choice-graph',
+  'psg-output-flight',
+  'psg-readability-review',
+  'codex-sweeten-request',
+  'codex-sweeten-request-markdown',
+  'codex-sweeten-result',
+  'codex-sweeten-run-log',
+  'codex-sweeten-run-status',
+  'codex-parse-request',
+  'codex-parse-request-markdown',
+  'codex-parse-output-schema',
+  'codex-parse-result',
   'scene-grammar',
   'research-gaps',
   'sample-prompts',
@@ -940,6 +955,439 @@ const MetagrinderAgentRunArtifactSchema = z.object({
   inputId: z.string(),
   createdAt: z.string().datetime().optional(),
   runs: z.array(MetagrinderAgentRunRecordSchema).default([])
+});
+
+const MetagrinderStructuredBriefProvenanceSchema = z.object({
+  sourceInputIds: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([]),
+  excerptText: z.string(),
+  attributionMode: MetagrinderAttributionModeSchema,
+  confidence: MetagrinderConfidenceLevelSchema
+});
+
+const MetagrinderStructuredBriefEntitySchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  entityId: z.string(),
+  label: z.string(),
+  entityKind: z.enum(['concept', 'archetype', 'specimen', 'role', 'zone-or-context', 'schema-field-set']).default('concept'),
+  summary: z.string(),
+  attributeRefs: z.array(z.string()).default([]),
+  weightRefs: z.array(z.string()).default([]),
+  ruleRefs: z.array(z.string()).default([])
+});
+
+const MetagrinderStructuredBriefWeightSchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  weightId: z.string(),
+  label: z.string(),
+  min: z.number().min(0),
+  max: z.number().min(0),
+  unit: z.enum(['percent', 'weight']).default('percent'),
+  appliesTo: z.string().optional()
+}).refine((value) => value.max >= value.min, {
+  message: 'structured brief weight max must be greater than or equal to min'
+});
+
+const MetagrinderStructuredBriefAttributeClusterSchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  clusterId: z.string(),
+  label: z.string(),
+  category: z.enum(['wardrobe-or-attribute', 'behavior', 'modifier', 'implementation', 'other']).default('other'),
+  items: z.array(z.string()).default([])
+});
+
+const MetagrinderStructuredBriefRuleSchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  ruleId: z.string(),
+  label: z.string(),
+  conditionText: z.string(),
+  effects: z.array(z.object({
+    action: z.string(),
+    target: z.string()
+  })).default([])
+});
+
+const MetagrinderStructuredBriefConstraintSchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  constraintId: z.string(),
+  label: z.string(),
+  constraintType: z.enum(['negative', 'ethical', 'compatibility', 'safety']).default('negative'),
+  text: z.string()
+});
+
+const MetagrinderStructuredBriefContextSchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  contextId: z.string(),
+  label: z.string(),
+  contextKind: z.enum(['location-zone', 'context', 'section']).default('context'),
+  description: z.string(),
+  weightRefs: z.array(z.string()).default([]),
+  ruleRefs: z.array(z.string()).default([])
+});
+
+const MetagrinderStructuredBriefModifierSchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  modifierId: z.string(),
+  label: z.string(),
+  modifierType: z.string(),
+  text: z.string()
+});
+
+const MetagrinderStructuredBriefExampleSchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  exampleId: z.string(),
+  label: z.string(),
+  exampleType: z.enum(['prompt', 'specimen', 'example']).default('example'),
+  text: z.string()
+});
+
+const MetagrinderStructuredBriefFieldSchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  fieldId: z.string(),
+  name: z.string(),
+  label: z.string(),
+  valueHint: z.string().optional()
+});
+
+const MetagrinderStructuredBriefCitationSchema = MetagrinderStructuredBriefProvenanceSchema.extend({
+  citationId: z.string(),
+  label: z.string(),
+  url: z.string().optional(),
+  citationText: z.string(),
+  verificationStatus: z.enum(['unverified-pasted-citation', 'reviewed', 'retrieved']).default('unverified-pasted-citation')
+});
+
+const MetagrinderStructuredBriefCoverageSchema = z.object({
+  category: z.string(),
+  status: z.enum(['extracted', 'partial', 'not_found', 'ignored']).default('not_found'),
+  count: z.number().int().nonnegative(),
+  note: z.string().optional()
+});
+
+const MetagrinderBriefAnalysisValidationStatusSchema = z.enum([
+  'supported',
+  'weak',
+  'contradicted',
+  'needs_review',
+  'seed_unverified',
+  'ignored'
+]);
+
+const MetagrinderBriefAnalysisProvenanceSchema = z.object({
+  sourceInputIds: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([]),
+  excerptText: z.string().default(''),
+  attributionMode: MetagrinderAttributionModeSchema,
+  confidence: MetagrinderConfidenceLevelSchema,
+  validationStatus: MetagrinderBriefAnalysisValidationStatusSchema.default('needs_review')
+});
+
+const MetagrinderBriefMainSubjectSchema = MetagrinderBriefAnalysisProvenanceSchema.extend({
+  subjectId: z.string(),
+  label: z.string(),
+  subjectType: z.string().default('brief'),
+  summary: z.string()
+});
+
+const MetagrinderBriefSubcategoryCandidateSchema = MetagrinderBriefAnalysisProvenanceSchema.extend({
+  subcategoryId: z.string(),
+  label: z.string(),
+  parentSubjectId: z.string(),
+  supportStatus: z.enum(['supported', 'weak', 'contradicted', 'inferred']).default('weak'),
+  evidenceSummary: z.string().default('')
+});
+
+const MetagrinderBriefSubcategoryEvidenceCheckSchema = MetagrinderBriefAnalysisProvenanceSchema.extend({
+  checkId: z.string(),
+  subcategoryId: z.string(),
+  supportStatus: z.enum(['supported', 'weak', 'contradicted', 'inferred']).default('weak'),
+  supportingExcerptIds: z.array(z.string()).default([]),
+  contradictingExcerptIds: z.array(z.string()).default([]),
+  assessment: z.string().default('')
+});
+
+const MetagrinderBriefSubcategoryCharacteristicSchema = MetagrinderBriefAnalysisProvenanceSchema.extend({
+  characteristicId: z.string(),
+  subcategoryId: z.string().optional(),
+  label: z.string(),
+  characteristicType: z.string().default('attribute'),
+  values: z.array(z.string()).default([])
+});
+
+const MetagrinderBriefAnalysisWeightSchema = MetagrinderBriefAnalysisProvenanceSchema.extend({
+  weightId: z.string(),
+  label: z.string(),
+  min: z.number().min(0),
+  max: z.number().min(0),
+  unit: z.enum(['percent', 'weight']).default('percent'),
+  appliesTo: z.string().optional(),
+  validationStatus: MetagrinderBriefAnalysisValidationStatusSchema.default('needs_review')
+}).refine((value) => value.max >= value.min, {
+  message: 'brief analysis weight max must be greater than or equal to min'
+});
+
+const MetagrinderBriefAnalysisRuleSchema = MetagrinderStructuredBriefRuleSchema.extend({
+  validationStatus: MetagrinderBriefAnalysisValidationStatusSchema.default('needs_review')
+});
+
+const MetagrinderBriefAnalysisConstraintSchema = MetagrinderStructuredBriefConstraintSchema.extend({
+  validationStatus: MetagrinderBriefAnalysisValidationStatusSchema.default('needs_review')
+});
+
+const MetagrinderBriefAnalysisExampleSchema = MetagrinderStructuredBriefExampleSchema.extend({
+  validationStatus: MetagrinderBriefAnalysisValidationStatusSchema.default('needs_review')
+});
+
+const MetagrinderBriefAnalysisFieldSchema = MetagrinderStructuredBriefFieldSchema.extend({
+  validationStatus: MetagrinderBriefAnalysisValidationStatusSchema.default('needs_review')
+});
+
+const MetagrinderBriefAnalysisCitationSchema = MetagrinderStructuredBriefCitationSchema.extend({
+  validationStatus: MetagrinderBriefAnalysisValidationStatusSchema.default('needs_review')
+});
+
+const MetagrinderBriefAnalysisResearchGapSchema = MetagrinderBriefAnalysisProvenanceSchema.extend({
+  gapId: z.string(),
+  label: z.string(),
+  reason: z.string(),
+  recommendedAction: z.string().default('review-or-research')
+});
+
+const MetagrinderBriefAnalysisGraphAssemblyPlanSchema = z.object({
+  readiness: z.enum(['ready', 'needs_codex_review', 'not_ready']).default('needs_codex_review'),
+  nodes: z.array(z.object({
+    nodeId: z.string(),
+    label: z.string(),
+    nodeType: z.string(),
+    sourceRecordIds: z.array(z.string()).default([]),
+    reviewStatus: z.string().default('needs_review')
+  })).default([]),
+  edges: z.array(z.object({
+    edgeId: z.string(),
+    source: z.string(),
+    target: z.string(),
+    relation: z.string()
+  })).default([]),
+  notes: z.array(z.string()).default([])
+});
+
+const MetagrinderBriefAnalysisArtifactSchema = z.object({
+  inputId: z.string(),
+  analysisMode: z.enum(['seed-only', 'codex-semantic', 'codex-imported']).default('seed-only'),
+  sourceInputIds: z.array(z.string()).default([]),
+  mainSubject: MetagrinderBriefMainSubjectSchema,
+  subjectType: z.string().default('brief'),
+  subcategoryCandidates: z.array(MetagrinderBriefSubcategoryCandidateSchema).default([]),
+  subcategoryEvidenceChecks: z.array(MetagrinderBriefSubcategoryEvidenceCheckSchema).default([]),
+  subcategoryCharacteristics: z.array(MetagrinderBriefSubcategoryCharacteristicSchema).default([]),
+  weightedGroups: z.array(MetagrinderBriefAnalysisWeightSchema).default([]),
+  rules: z.array(MetagrinderBriefAnalysisRuleSchema).default([]),
+  constraints: z.array(MetagrinderBriefAnalysisConstraintSchema).default([]),
+  examples: z.array(MetagrinderBriefAnalysisExampleSchema).default([]),
+  implementationFields: z.array(MetagrinderBriefAnalysisFieldSchema).default([]),
+  citations: z.array(MetagrinderBriefAnalysisCitationSchema).default([]),
+  researchGaps: z.array(MetagrinderBriefAnalysisResearchGapSchema).default([]),
+  graphAssemblyPlan: MetagrinderBriefAnalysisGraphAssemblyPlanSchema,
+  coverage: z.array(MetagrinderStructuredBriefCoverageSchema).default([])
+});
+
+const MetagrinderSemanticChoiceGraphConditionSchema = z.object({
+  choiceId: z.string(),
+  text: z.string(),
+  weight: z.number().default(1)
+});
+
+const MetagrinderSemanticChoiceGraphChoiceSchema = z.object({
+  choiceId: z.string(),
+  text: z.string(),
+  weight: z.number().default(1),
+  appliesWhen: z.array(MetagrinderSemanticChoiceGraphConditionSchema).default([]),
+  sourceInputIds: z.array(z.string()).default([]),
+  sourceChunkIds: z.array(z.string()).default([]),
+  excerptText: z.string().default(''),
+  confidence: MetagrinderConfidenceLevelSchema.default('medium'),
+  attributionMode: MetagrinderAttributionModeSchema.default('inferred'),
+  validationStatus: MetagrinderBriefAnalysisValidationStatusSchema.default('needs_review'),
+  evidenceStatus: z.string().default('extracted-from-text'),
+  projectionSource: z.enum(['codex', 'inferred', 'fallback']).default('inferred')
+});
+
+const MetagrinderSemanticChoiceGraphAxisSchema = z.object({
+  axisId: z.string(),
+  label: z.string(),
+  axisType: z.string(),
+  order: z.number().int().nonnegative(),
+  appliesWhen: z.array(MetagrinderSemanticChoiceGraphConditionSchema).default([]),
+  choices: z.array(MetagrinderSemanticChoiceGraphChoiceSchema).default([])
+});
+
+const MetagrinderSemanticChoiceGraphEdgeSchema = z.object({
+  edgeId: z.string(),
+  sourceAxisId: z.string(),
+  sourceChoiceId: z.string().optional(),
+  targetAxisId: z.string(),
+  relation: z.enum(['linear', 'branch', 'conditional']).default('linear')
+});
+
+const MetagrinderSemanticChoiceGraphWarningSchema = z.object({
+  code: z.string(),
+  severity: z.enum(['info', 'warning', 'error']).default('warning'),
+  message: z.string(),
+  relatedAxisIds: z.array(z.string()).default([]),
+  relatedChoiceIds: z.array(z.string()).default([])
+});
+
+const MetagrinderSemanticChoiceGraphArtifactSchema = z.object({
+  inputId: z.string(),
+  analysisMode: z.enum(['seed-only', 'codex-semantic', 'codex-imported']).default('seed-only'),
+  subject: z.object({
+    label: z.string(),
+    subjectType: z.string().default('brief'),
+    summary: z.string().default('')
+  }),
+  sourceArtifacts: z.array(z.string()).default([]),
+  axes: z.array(MetagrinderSemanticChoiceGraphAxisSchema).default([]),
+  edges: z.array(MetagrinderSemanticChoiceGraphEdgeSchema).default([]),
+  warnings: z.array(MetagrinderSemanticChoiceGraphWarningSchema).default([]),
+  coverage: z.array(MetagrinderStructuredBriefCoverageSchema).default([]),
+  graphAssemblyPlan: MetagrinderBriefAnalysisGraphAssemblyPlanSchema.optional()
+});
+
+const MetagrinderPsgOutputFlightSelectedChoiceSchema = z.object({
+  axisId: z.string(),
+  axisLabel: z.string().default(''),
+  choiceId: z.string(),
+  text: z.string(),
+  weight: z.number().default(1)
+});
+
+const MetagrinderPsgOutputFlightSampleSchema = z.object({
+  seed: z.number(),
+  outputText: z.string(),
+  selectedChoices: z.array(MetagrinderPsgOutputFlightSelectedChoiceSchema).default([])
+});
+
+const MetagrinderPsgOutputFlightArtifactSchema = z.object({
+  inputId: z.string(),
+  artifactType: z.literal('psg-output-flight').default('psg-output-flight'),
+  createdAt: z.string(),
+  graphPath: z.string(),
+  graphHash: z.string(),
+  semanticChoiceGraphHash: z.string(),
+  sampleCount: z.number().int().positive(),
+  seeds: z.array(z.number()).default([]),
+  samples: z.array(MetagrinderPsgOutputFlightSampleSchema).default([])
+});
+
+const MetagrinderPsgReadabilityFindingSchema = z.object({
+  findingId: z.string(),
+  severity: z.enum(['info', 'warning', 'error']).default('warning'),
+  findingType: z.string(),
+  choiceId: z.string().nullable().default(null),
+  axisId: z.string().nullable().default(null),
+  sampleSeed: z.number().nullable().default(null),
+  text: z.string().default(''),
+  message: z.string()
+});
+
+const MetagrinderPsgReadabilityReviewArtifactSchema = z.object({
+  inputId: z.string(),
+  artifactType: z.literal('psg-readability-review').default('psg-readability-review'),
+  createdAt: z.string(),
+  graphPath: z.string(),
+  graphHash: z.string(),
+  semanticChoiceGraphHash: z.string(),
+  sampleCount: z.number().int().nonnegative(),
+  readabilityStatus: z.enum(['missing', 'flight-ready', 'review-running', 'needs-sweetening', 'sweetened', 'failed']).default('missing'),
+  codexStatus: z.string().default('not-run'),
+  appliedRewriteCount: z.number().int().nonnegative().default(0),
+  findingCounts: z.record(z.number()).default({}),
+  findings: z.array(MetagrinderPsgReadabilityFindingSchema).default([])
+});
+
+const MetagrinderCodexSweetenRewriteSchema = z.object({
+  choiceId: z.string(),
+  beforeText: z.string(),
+  afterText: z.string(),
+  reason: z.string().default('')
+});
+
+const MetagrinderCodexSweetenRequestArtifactSchema = z.object({
+  inputId: z.string(),
+  artifactType: z.literal('codex-sweeten-request').default('codex-sweeten-request'),
+  createdAt: z.string(),
+  expectedOutputPath: z.string().default('codex-sweeten-result.json'),
+  strictRules: z.array(z.string()).default([]),
+  graphPath: z.string(),
+  graphHash: z.string(),
+  semanticChoiceGraphHash: z.string(),
+  samples: z.array(MetagrinderPsgOutputFlightSampleSchema).default([]),
+  findings: z.array(MetagrinderPsgReadabilityFindingSchema).default([]),
+  choices: z.array(z.object({
+    axisId: z.string(),
+    axisLabel: z.string(),
+    choiceId: z.string(),
+    text: z.string(),
+    weight: z.number().default(1)
+  })).default([])
+});
+
+const MetagrinderCodexSweetenResultArtifactSchema = z.object({
+  inputId: z.string().optional(),
+  rewrites: z.array(MetagrinderCodexSweetenRewriteSchema).default([])
+});
+
+const MetagrinderCodexParseRequestArtifactSchema = z.object({
+  inputId: z.string(),
+  requestVersion: z.string(),
+  taskTitle: z.string(),
+  instructions: z.array(z.string()).default([]),
+  sourceInputs: z.array(z.object({
+    sourceInputId: z.string(),
+    title: z.string(),
+    path: z.string().optional()
+  })).default([]),
+  chunks: z.array(z.object({
+    chunkId: z.string(),
+    sourceInputId: z.string(),
+    sectionLabel: z.string().default(''),
+    text: z.string()
+  })).default([]),
+  seedArtifactPath: z.string(),
+  outputContractPath: z.string(),
+  expectedOutputPath: z.string(),
+  seedSummary: z.record(z.number()).default({})
+});
+
+const MetagrinderCodexParseOutputSchemaArtifactSchema = z.object({
+  inputId: z.string(),
+  schemaVersion: z.string(),
+  artifactName: z.string(),
+  requiredTopLevelFields: z.array(z.string()).default([]),
+  provenanceRequiredFields: z.array(z.string()).default([]),
+  jsonSchema: z.record(z.any()).default({}),
+  notes: z.array(z.string()).default([]),
+  exampleRecordShape: z.record(z.any()).default({})
+});
+
+const MetagrinderCodexParseResultArtifactSchema = MetagrinderBriefAnalysisArtifactSchema.extend({
+  analysisMode: z.enum(['codex-semantic', 'codex-imported']).default('codex-semantic')
+});
+
+const MetagrinderStructuredBriefArtifactSchema = z.object({
+  inputId: z.string(),
+  sourceInputIds: z.array(z.string()).default([]),
+  entities: z.array(MetagrinderStructuredBriefEntitySchema).default([]),
+  weightedGroups: z.array(MetagrinderStructuredBriefWeightSchema).default([]),
+  attributeClusters: z.array(MetagrinderStructuredBriefAttributeClusterSchema).default([]),
+  rules: z.array(MetagrinderStructuredBriefRuleSchema).default([]),
+  constraints: z.array(MetagrinderStructuredBriefConstraintSchema).default([]),
+  zonesOrContexts: z.array(MetagrinderStructuredBriefContextSchema).default([]),
+  modifiers: z.array(MetagrinderStructuredBriefModifierSchema).default([]),
+  examples: z.array(MetagrinderStructuredBriefExampleSchema).default([]),
+  implementationFields: z.array(MetagrinderStructuredBriefFieldSchema).default([]),
+  citations: z.array(MetagrinderStructuredBriefCitationSchema).default([]),
+  openQuestions: z.array(z.object({
+    questionId: z.string(),
+    text: z.string(),
+    sourceInputIds: z.array(z.string()).default([]),
+    sourceChunkIds: z.array(z.string()).default([]),
+    excerptText: z.string(),
+    attributionMode: MetagrinderAttributionModeSchema,
+    confidence: MetagrinderConfidenceLevelSchema
+  })).default([]),
+  coverage: z.array(MetagrinderStructuredBriefCoverageSchema).default([])
 });
 
 const MetagrinderWeightedRangeSchema = z.object({
@@ -1924,47 +2372,44 @@ const MetagrinderPlausibilityReviewArtifactSchema = z.object({
   })).default([])
 });
 
-const MetagrinderPsgV2EditStateSchema = z.object({
-  isEditing: z.boolean().default(false),
-  editBuffer: z.string().nullable().default(null),
-  lastEditTimestamp: z.string().datetime().optional(),
-  validationErrors: z.array(z.string()).default([]),
-  isDirty: z.boolean().default(false)
-});
-
 const MetagrinderPsgV2NodeSchema = z.object({
   id: z.string(),
   type: z.enum([
     'TextBlock',
     'WeightedChoice',
     'Concat',
-    'Output',
-    'Include',
-    'SetVariable',
-    'GetVariable'
+    'Output'
   ]),
-  position: z.object({
-    x: z.number(),
-    y: z.number()
-  }),
-  data: z.object({
-    value: z.union([
-      z.string(),
-      z.array(z.object({
-        id: z.string(),
-        text: z.string(),
-        weight: z.number()
-      })),
-      z.object({
-        separator: z.string().optional(),
-        trimInputs: z.boolean().optional()
-      })
-    ]),
-    editState: MetagrinderPsgV2EditStateSchema.optional()
-  }).passthrough(),
-  label: z.string().optional(),
+  x: z.number(),
+  y: z.number(),
+  name: z.string().optional(),
+  value: z.string().optional(),
+  template: z.string().optional(),
+  options: z.array(z.object({
+    text: z.string(),
+    weight: z.number()
+  })).optional(),
   description: z.string().optional(),
-  tags: z.array(z.string()).default([])
+  data: z.record(z.unknown()).optional()
+}).passthrough().superRefine((node, ctx) => {
+  if (node.type === 'WeightedChoice' && (!Array.isArray(node.options) || node.options.length === 0)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'WeightedChoice nodes must include non-empty options.'
+    });
+  }
+  if (node.type === 'TextBlock' && typeof node.value !== 'string') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'TextBlock nodes must include a string value.'
+    });
+  }
+  if (node.type === 'Output' && typeof node.template !== 'string') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Output nodes must include a template.'
+    });
+  }
 });
 
 const MetagrinderPsgV2EdgeSchema = z.object({
@@ -1979,19 +2424,68 @@ const MetagrinderPsgV2EdgeSchema = z.object({
 });
 
 const MetagrinderPsgV2FileSchema = z.object({
-  fileType: z.literal('psg'),
-  formatVersion: z.literal('2.0.0'),
+  version: z.literal('1.0.0'),
+  name: z.string(),
+  description: z.string().optional(),
   metadata: z.object({
+    type: z.literal('ASSET_FRAGMENT').optional(),
+    source: z.literal('metagrinder').optional(),
+    tags: z.array(z.string()).optional()
+  }).passthrough().optional(),
+  nodes: z.array(MetagrinderPsgV2NodeSchema),
+  edges: z.array(MetagrinderPsgV2EdgeSchema),
+  regions: z.array(z.object({
+    id: z.string(),
     name: z.string(),
+    color: z.string().optional(),
+    nodes: z.array(z.string()).default([]),
     description: z.string().optional(),
-    createdAt: z.string().datetime(),
-    lastModified: z.string().datetime(),
-    author: z.string()
-  }).passthrough(),
-  graph: z.object({
-    nodes: z.array(MetagrinderPsgV2NodeSchema),
-    edges: z.array(MetagrinderPsgV2EdgeSchema)
-  })
+    metadata: z.record(z.unknown()).optional()
+  }).passthrough()).default([])
+}).superRefine((file, ctx) => {
+  const nodeIds = new Set(file.nodes.map((node) => node.id));
+  file.edges.forEach((edge, index) => {
+    if (!nodeIds.has(edge.source)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['edges', index, 'source'],
+        message: `Edge source ${edge.source} does not reference a node.`
+      });
+    }
+    if (!nodeIds.has(edge.target)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['edges', index, 'target'],
+        message: `Edge target ${edge.target} does not reference a node.`
+      });
+    }
+    const targetNode = file.nodes.find((node) => node.id === edge.target);
+    if (targetNode?.type === 'Concat' && !['input1', 'input2'].includes(edge.targetHandle || '')) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['edges', index, 'targetHandle'],
+        message: 'Edges into Concat nodes must use targetHandle input1 or input2.'
+      });
+    }
+    if (targetNode?.type === 'Output' && edge.targetHandle) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['edges', index, 'targetHandle'],
+        message: 'Edges into Output nodes must omit targetHandle.'
+      });
+    }
+  });
+  file.regions.forEach((region, regionIndex) => {
+    region.nodes.forEach((nodeId, nodeIndex) => {
+      if (!nodeIds.has(nodeId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['regions', regionIndex, 'nodes', nodeIndex],
+          message: `Region node ${nodeId} does not reference a node.`
+        });
+      }
+    });
+  });
 });
 
 const MetaballManifestSchema = z.object({
@@ -2149,6 +2643,30 @@ module.exports = {
   MetagrinderMutationReviewArtifactSchema,
   MetagrinderPromptMutationVariantSchema,
   MetagrinderScoreArtifactSchema,
+  MetagrinderBriefAnalysisArtifactSchema,
+  MetagrinderBriefAnalysisGraphAssemblyPlanSchema,
+  MetagrinderBriefMainSubjectSchema,
+  MetagrinderBriefSubcategoryCandidateSchema,
+  MetagrinderBriefSubcategoryCharacteristicSchema,
+  MetagrinderBriefSubcategoryEvidenceCheckSchema,
+  MetagrinderSemanticChoiceGraphArtifactSchema,
+  MetagrinderSemanticChoiceGraphAxisSchema,
+  MetagrinderSemanticChoiceGraphChoiceSchema,
+  MetagrinderSemanticChoiceGraphEdgeSchema,
+  MetagrinderSemanticChoiceGraphWarningSchema,
+  MetagrinderPsgOutputFlightArtifactSchema,
+  MetagrinderPsgOutputFlightSampleSchema,
+  MetagrinderPsgReadabilityReviewArtifactSchema,
+  MetagrinderPsgReadabilityFindingSchema,
+  MetagrinderCodexSweetenRequestArtifactSchema,
+  MetagrinderCodexSweetenResultArtifactSchema,
+  MetagrinderCodexSweetenRewriteSchema,
+  MetagrinderCodexParseOutputSchemaArtifactSchema,
+  MetagrinderCodexParseRequestArtifactSchema,
+  MetagrinderCodexParseResultArtifactSchema,
+  MetagrinderStructuredBriefArtifactSchema,
+  MetagrinderStructuredBriefEntitySchema,
+  MetagrinderStructuredBriefWeightSchema,
   MetagrinderSceneContextSchema,
   MetagrinderSceneEvidenceSchema,
   MetagrinderSceneGrammarArtifactSchema,
