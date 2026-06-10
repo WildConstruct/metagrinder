@@ -9,12 +9,21 @@
     "validate:rainy-alley-shot-differences": "node scripts/validate-rainy-alley-shot-differences.js",
     "run:rainy-alley-prototype": "node scripts/run-rainy-alley-prototype.js",
     "run:metagrinder-mvp": "node scripts/run-metagrinder-mvp.js",
+    "run:historical-photo-observations": "node scripts/run-historical-photo-observations.js",
     "run:metagrinder-workbench": "node scripts/serve-metagrinder-workbench.js",
     "run:research-brief-lab": "node scripts/serve-research-brief-lab.js",
+    "codegen:json-schema": "tsx src/schemas/emit-json-schema.ts",
+    "test:src": "jest --config jest.src.config.cjs",
+    "typecheck:src": "tsc --noEmit -p src/tsconfig.json",
     "test:metagrinder": "jest --config jest.metagrinder.config.cjs",
     "test:metagrinder:coverage": "jest --config jest.metagrinder.config.cjs --coverage"
   },
   "dependencies": {
     "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.22.4",
+    "zod-to-json-schema": "^3.25.2"
   }
 }

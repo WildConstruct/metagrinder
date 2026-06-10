@@ -1,0 +1,160 @@
+{
+  "$ref": "#/definitions/run-manifest",
+  "definitions": {
+    "run-manifest": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "run-manifest"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "parserVersion": {
+          "type": "string"
+        },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stage": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "running",
+                  "blocked_on_gate",
+                  "failed",
+                  "complete"
+                ],
+                "default": "pending"
+              },
+              "startedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "endedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "gate": {
+                "type": "string"
+              },
+              "error": {
+                "type": "string"
+              },
+              "inputArtifacts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "outputArtifacts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              }
+            },
+            "required": [
+              "stage"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "artifactId": {
+                "type": "string"
+              },
+              "family": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "contentSha256": {
+                "type": "string"
+              },
+              "writtenAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "artifactId",
+              "family",
+              "path",
+              "contentSha256",
+              "writtenAt"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "stage": {
+                "type": "string"
+              },
+              "providerId": {
+                "type": "string"
+              },
+              "modelId": {
+                "type": "string"
+              },
+              "modelVersion": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "stage",
+              "providerId",
+              "modelId"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "updatedAt",
+        "parserVersion"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

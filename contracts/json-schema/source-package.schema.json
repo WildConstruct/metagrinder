@@ -1,0 +1,178 @@
+{
+  "$ref": "#/definitions/source-package",
+  "definitions": {
+    "source-package": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "source-package"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "title": {
+          "type": "string"
+        },
+        "researchKind": {
+          "type": "string",
+          "enum": [
+            "historical-scene-research",
+            "character-framework",
+            "material-reference",
+            "environment-observation",
+            "style-analysis",
+            "procedural-guide",
+            "mixed",
+            "unknown"
+          ],
+          "default": "unknown"
+        },
+        "sourceInputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceInputId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "sourceType": {
+                "type": "string",
+                "enum": [
+                  "plain-text",
+                  "notes-bundle",
+                  "research-brief",
+                  "photo-reference"
+                ],
+                "default": "plain-text"
+              },
+              "path": {
+                "type": "string"
+              },
+              "contentSha256": {
+                "type": "string"
+              },
+              "sequence": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "sourceInputId",
+              "title",
+              "sequence"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "chunks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "chunkId": {
+                "type": "string"
+              },
+              "sourceInputId": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "span": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "end": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "additionalProperties": false
+              },
+              "sectionLabel": {
+                "type": "string"
+              },
+              "chunkKind": {
+                "type": "string",
+                "enum": [
+                  "source-note",
+                  "observation",
+                  "photo-observation",
+                  "color-hypothesis",
+                  "wardrobe-observation",
+                  "concept-list",
+                  "generation-rule",
+                  "generation-palette",
+                  "template",
+                  "uncertainty",
+                  "reference-table",
+                  "visual-reference-caption",
+                  "negative-constraint",
+                  "ethical-constraint",
+                  "sample-output",
+                  "unknown"
+                ],
+                "default": "unknown"
+              },
+              "sequence": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              }
+            },
+            "required": [
+              "chunkId",
+              "sourceInputId",
+              "text",
+              "span",
+              "sequence"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "title",
+        "sourceInputs",
+        "chunks"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

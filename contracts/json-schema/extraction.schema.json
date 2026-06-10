@@ -1,0 +1,715 @@
+{
+  "$ref": "#/definitions/extraction",
+  "definitions": {
+    "extraction": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "extraction"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "analysisMode": {
+          "type": "string",
+          "enum": [
+            "llm-semantic",
+            "replayed-llm-semantic",
+            "deterministic",
+            "degraded-keyword",
+            "human-authored"
+          ]
+        },
+        "detectedResearchKind": {
+          "type": "string"
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string"
+              },
+              "rationale": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "category"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "claimType": {
+                "type": "string"
+              },
+              "category": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "claimId",
+              "text",
+              "category",
+              "confidence",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "concepts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "conceptId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "category": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "conceptId",
+              "label",
+              "category",
+              "confidence",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidenceId": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "evidenceId",
+              "text",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "uncertaintySpans": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "uncertaintyId": {
+                "type": "string"
+              },
+              "cue": {
+                "type": "string"
+              },
+              "scopeText": {
+                "type": "string"
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "uncertaintyId",
+              "cue",
+              "scopeText",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "openQuestions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "questionId": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "questionId",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "recordIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "analysisMode"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

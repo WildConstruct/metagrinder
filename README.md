@@ -28,11 +28,13 @@ The current MVP covers:
 
 Primary implementation entrypoints:
 
-- [packages/core/scripts/run-metagrinder-mvp.js](/mnt/c/Users/Owner/CascadeProjects/prompt-spaghetti-metagrinder-fork/packages/core/scripts/run-metagrinder-mvp.js)
-- [packages/core/scripts/lib/metagrinder-mvp.js](/mnt/c/Users/Owner/CascadeProjects/prompt-spaghetti-metagrinder-fork/packages/core/scripts/lib/metagrinder-mvp.js)
-- [packages/core/types/metagrinder.ts](/mnt/c/Users/Owner/CascadeProjects/prompt-spaghetti-metagrinder-fork/packages/core/types/metagrinder.ts)
-- [docs/research/metagrinder-epic-1-agent-framework.md](/mnt/c/Users/Owner/CascadeProjects/prompt-spaghetti-metagrinder-fork/docs/research/metagrinder-epic-1-agent-framework.md)
-- [docs/research/metagrinder-epic-2-multi-document-intake.md](/mnt/c/Users/Owner/CascadeProjects/prompt-spaghetti-metagrinder-fork/docs/research/metagrinder-epic-2-multi-document-intake.md)
+- [packages/core/scripts/run-metagrinder-mvp.js](packages/core/scripts/run-metagrinder-mvp.js)
+- [packages/core/scripts/lib/metagrinder-mvp.js](packages/core/scripts/lib/metagrinder-mvp.js)
+- [packages/core/types/metagrinder.ts](packages/core/types/metagrinder.ts)
+- [docs/research/metagrinder-epic-1-agent-framework.md](docs/research/metagrinder-epic-1-agent-framework.md)
+- [docs/research/metagrinder-epic-2-multi-document-intake.md](docs/research/metagrinder-epic-2-multi-document-intake.md)
+
+The reimplementation effort is governed by [docs/research/metagrinder-reimplementation-analysis.md](docs/research/metagrinder-reimplementation-analysis.md) and executed per [docs/research/metagrinder-reimplementation-loop.md](docs/research/metagrinder-reimplementation-loop.md); new code lives in [packages/core/src](packages/core/src).
 
 ## Quick Start
 
@@ -41,6 +43,15 @@ pnpm install
 pnpm test:metagrinder
 pnpm run:metagrinder-mvp packages/core/tests/fixtures/metagrinder/research-input-broadway.txt
 ```
+
+### Environment notes (Windows, fixed 2026-06-10)
+
+The previous "pnpm cannot materialize dependencies in this workspace" failure was caused by the pnpm store living inside the synced project folder. The fix, now committed:
+
+- `.npmrc` sets `store-dir=C:\pnpm-store` (outside the synced tree) and a shortened virtual-store path.
+- pnpm is provided by corepack pinned to `packageManager` in `package.json`. If `pnpm` is not on PATH: `corepack enable --install-directory "%APPDATA%\npm"` (create that folder first if needed).
+- The canonical test entry point is `pnpm test:metagrinder` (ts-jest, node environment). Do not run bare `pnpm exec jest` from the repo root — `packages/core/jest.config.cjs` is a stale jsdom/babel config inherited from the parent repo and does not transform TypeScript.
+- The `C:\tmp\metagrinder-audit-deps` workaround is obsolete.
 
 For a multi-document run:
 
@@ -63,7 +74,7 @@ Use the Broadway or greenhouse fixtures, then inspect:
 
 - use epic and story issues to define bounded work
 - keep changes small and test-backed
-- use [CONTRIBUTING.md](/mnt/c/Users/Owner/CascadeProjects/prompt-spaghetti-metagrinder-fork/CONTRIBUTING.md) for branch, commit, and PR expectations
+- use [CONTRIBUTING.md](CONTRIBUTING.md) for branch, commit, and PR expectations
 
 ## Next Planned Area
 

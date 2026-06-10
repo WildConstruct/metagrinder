@@ -1,0 +1,439 @@
+{
+  "version": 1,
+  "briefs": [
+    {
+      "id": "broadway",
+      "path": "packages/core/tests/fixtures/metagrinder/research-input-broadway.txt",
+      "expected_mode": "historical-scene-research",
+      "acceptable_modes": [
+        "historical-scene-research"
+      ],
+      "expected_focus_any": [
+        "wardrobe",
+        "people-and-crowd",
+        "weather-and-environment"
+      ],
+      "expected_focus_primary": [
+        "wardrobe",
+        "people-and-crowd",
+        "weather-and-environment"
+      ],
+      "expected_confidence_any": [
+        "high"
+      ],
+      "expected_rationale_any": [
+        "audience",
+        "broadway",
+        "theater",
+        "wardrobe",
+        "crowd"
+      ],
+      "expected_warning_any": [],
+      "warning_tolerance": "low",
+      "notes": "Historical scene packet. Clear scene-reference brief."
+    },
+    {
+      "id": "greenhouse",
+      "path": "packages/core/tests/fixtures/metagrinder/research-input-greenhouse.txt",
+      "expected_mode": "environment-observation",
+      "acceptable_modes": [
+        "environment-observation"
+      ],
+      "expected_focus_any": [
+        "structures",
+        "atmosphere",
+        "lighting",
+        "materials"
+      ],
+      "expected_focus_primary": [
+        "structures",
+        "atmosphere",
+        "lighting"
+      ],
+      "expected_confidence_any": [
+        "medium",
+        "high"
+      ],
+      "expected_rationale_any": [
+        "greenhouse",
+        "condensation",
+        "fog",
+        "glass",
+        "dawn"
+      ],
+      "expected_warning_any": [],
+      "warning_tolerance": "low",
+      "notes": "Observation-heavy environment brief."
+    },
+    {
+      "id": "shipyard",
+      "path": "packages/core/tests/fixtures/metagrinder/research-input-shipyard.txt",
+      "expected_mode": "environment-observation",
+      "acceptable_modes": [
+        "environment-observation"
+      ],
+      "expected_focus_any": [
+        "movement",
+        "lighting",
+        "atmosphere",
+        "structures"
+      ],
+      "expected_focus_primary": [
+        "movement",
+        "lighting",
+        "atmosphere"
+      ],
+      "expected_confidence_any": [
+        "high"
+      ],
+      "expected_rationale_any": [
+        "shipyard",
+        "steel",
+        "cranes",
+        "wind",
+        "flood"
+      ],
+      "expected_warning_any": [],
+      "warning_tolerance": "low",
+      "notes": "Industrial environment brief."
+    },
+    {
+      "id": "desert-outpost",
+      "path": "packages/core/tests/fixtures/metagrinder/research-input-desert-outpost.txt",
+      "expected_mode": "environment-observation",
+      "acceptable_modes": [
+        "environment-observation"
+      ],
+      "expected_focus_any": [
+        "materials",
+        "atmosphere",
+        "structures",
+        "lighting"
+      ],
+      "expected_focus_primary": [
+        "materials",
+        "atmosphere",
+        "structures"
+      ],
+      "expected_confidence_any": [
+        "medium",
+        "high"
+      ],
+      "expected_rationale_any": [
+        "ridge",
+        "sandstone",
+        "corrugated",
+        "dust",
+        "station"
+      ],
+      "expected_warning_any": [],
+      "warning_tolerance": "low",
+      "notes": "Environment brief with strong material and structure cues."
+    },
+    {
+      "id": "spaghettiwestern",
+      "path": "spaghettiwestern.md",
+      "expected_mode": "mixed",
+      "acceptable_modes": [
+        "mixed",
+        "procedural-guide",
+        "character-framework"
+      ],
+      "expected_focus_any": [
+        "source-notes",
+        "reusable-concepts",
+        "generation-rules",
+        "templates"
+      ],
+      "expected_focus_primary": [
+        "templates",
+        "generation-rules",
+        "reusable-concepts"
+      ],
+      "expected_confidence_any": [
+        "medium"
+      ],
+      "expected_rationale_any": [
+        "multiple",
+        "mixed",
+        "template",
+        "procedural",
+        "character-framework"
+      ],
+      "expected_warning_any": [
+        "multiple",
+        "template",
+        "generation-rule"
+      ],
+      "warning_tolerance": "medium",
+      "notes": "Flattened hybrid brief. Mixed is preferred."
+    },
+    {
+      "id": "medieval-peasant-generator",
+      "path": "research_tests/medieval_peasent_generator.md",
+      "expected_mode": "character-framework",
+      "acceptable_modes": [
+        "character-framework",
+        "mixed"
+      ],
+      "expected_focus_any": [
+        "archetypes",
+        "physical-state",
+        "wardrobe-and-gear",
+        "behavior-and-presence"
+      ],
+      "expected_focus_primary": [
+        "archetypes",
+        "physical-state",
+        "behavior-and-presence"
+      ],
+      "expected_confidence_any": [
+        "high",
+        "medium"
+      ],
+      "expected_rationale_any": [
+        "peasants",
+        "roles",
+        "characteristics",
+        "appearance",
+        "generator"
+      ],
+      "expected_warning_any": [
+        "reference-table",
+        "generation-rule",
+        "analytical"
+      ],
+      "warning_tolerance": "medium",
+      "notes": "Long-form analytical report for generating believable populations."
+    },
+    {
+      "id": "tabloid-naming",
+      "path": "research_tests/tabloid_naming.md",
+      "expected_mode": "style-analysis",
+      "acceptable_modes": [
+        "style-analysis",
+        "mixed",
+        "procedural-guide"
+      ],
+      "expected_focus_any": [
+        "genre-context",
+        "visual-signifiers",
+        "tone",
+        "reference-points"
+      ],
+      "expected_focus_primary": [
+        "genre-context",
+        "visual-signifiers",
+        "tone"
+      ],
+      "expected_confidence_any": [
+        "high"
+      ],
+      "expected_rationale_any": [
+        "brand",
+        "satire",
+        "style",
+        "tone",
+        "weekly world news"
+      ],
+      "expected_warning_any": [
+        "generation-rule",
+        "analytical",
+        "guidance"
+      ],
+      "warning_tolerance": "medium",
+      "notes": "Brand/style/creative analysis report."
+    },
+    {
+      "id": "weeklyworldnews-blueprint",
+      "path": "research_tests/weeklyworldnews",
+      "expected_mode": "style-analysis",
+      "acceptable_modes": [
+        "style-analysis",
+        "mixed",
+        "procedural-guide"
+      ],
+      "expected_focus_any": [
+        "genre-context",
+        "visual-signifiers",
+        "tone",
+        "prompt-implications"
+      ],
+      "expected_focus_primary": [
+        "genre-context",
+        "visual-signifiers",
+        "tone"
+      ],
+      "expected_confidence_any": [
+        "high"
+      ],
+      "expected_rationale_any": [
+        "style",
+        "tone",
+        "weekly world news",
+        "format",
+        "satire"
+      ],
+      "expected_warning_any": [
+        "generation-rule",
+        "analytical",
+        "guidance"
+      ],
+      "warning_tolerance": "medium",
+      "notes": "Strategic content blueprint with strong style-analysis elements."
+    },
+    {
+      "id": "archival-costume-crowd-memo",
+      "path": "experiments/epic4-autoresearch/validation/archival-costume-crowd-memo.md",
+      "expected_mode": "historical-scene-research",
+      "acceptable_modes": [
+        "historical-scene-research"
+      ],
+      "expected_focus_any": [
+        "wardrobe",
+        "people-and-crowd",
+        "weather-and-environment",
+        "lighting"
+      ],
+      "expected_focus_primary": [
+        "wardrobe",
+        "people-and-crowd",
+        "weather-and-environment"
+      ],
+      "expected_confidence_any": [
+        "high"
+      ],
+      "expected_rationale_any": [
+        "theater",
+        "marquee",
+        "crowds",
+        "coats",
+        "street"
+      ],
+      "expected_warning_any": [],
+      "warning_tolerance": "low",
+      "notes": "Adversarial historical scene memo with overlapping environment language."
+    },
+    {
+      "id": "canyon-foundry-surface-sheet",
+      "path": "experiments/epic4-autoresearch/validation/canyon-foundry-surface-sheet.md",
+      "expected_mode": "material-reference",
+      "acceptable_modes": [
+        "material-reference",
+        "environment-observation"
+      ],
+      "expected_focus_any": [
+        "materials",
+        "surface-response",
+        "wear-and-damage",
+        "environmental-effects"
+      ],
+      "expected_focus_primary": [
+        "materials",
+        "surface-response",
+        "wear-and-damage"
+      ],
+      "expected_confidence_any": [
+        "high",
+        "medium"
+      ],
+      "expected_rationale_any": [
+        "surface",
+        "metal",
+        "paint",
+        "wear",
+        "oxide"
+      ],
+      "expected_warning_any": [],
+      "warning_tolerance": "low",
+      "notes": "Material-reference brief for surfaces, wear, and response."
+    },
+    {
+      "id": "outlaw-press-brand-kit",
+      "path": "experiments/epic4-autoresearch/validation/outlaw-press-brand-kit.md",
+      "expected_mode": "style-analysis",
+      "acceptable_modes": [
+        "style-analysis",
+        "procedural-guide"
+      ],
+      "expected_focus_any": [
+        "genre-context",
+        "visual-signifiers",
+        "tone",
+        "prompt-implications"
+      ],
+      "expected_focus_primary": [
+        "genre-context",
+        "visual-signifiers",
+        "tone"
+      ],
+      "expected_confidence_any": [
+        "high"
+      ],
+      "expected_rationale_any": [
+        "satire",
+        "visual",
+        "publication",
+        "tabloid",
+        "brand"
+      ],
+      "expected_warning_any": [
+        "guidance",
+        "analytical",
+        "generation-rule"
+      ],
+      "warning_tolerance": "medium",
+      "notes": "Style-analysis brief with explicit evaluation criteria and format implications."
+    },
+    {
+      "id": "modular-enemy-generator-notes",
+      "path": "experiments/epic4-autoresearch/validation/modular-enemy-generator-notes.md",
+      "expected_mode": "procedural-guide",
+      "acceptable_modes": [
+        "procedural-guide",
+        "mixed"
+      ],
+      "expected_focus_any": [
+        "generation-rules",
+        "templates",
+        "contradiction-avoidance",
+        "prompt-assembly"
+      ],
+      "expected_focus_primary": [
+        "generation-rules",
+        "templates",
+        "contradiction-avoidance"
+      ],
+      "expected_confidence_any": [
+        "high",
+        "medium"
+      ],
+      "expected_rationale_any": [
+        "framework",
+        "generation",
+        "template",
+        "contradiction",
+        "rules"
+      ],
+      "expected_warning_any": [
+        "generation-rule",
+        "template"
+      ],
+      "warning_tolerance": "medium",
+      "notes": "Adversarial procedural guide with template and contradiction logic."
+    }
+  ],
+  "scoring": {
+    "mode_correct": 3,
+    "mode_acceptable": 1,
+    "focus_hit_cap": 2,
+    "focus_primary_bonus": 1,
+    "rationale_nonempty": 1,
+    "rationale_specificity_bonus": 1,
+    "confidence_calibrated": 1,
+    "candidate_gap_penalty": 1,
+    "warning_expected_hit": 1,
+    "warning_overflow_penalty": 1,
+    "max_per_brief": 10
+  }
+}

@@ -1,0 +1,1694 @@
+{
+  "$ref": "#/definitions/scene-grammar",
+  "definitions": {
+    "scene-grammar": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "scene-grammar"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "analysisMode": {
+          "type": "string",
+          "enum": [
+            "llm-semantic",
+            "replayed-llm-semantic",
+            "deterministic",
+            "degraded-keyword",
+            "human-authored"
+          ]
+        },
+        "grammarTarget": {
+          "type": "string",
+          "enum": [
+            "base",
+            "accepted"
+          ]
+        },
+        "sceneContext": {
+          "type": "object",
+          "properties": {
+            "contextId": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "researchKind": {
+              "type": "string",
+              "enum": [
+                "historical-scene-research",
+                "character-framework",
+                "material-reference",
+                "environment-observation",
+                "style-analysis",
+                "procedural-guide",
+                "mixed",
+                "unknown"
+              ]
+            },
+            "summary": {
+              "type": "string"
+            },
+            "provenance": {
+              "type": "object",
+              "properties": {
+                "sourceInputIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": []
+                },
+                "sourceChunkIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "default": []
+                },
+                "spans": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "chunkId": {
+                        "type": "string"
+                      },
+                      "start": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "end": {
+                        "type": "integer",
+                        "minimum": 0
+                      }
+                    },
+                    "required": [
+                      "chunkId",
+                      "start",
+                      "end"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "default": []
+                },
+                "excerptText": {
+                  "type": "string"
+                },
+                "attributionMode": {
+                  "type": "string",
+                  "enum": [
+                    "quoted",
+                    "paraphrased",
+                    "inferred",
+                    "web_retrieved"
+                  ]
+                },
+                "evidenceBasis": {
+                  "type": "string",
+                  "enum": [
+                    "observed",
+                    "text_supported",
+                    "external_research",
+                    "proxy_analysis",
+                    "inferred",
+                    "generated"
+                  ],
+                  "default": "inferred"
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "low",
+                    "medium",
+                    "high"
+                  ],
+                  "default": "low"
+                },
+                "verification": {
+                  "type": "string",
+                  "enum": [
+                    "unverified",
+                    "verified",
+                    "downgraded",
+                    "rejected"
+                  ],
+                  "default": "unverified"
+                },
+                "reasoningNote": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "attributionMode"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "contextId",
+            "title",
+            "researchKind",
+            "summary",
+            "provenance"
+          ],
+          "additionalProperties": false
+        },
+        "archetypes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "archetypeId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "genderPresentation": {
+                "type": "string"
+              },
+              "classBand": {
+                "type": "string"
+              },
+              "raceEthnicityContext": {
+                "type": "string"
+              },
+              "weightRange": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  },
+                  "min": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "max": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "unit": {
+                    "type": "string",
+                    "enum": [
+                      "percent",
+                      "weight"
+                    ],
+                    "default": "percent"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "medium"
+                  },
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  }
+                },
+                "required": [
+                  "label",
+                  "min",
+                  "max"
+                ],
+                "additionalProperties": false
+              },
+              "dominantAttributes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "optionalAttributes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "wardrobeRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "behaviorRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "locationZoneRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "promptText": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "archetypeId",
+              "label",
+              "summary",
+              "role",
+              "promptText",
+              "confidence",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "demographicDistributions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "distributionId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "entries": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "min": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "max": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "percent",
+                        "weight"
+                      ],
+                      "default": "percent"
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "low",
+                        "medium",
+                        "high"
+                      ],
+                      "default": "medium"
+                    },
+                    "sourceInputIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "sourceChunkIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "min",
+                    "max"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
+              },
+              "appliesToRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "distributionId",
+              "label",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "itemSystems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "systemId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "wardrobe",
+                  "grooming-and-hair",
+                  "props-and-accessories"
+                ]
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "avoidItems": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "systemId",
+              "label",
+              "kind",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "locationZones": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "zoneId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "promptText": {
+                "type": "string"
+              },
+              "archetypeBiases": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "label": {
+                      "type": "string"
+                    },
+                    "min": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "max": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "percent",
+                        "weight"
+                      ],
+                      "default": "percent"
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "low",
+                        "medium",
+                        "high"
+                      ],
+                      "default": "medium"
+                    },
+                    "sourceInputIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "sourceChunkIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    }
+                  },
+                  "required": [
+                    "label",
+                    "min",
+                    "max"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "zoneId",
+              "label",
+              "promptText",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "behaviorStates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "behaviorId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "promptText": {
+                "type": "string"
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "behaviorId",
+              "label",
+              "promptText",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "environmentalModifiers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "modifierId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "promptText": {
+                "type": "string"
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "modifierId",
+              "label",
+              "promptText",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "visualReferences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "referenceId": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "const": "image-reference"
+              },
+              "path": {
+                "type": "string"
+              },
+              "caption": {
+                "type": "string"
+              },
+              "supports": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "linkedArchetypeIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "rightsProfile": {
+                "type": "string",
+                "enum": [
+                  "unknown",
+                  "public-domain",
+                  "unrestricted",
+                  "attribution-required",
+                  "non-commercial",
+                  "reference-only",
+                  "restricted"
+                ],
+                "default": "reference-only"
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "referenceId",
+              "kind",
+              "caption",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "compatibilityRules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ruleId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "condition": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "type": "string"
+                  },
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "equals",
+                      "not-equals",
+                      "includes",
+                      "exists"
+                    ]
+                  },
+                  "value": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "field",
+                  "operator",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              "effects": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "force",
+                        "allow",
+                        "avoid",
+                        "increase",
+                        "decrease",
+                        "exclude",
+                        "requires",
+                        "incompatible-with",
+                        "bias-toward",
+                        "bias-away-from"
+                      ]
+                    },
+                    "target": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "action",
+                    "target"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "ruleId",
+              "label",
+              "condition",
+              "effects",
+              "confidence",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "negativeConstraints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "constraintId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "constraintType": {
+                "type": "string",
+                "enum": [
+                  "negative",
+                  "ethical-historical",
+                  "ethical-historical-representation",
+                  "modern-artifact-risk",
+                  "compatibility"
+                ]
+              },
+              "appliesTo": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "enforcement": {
+                "type": "object",
+                "properties": {
+                  "avoid": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "allow": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "force": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "exclude": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  }
+                },
+                "additionalProperties": false
+              },
+              "enforcedByRuleIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "constraintId",
+              "label",
+              "text",
+              "constraintType",
+              "confidence",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "reviewFlags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "analysisMode",
+        "grammarTarget",
+        "sceneContext"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

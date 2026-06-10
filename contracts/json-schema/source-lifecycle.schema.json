@@ -1,0 +1,396 @@
+{
+  "$ref": "#/definitions/source-lifecycle",
+  "definitions": {
+    "source-lifecycle": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "source-lifecycle"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "sourceFamily": {
+                "type": "string",
+                "enum": [
+                  "commercial_print",
+                  "photography_collection",
+                  "newspaper",
+                  "institutional_collection",
+                  "other"
+                ],
+                "default": "other"
+              },
+              "url": {
+                "type": "string"
+              },
+              "sourceSystem": {
+                "type": "string"
+              },
+              "sourceRecordId": {
+                "type": "string"
+              },
+              "publicationDate": {
+                "type": "string"
+              },
+              "rightsProfile": {
+                "type": "string",
+                "enum": [
+                  "unknown",
+                  "public-domain",
+                  "unrestricted",
+                  "attribution-required",
+                  "non-commercial",
+                  "reference-only",
+                  "restricted"
+                ],
+                "default": "unknown"
+              },
+              "rightsStatement": {
+                "type": "string"
+              },
+              "retrievedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "approvedBy": {
+                "type": "string"
+              },
+              "approvedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "retracted": {
+                "type": "boolean",
+                "default": false
+              },
+              "retractionReason": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "sourceId",
+              "title",
+              "approvedBy",
+              "approvedAt"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "evidenceId": {
+                "type": "string"
+              },
+              "sourceId": {
+                "type": "string"
+              },
+              "excerptText": {
+                "type": "string",
+                "minLength": 1
+              },
+              "locator": {
+                "type": "string"
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "evidenceId",
+              "sourceId",
+              "excerptText",
+              "confidence",
+              "provenance"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "sourceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "closesGapIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              }
+            },
+            "required": [
+              "claimId",
+              "text",
+              "evidenceIds",
+              "sourceIds",
+              "confidence"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "citationReviews": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "claimId": {
+                "type": "string"
+              },
+              "citationStatus": {
+                "type": "string",
+                "enum": [
+                  "approved",
+                  "rejected",
+                  "needs_review"
+                ]
+              },
+              "reviewTier": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "automated_internal",
+                  "batch_contact_sheet",
+                  "individual_human"
+                ]
+              },
+              "reviewerId": {
+                "type": "string"
+              },
+              "reviewerRole": {
+                "type": "string"
+              },
+              "reviewedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "rationale": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "claimId",
+              "citationStatus",
+              "reviewTier",
+              "reviewerId",
+              "reviewedAt"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "integrityFlags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "recordIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "gates": {
+          "type": "object",
+          "properties": {
+            "rightsGate": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "pass",
+                "fail"
+              ],
+              "default": "pending"
+            }
+          },
+          "additionalProperties": false,
+          "default": {
+            "rightsGate": "pending"
+          }
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

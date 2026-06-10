@@ -11,9 +11,12 @@
     "validate:rainy-alley-shot-differences": "pnpm --filter @promptscape/core validate:rainy-alley-shot-differences",
     "run:rainy-alley-prototype": "pnpm --filter @promptscape/core run:rainy-alley-prototype",
     "run:metagrinder-mvp": "pnpm --filter @promptscape/core run:metagrinder-mvp",
+    "run:historical-photo-observations": "pnpm --filter @promptscape/core run:historical-photo-observations",
     "run:metagrinder-workbench": "pnpm --filter @promptscape/core run:metagrinder-workbench",
     "run:research-brief-lab": "pnpm --filter @promptscape/core run:research-brief-lab",
-    "test:metagrinder": "pnpm --filter @promptscape/core test:metagrinder"
+    "test:metagrinder": "pnpm --filter @promptscape/core test:metagrinder",
+    "test:src": "pnpm --filter @promptscape/core test:src",
+    "typecheck:src": "pnpm --filter @promptscape/core typecheck:src"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

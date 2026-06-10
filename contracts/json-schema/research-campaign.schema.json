@@ -1,0 +1,201 @@
+{
+  "$ref": "#/definitions/research-campaign",
+  "definitions": {
+    "research-campaign": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "research-campaign"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "campaignId": {
+          "type": "string"
+        },
+        "cellId": {
+          "type": "string"
+        },
+        "goal": {
+          "type": "string"
+        },
+        "coverageTarget": {
+          "type": "string"
+        },
+        "targetGapIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "hypotheses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hypothesisId": {
+                "type": "string"
+              },
+              "sourceFamily": {
+                "type": "string",
+                "enum": [
+                  "commercial_print",
+                  "photography_collection",
+                  "newspaper",
+                  "institutional_collection",
+                  "other"
+                ]
+              },
+              "familyNote": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "expectedEvidenceType": {
+                "type": "string"
+              },
+              "targetsGapIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "hypothesized",
+                  "searching",
+                  "located",
+                  "approved",
+                  "exhausted",
+                  "withdrawn"
+                ],
+                "default": "hypothesized"
+              },
+              "locatedCandidateIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              }
+            },
+            "required": [
+              "hypothesisId",
+              "sourceFamily",
+              "description",
+              "rationale",
+              "expectedEvidenceType",
+              "targetsGapIds"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "negativeResults": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "hypothesisId": {
+                "type": "string"
+              },
+              "searchedWhere": {
+                "type": "string"
+              },
+              "searchedWhen": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "finding": {
+                "type": "string"
+              },
+              "staleAfter": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "hypothesisId",
+              "searchedWhere",
+              "searchedWhen",
+              "finding"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "active",
+            "blocked_on_human",
+            "complete",
+            "halted"
+          ],
+          "default": "planned"
+        },
+        "gapsClosed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "gapId": {
+                "type": "string"
+              },
+              "closedByClaimIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "gapId",
+              "closedByClaimIds"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "haltReason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "campaignId",
+        "cellId",
+        "goal",
+        "coverageTarget",
+        "targetGapIds"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

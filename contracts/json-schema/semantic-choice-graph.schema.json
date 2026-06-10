@@ -1,0 +1,349 @@
+{
+  "$ref": "#/definitions/semantic-choice-graph",
+  "definitions": {
+    "semantic-choice-graph": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "semantic-choice-graph"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "analysisMode": {
+          "type": "string",
+          "enum": [
+            "llm-semantic",
+            "replayed-llm-semantic",
+            "deterministic",
+            "degraded-keyword",
+            "human-authored"
+          ]
+        },
+        "grammarTarget": {
+          "type": "string",
+          "enum": [
+            "base",
+            "accepted"
+          ]
+        },
+        "axes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "axisId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "sequence": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "required": {
+                "type": "boolean",
+                "default": true
+              },
+              "choices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "choiceId": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "promptText": {
+                      "type": "string"
+                    },
+                    "weight": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string"
+                        },
+                        "min": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "max": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "unit": {
+                          "type": "string",
+                          "enum": [
+                            "percent",
+                            "weight"
+                          ],
+                          "default": "percent"
+                        },
+                        "confidence": {
+                          "type": "string",
+                          "enum": [
+                            "low",
+                            "medium",
+                            "high"
+                          ],
+                          "default": "medium"
+                        },
+                        "sourceInputIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "default": []
+                        },
+                        "sourceChunkIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "default": []
+                        }
+                      },
+                      "required": [
+                        "label",
+                        "min",
+                        "max"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "conditions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "axisId": {
+                            "type": "string"
+                          },
+                          "operator": {
+                            "type": "string",
+                            "enum": [
+                              "equals",
+                              "not-equals",
+                              "includes",
+                              "exists"
+                            ]
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "axisId",
+                          "operator",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "default": []
+                    },
+                    "grammarRefs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "properties": {
+                        "sourceInputIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "default": []
+                        },
+                        "sourceChunkIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "default": []
+                        },
+                        "spans": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "chunkId": {
+                                "type": "string"
+                              },
+                              "start": {
+                                "type": "integer",
+                                "minimum": 0
+                              },
+                              "end": {
+                                "type": "integer",
+                                "minimum": 0
+                              }
+                            },
+                            "required": [
+                              "chunkId",
+                              "start",
+                              "end"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "default": []
+                        },
+                        "excerptText": {
+                          "type": "string"
+                        },
+                        "attributionMode": {
+                          "type": "string",
+                          "enum": [
+                            "quoted",
+                            "paraphrased",
+                            "inferred",
+                            "web_retrieved"
+                          ]
+                        },
+                        "evidenceBasis": {
+                          "type": "string",
+                          "enum": [
+                            "observed",
+                            "text_supported",
+                            "external_research",
+                            "proxy_analysis",
+                            "inferred",
+                            "generated"
+                          ],
+                          "default": "inferred"
+                        },
+                        "confidence": {
+                          "type": "string",
+                          "enum": [
+                            "low",
+                            "medium",
+                            "high"
+                          ],
+                          "default": "low"
+                        },
+                        "verification": {
+                          "type": "string",
+                          "enum": [
+                            "unverified",
+                            "verified",
+                            "downgraded",
+                            "rejected"
+                          ],
+                          "default": "unverified"
+                        },
+                        "reasoningNote": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "attributionMode"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "choiceId",
+                    "label",
+                    "promptText"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              }
+            },
+            "required": [
+              "axisId",
+              "label",
+              "sequence",
+              "choices"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fromAxisId": {
+                "type": "string"
+              },
+              "toAxisId": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "sequence",
+                  "condition"
+                ]
+              }
+            },
+            "required": [
+              "fromAxisId",
+              "toAxisId",
+              "kind"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "analysisMode",
+        "grammarTarget"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -63,3 +63,7 @@ nul
 .tmp-*
 cloudscape
 cloudscape.pub
+
+# local pnpm store must never live in the synced tree
+.pnpm-store/
+node_modules (1)/

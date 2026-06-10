@@ -1,5 +1,9 @@
 # Repository Guidelines
 
+## Reimplementation In Progress
+
+This repo is being rebuilt per `docs/research/metagrinder-reimplementation-analysis.md`. If your task is implementation work, **read `docs/research/metagrinder-reimplementation-loop.md` first and follow its protocol** (story order, iteration gates, hard rules, progress log). Key rules that override older habits in this file: legacy `packages/core/services/*` and `types/metagrinder.runtime.js` are read-only reference; new code lives in `packages/core/src/`; semantic stages are never tested by fixture equality; never read the held-out eval folder; stop at human gates with a single run card instead of building more validators.
+
 ## Project Structure & Module Organization
 
 This fork is a trimmed pnpm workspace focused on `packages/core`. Core TypeScript sources live in `packages/core/types`, `services`, `utils`, `fileFormats`, and `runtime/nodes/epic1`. Tests live beside the package in `packages/core/tests` and `packages/core/runtime/nodes/epic1/__tests__`. JSON fixtures used by schema and parser tests are stored under `packages/core/tests/fixtures`. Long-form specs and fork notes live in `docs/` and `docs/research/`.
@@ -13,7 +17,7 @@ Use Node `20.19.0` (`.nvmrc`) and pnpm `8.15.4`.
 - `pnpm validate:rainy-alley-prototype` checks the rainy alley prototype data.
 - `pnpm validate:rainy-alley-shot-differences` validates shot-difference fixtures.
 - `pnpm run:rainy-alley-prototype` runs the prototype script locally.
-- `pnpm exec jest packages/core/tests packages/core/runtime/nodes/epic1/__tests__` runs the current Jest suites directly because no top-level `test` script is defined.
+- `pnpm test:metagrinder` runs the canonical Jest suite (`packages/core/jest.metagrinder.config.cjs`, ts-jest, node env). Do not run bare `pnpm exec jest` from the root — `packages/core/jest.config.cjs` is a stale jsdom/babel config from the parent repo and fails on TypeScript. If `pnpm` is missing, see the Environment notes in README.md (corepack + external store-dir).
 
 ## Coding Style & Naming Conventions
 

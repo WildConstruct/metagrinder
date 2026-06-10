@@ -1,0 +1,237 @@
+{
+  "$ref": "#/definitions/retrieval",
+  "definitions": {
+    "retrieval": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "retrieval"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "policy": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "off",
+                "dry-run",
+                "mock",
+                "cache-replay",
+                "fixture-live",
+                "live-one-query"
+              ],
+              "default": "off"
+            },
+            "maxQueries": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 1
+            },
+            "maxResultsPerQuery": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "default": 5
+            },
+            "allowedDomains": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            },
+            "blockedDomains": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            },
+            "allowedSourceFamilies": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "commercial_print",
+                  "photography_collection",
+                  "newspaper",
+                  "institutional_collection",
+                  "other"
+                ]
+              },
+              "default": []
+            }
+          },
+          "additionalProperties": false
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "candidateId": {
+                "type": "string"
+              },
+              "queryText": {
+                "type": "string"
+              },
+              "gapIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "hypothesisId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "snippet": {
+                "type": "string"
+              },
+              "sourceFamily": {
+                "type": "string",
+                "enum": [
+                  "commercial_print",
+                  "photography_collection",
+                  "newspaper",
+                  "institutional_collection",
+                  "other"
+                ],
+                "default": "other"
+              },
+              "sourceTypeGuess": {
+                "type": "string"
+              },
+              "publicationDateGuess": {
+                "type": "string"
+              },
+              "rightsProfileGuess": {
+                "type": "string",
+                "enum": [
+                  "unknown",
+                  "public-domain",
+                  "unrestricted",
+                  "attribution-required",
+                  "non-commercial",
+                  "reference-only",
+                  "restricted"
+                ],
+                "default": "unknown"
+              },
+              "rightsStatementVerbatim": {
+                "type": "string"
+              },
+              "providerId": {
+                "type": "string"
+              },
+              "retrievedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "hypothesisMatch": {
+                "type": "string",
+                "enum": [
+                  "unchecked",
+                  "matched",
+                  "mismatched"
+                ],
+                "default": "unchecked"
+              }
+            },
+            "required": [
+              "candidateId",
+              "queryText",
+              "title",
+              "providerId",
+              "retrievedAt"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "log": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "at": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "off",
+                  "dry-run",
+                  "mock",
+                  "cache-replay",
+                  "fixture-live",
+                  "live-one-query"
+                ],
+                "default": "off"
+              },
+              "event": {
+                "type": "string",
+                "enum": [
+                  "query",
+                  "response",
+                  "cache-read",
+                  "cache-write",
+                  "error",
+                  "skipped"
+                ]
+              },
+              "providerId": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string"
+              },
+              "redacted": {
+                "type": "boolean",
+                "default": true
+              }
+            },
+            "required": [
+              "at",
+              "event",
+              "providerId",
+              "detail"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "policy"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

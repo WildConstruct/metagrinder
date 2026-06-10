@@ -1,0 +1,69 @@
+# Metagrinder Reimplementation Progress Log
+
+Rolling per-story log. Append entries at the top. Format:
+
+```text
+## YYYY-MM-DD [S<phase>.<n>] <story title> — <status>
+- changed: <files/areas>
+- gates: tsc <ok|fail>, tests <n pass/n fail>, replay evals <score vs baseline | n/a>
+- notes: <surprises, decisions, deviations>
+```
+
+Phase exits and human sign-offs are recorded here as `## PHASE <n> EXIT — approved by <who>, <date>`.
+
+Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ <commit>` and may only move via an `eval-corpus:` flagged commit or a recorded improvement.
+
+---
+
+## 2026-06-10 [S1.5] Eval corpus port — done
+- changed: src/eval/corpus/{briefs/(12 files),judgments.json}, src/eval/corpus.ts, corpus.test.ts
+- gates: tsc clean; src 28/28 (3 suites); legacy 134/134
+- notes: judgments.json byte-identity with the epic4 original is sha256-asserted in test — future judgment edits REQUIRE updating both copies via an `eval-corpus:` commit (or retiring the experiments copy at S6). Loader joins by brief id; legacy `path` field untouched. Field discovery: `warning_tolerance` is 'low'|'medium' (a level), not a count.
+- PHASE 1 EXIT GATE REACHED — awaiting human sign-off (loop A6): schemas+codegen+store+corpus all green.
+
+## 2026-06-10 ENVIRONMENT INCIDENT — node_modules corruption recurred
+- symptom: between green gate runs, `node_modules/.bin` emptied and individual packages (resolve-cwd, jest-resolve, @jest/pattern) lost their files; each reinstall left different packages empty. NOT OneDrive path-redirection (Documents is local; attributes clean) — cause consistent with the historically documented silent materialization failure in this synced workspace.
+- mitigation applied: `.npmrc` now sets `package-import-method=copy` (no hardlinks into the workspace); post-install empty-dir audit came back 0; all gates green afterward.
+- WATCH: if node_modules degrades again under copy mode, the durable fix is moving the working copy out of `Documents\Cascade Projects` (e.g. C:\dev\metagrinder) — operator decision, affects sibling-relative paths in Image_Prep docs. Flagging rather than re-architecting per loop S0.1 escalation rule.
+
+## 2026-06-10 [S1.4] Run-folder store + content-hash IDs — done
+- changed: src/artifacts/{ids,store,store.test}.ts; src/schemas/registry.ts (single family→schema map); emit-json-schema refactored onto registry (accepted-scene-grammar shares scene-grammar contract, noted in INDEX.md)
+- gates: tsc clean; src 25/25; codegen + python check green; legacy 134/134
+- notes: ID design — IDs hash normalized content (NFC + whitespace collapse) + sourceInputId + occurrence index, deliberately NOT span offsets, so an unchanged chunk keeps its ID when surrounding text shifts (reconciliation-friendly). RunStore is the only artifact door: validate-then-write (invalid never touches disk), reads re-validate (tampered files fail loudly), manifest persists every mutation, create() refuses to clobber, open() resumes. Model registry replaces per stage — baseline-staleness triggers hook here (S3.1). Remaining for Phase 1 exit: S1.5 fixture port, then human sign-off.
+
+## 2026-06-10 [S1.3] JSON Schema codegen — done
+- changed: src/schemas/emit-json-schema.ts, contracts/json-schema/ (15 contracts + INDEX.md), contracts/check_json_schema_consumable.py, core script codegen:json-schema, +zod-to-json-schema devDep
+- gates: tsc clean; src 15/15; legacy 134/134; python contract check green
+- notes: AC adapted — Image_Prep's validators are stdlib-only (json/re/pathlib, no jsonschema package, and their .venv has no python.exe), so the consumption proof uses stdlib json against 3 contracts + the span shape. Limit recorded in the emitter: zod .refine() cross-field rules (span end>=start, weight max>=min) don't translate — consumers get shapes, TS keeps the invariants. contracts/ is committed-canonical: regenerate via codegen, never hand-edit.
+
+## 2026-06-10 [S1.1+S1.2] Schema core + vocabulary — done
+- changed: packages/core/src/schemas/ (16 files: vocabulary, provenance, source-package, extraction, scene-grammar, choice-graph, source-lifecycle, revisions, retrieval, gap-registry, campaign, content-plan, run-manifest, package-manifest, utdg, receipts, index) + COLLAPSE-MAP.md; jest.src.config.cjs + tsconfig.test.json + test:src/typecheck:src scripts; hello.ts deleted
+- gates: tsc strict clean; src tests 15/15; legacy suite 134/134
+- notes: All 18 collapsed families schematized; legacy 60-type enum fully mapped in COLLAPSE-MAP.md with an out-of-scope list (camera/render lane) and a v0.2 watchlist. Design decisions worth review: (1) extraction `category` is an open string — the legacy Broadway-fixture category enum is gone; (2) Provenance is one shared object with `verification` set only by deterministic verifiers; (3) UTDG candidates enforce staged-only review status and `utdg:*` id regex in-schema; (4) the 11-artifact provider apparatus is now `retrieval.log[]` entries. eval-report/review-report schemas intentionally deferred to S3.5/S4.1.
+
+## 2026-06-10 [S0.2] Repo hygiene — done
+- changed: deleted local `node_modules (1)/` and `.pnpm-store/` (operator go-ahead); .gitignore additions
+- gates: install + both suites re-verified green after deletion
+- notes: jest.config.cjs (stale parent-repo config) deliberately left until S6.1.
+
+## 2026-06-10 [S0.4] Rebuild root — done
+- changed: packages/core/src/ (skeleton dirs, strict tsconfig, README with ground rules, hello.ts), core devDeps +tsx +@types/node
+- gates: tsc --noEmit clean on src; hello stage runs via tsx; legacy suite still 134/134
+- notes: src/tsconfig is strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes, independent of the lax legacy tsconfig. hello.ts is disposable — delete when S1.1 lands real schemas.
+
+## 2026-06-10 [S0.2] Repo hygiene — blocked_on_human (run card)
+- done now (non-destructive): stale /mnt/c README links fixed; verified via `git ls-files` that no generated outputs are tracked.
+- RUN CARD for operator: confirm deletion of (1) `node_modules (1)/` — duplicate copy folder, (2) `.pnpm-store/` — obsolete in-repo store superseded by `store-dir=C:\pnpm-store`. Optionally (3) stale `packages/core/jest.config.cjs` now vs at S6.1. On confirmation, any agent session executes the deletions and closes S0.2.
+
+## 2026-06-10 [S0.3] Eval fence — blocked_on_human (run card)
+- RUN CARD for operator: author 6–10 held-out briefs + judgments in a folder outside the repo (suggested `..\metagrinder-holdout\`), domains not in current fixtures (technical, culinary, sports, fantasy, industrial...). No agent may read that folder (loop rule A4.1). The in-repo holdout runner gets built with S3.5; brief authoring is the long-lead item and can start now.
+
+## 2026-06-10 [S0.1] Fix the package manager — done
+- changed: .npmrc (new: external store-dir), README.md (Environment notes), AGENTS.md (canonical test command), node_modules rebuilt clean
+- gates: tests 134/134 pass via `pnpm test:metagrinder` (canonical suite); tsc n/a (no src/ yet)
+- notes: Root cause was the pnpm store living inside the synced folder (`.pnpm-store/` in repo root — add to S0.2 deletion list). corepack needed `%APPDATA%\npm` created before `corepack enable`. Root `packages/core/jest.config.cjs` is a stale jsdom/babel parent-repo config that cannot transform TS — the old AGENTS.md command never worked through it; psgCodec/epic1 suites have no working config of their own (they ran only via the C:\tmp audit wrapper). They are porting reference; decide in S0.2 whether to give them a ts-jest config or leave them dormant until their Phase 2 port. `C:\tmp\metagrinder-audit-deps` is obsolete.
+
+## 2026-06-10 Loop established — n/a
+- changed: docs/research/metagrinder-reimplementation-loop.md (control document), this log
+- gates: n/a (no code yet)
+- notes: Implementation begins at S0.1 per Bootstrap Sequence. Standing human tasks opened: held-out brief authoring (S0.3), real-provider decision (S5.8), S0.2 deletion-list confirmation.

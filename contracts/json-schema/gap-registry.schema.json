@@ -1,0 +1,140 @@
+{
+  "$ref": "#/definitions/gap-registry",
+  "definitions": {
+    "gap-registry": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "gap-registry"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "cellId": {
+          "type": "string"
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "gapId": {
+                "type": "string"
+              },
+              "cellId": {
+                "type": "string"
+              },
+              "gapType": {
+                "type": "string",
+                "enum": [
+                  "under-supported-distribution",
+                  "missing-behavior-model",
+                  "missing-location-distribution",
+                  "visual-reference-without-support",
+                  "negative-constraint-not-enforced",
+                  "unsupported-weight",
+                  "missing-material-record",
+                  "unknown-signature-slot",
+                  "sampling-risk"
+                ]
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "affectedGrammarRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "question": {
+                "type": "string"
+              },
+              "currentSupport": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "missingSupport": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "closureCriteria": {
+                "type": "string"
+              },
+              "recommendedSearches": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "open",
+                  "in_campaign",
+                  "closed",
+                  "wont_fix"
+                ],
+                "default": "open"
+              },
+              "closedByClaimIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "firstSeenRunId": {
+                "type": "string"
+              },
+              "lastSeenRunId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "gapId",
+              "gapType",
+              "severity",
+              "question"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

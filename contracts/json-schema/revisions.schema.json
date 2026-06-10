@@ -1,0 +1,207 @@
+{
+  "$ref": "#/definitions/revisions",
+  "definitions": {
+    "revisions": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "revisions"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "revisionId": {
+                "type": "string"
+              },
+              "targetRef": {
+                "type": "string"
+              },
+              "revisionKind": {
+                "type": "string",
+                "enum": [
+                  "material",
+                  "confirmation"
+                ]
+              },
+              "proposedValue": {},
+              "rationale": {
+                "type": "string"
+              },
+              "sourceClaimIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "supersedesRevisionId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "revisionId",
+              "targetRef",
+              "revisionKind",
+              "rationale",
+              "sourceClaimIds",
+              "confidence"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "decisions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "revisionId": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "accepted",
+                  "rejected",
+                  "pending"
+                ]
+              },
+              "decidedBy": {
+                "type": "string"
+              },
+              "decidedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "citationOverride": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "required": [
+              "revisionId",
+              "state",
+              "decidedBy",
+              "decidedAt"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "acceptedDeltas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "deltaId": {
+                "type": "string"
+              },
+              "revisionId": {
+                "type": "string"
+              },
+              "targetRef": {
+                "type": "string"
+              },
+              "deltaKind": {
+                "type": "string",
+                "enum": [
+                  "material",
+                  "confirmation"
+                ]
+              },
+              "before": {},
+              "after": {},
+              "sourceClaimIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "evidenceIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "citationStatus": {
+                "type": "string",
+                "enum": [
+                  "approved",
+                  "rejected",
+                  "needs_review",
+                  "override"
+                ]
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "appliedAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "deltaId",
+              "revisionId",
+              "targetRef",
+              "deltaKind",
+              "citationStatus",
+              "appliedAt"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

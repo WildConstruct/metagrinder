@@ -1,0 +1,243 @@
+{
+  "$ref": "#/definitions/content-plans",
+  "definitions": {
+    "content-plans": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "content-plans"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "grammarTarget": {
+          "type": "string",
+          "enum": [
+            "base",
+            "accepted"
+          ]
+        },
+        "plans": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "planId": {
+                "type": "string"
+              },
+              "seed": {
+                "type": "integer"
+              },
+              "grammarTarget": {
+                "type": "string",
+                "enum": [
+                  "base",
+                  "accepted"
+                ]
+              },
+              "slots": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "slotId": {
+                      "type": "string"
+                    },
+                    "slotKind": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "weight": {
+                      "type": "number"
+                    },
+                    "grammarRefs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "utdgRefs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "evidenceRefs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    }
+                  },
+                  "required": [
+                    "slotId",
+                    "slotKind",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              },
+              "negativeSlots": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "slotId": {
+                      "type": "string"
+                    },
+                    "slotKind": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    },
+                    "weight": {
+                      "type": "number"
+                    },
+                    "grammarRefs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "utdgRefs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    },
+                    "evidenceRefs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "default": []
+                    }
+                  },
+                  "required": [
+                    "slotId",
+                    "slotKind",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
+              },
+              "rulesApplied": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              }
+            },
+            "required": [
+              "planId",
+              "seed",
+              "grammarTarget",
+              "slots"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "realized": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "promptId": {
+                "type": "string"
+              },
+              "planId": {
+                "type": "string"
+              },
+              "realizationProfile": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              },
+              "negativeText": {
+                "type": "string"
+              },
+              "faithfulness": {
+                "type": "object",
+                "properties": {
+                  "slotCoverage": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "pass",
+                      "fail"
+                    ],
+                    "default": "pending"
+                  },
+                  "unsupportedContent": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "pass",
+                      "fail"
+                    ],
+                    "default": "pending"
+                  },
+                  "notes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  }
+                },
+                "additionalProperties": false
+              },
+              "modelFamilyHint": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "promptId",
+              "planId",
+              "realizationProfile",
+              "text",
+              "faithfulness"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "grammarTarget"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

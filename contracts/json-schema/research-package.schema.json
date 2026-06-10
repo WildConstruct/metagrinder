@@ -1,0 +1,166 @@
+{
+  "$ref": "#/definitions/research-package",
+  "definitions": {
+    "research-package": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "research-package"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "packageId": {
+          "type": "string"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "parserVersion": {
+          "type": "string"
+        },
+        "strategyVersion": {
+          "type": "string"
+        },
+        "sourceInputIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "collections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "family": {
+                "type": "string",
+                "enum": [
+                  "source-package",
+                  "extraction",
+                  "scene-grammar",
+                  "semantic-choice-graph",
+                  "gap-registry",
+                  "research-campaign",
+                  "retrieval",
+                  "source-lifecycle",
+                  "revisions",
+                  "accepted-scene-grammar",
+                  "content-plans",
+                  "psg",
+                  "psg-compile-diff",
+                  "utdg-candidates",
+                  "import-receipt",
+                  "review-report",
+                  "eval-report",
+                  "run-manifest"
+                ]
+              },
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "family",
+              "path"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "confidenceSummary": {
+          "type": "object",
+          "properties": {
+            "overall": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "extraction": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "normalization": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "provenance": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "rights": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          },
+          "required": [
+            "overall"
+          ],
+          "additionalProperties": false
+        },
+        "reviewStatus": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "private",
+            "team",
+            "staged",
+            "needs_review",
+            "approved",
+            "merged",
+            "rejected",
+            "restricted"
+          ],
+          "default": "draft"
+        }
+      },
+      "required": [
+        "artifact",
+        "packageId",
+        "runId",
+        "inputId",
+        "title",
+        "createdAt",
+        "parserVersion"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -1,0 +1,304 @@
+{
+  "$ref": "#/definitions/utdg-candidates",
+  "definitions": {
+    "utdg-candidates": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "utdg-candidates"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "cellId": {
+          "type": "string"
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^utdg:[a-z-]+:"
+              },
+              "entityType": {
+                "type": "string",
+                "enum": [
+                  "Concept",
+                  "Archetype",
+                  "SourceRecordReference",
+                  "ColorHypothesis",
+                  "EvidenceAssertion",
+                  "CompatibilityRule",
+                  "Material",
+                  "Pattern",
+                  "Style",
+                  "ImageReference"
+                ]
+              },
+              "prefLabel": {
+                "type": "string"
+              },
+              "altLabels": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "definition": {
+                "type": "string"
+              },
+              "summary": {
+                "type": "string"
+              },
+              "conceptType": {
+                "type": "string"
+              },
+              "externalIds": {
+                "type": "object",
+                "properties": {
+                  "gettyAatId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "wikidataQid": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "institutionRecordId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "europeanaRecordId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "sourceConceptRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "evidenceRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "sourceRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "texturalQualities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "usageContexts": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "coOccurrenceBasis": {
+                "type": "string",
+                "enum": [
+                  "worn_together_in_photo",
+                  "same_page_layout",
+                  "same_product_set",
+                  "text_stated",
+                  "curator_inferred",
+                  "not_applicable"
+                ]
+              },
+              "isEvidence": {
+                "type": "boolean",
+                "default": false
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ]
+              },
+              "rightsProfile": {
+                "type": "string",
+                "enum": [
+                  "unknown",
+                  "public-domain",
+                  "unrestricted",
+                  "attribution-required",
+                  "non-commercial",
+                  "reference-only",
+                  "restricted"
+                ],
+                "default": "unknown"
+              },
+              "reviewStatus": {
+                "type": "string",
+                "enum": [
+                  "draft",
+                  "private",
+                  "team",
+                  "staged",
+                  "needs_review",
+                  "approved",
+                  "merged",
+                  "rejected",
+                  "restricted"
+                ]
+              },
+              "provenance": {
+                "type": "object",
+                "properties": {
+                  "sourceInputIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "sourceChunkIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "default": []
+                  },
+                  "spans": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "chunkId": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "end": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "chunkId",
+                        "start",
+                        "end"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "default": []
+                  },
+                  "excerptText": {
+                    "type": "string"
+                  },
+                  "attributionMode": {
+                    "type": "string",
+                    "enum": [
+                      "quoted",
+                      "paraphrased",
+                      "inferred",
+                      "web_retrieved"
+                    ]
+                  },
+                  "evidenceBasis": {
+                    "type": "string",
+                    "enum": [
+                      "observed",
+                      "text_supported",
+                      "external_research",
+                      "proxy_analysis",
+                      "inferred",
+                      "generated"
+                    ],
+                    "default": "inferred"
+                  },
+                  "confidence": {
+                    "type": "string",
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high"
+                    ],
+                    "default": "low"
+                  },
+                  "verification": {
+                    "type": "string",
+                    "enum": [
+                      "unverified",
+                      "verified",
+                      "downgraded",
+                      "rejected"
+                    ],
+                    "default": "unverified"
+                  },
+                  "reasoningNote": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attributionMode"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "id",
+              "entityType",
+              "prefLabel",
+              "confidence",
+              "reviewStatus"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
