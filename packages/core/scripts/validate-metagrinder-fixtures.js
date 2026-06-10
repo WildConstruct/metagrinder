@@ -14,6 +14,7 @@ const {
   SemanticScenePackageSchema,
   SuppressedGraphNodesReportSchema,
   RenderTextPacketSchema,
+  MetagrinderHistoricalPhotoObservationSchema,
   ResearchPackageManifestSchema,
   UtdgCandidatesFileSchema,
   UtdgSubmissionManifestSchema,
@@ -76,6 +77,17 @@ for (const [filename, schema] of validators) {
     console.error(`FAIL ${filename}`);
     console.error(error.errors || error);
   }
+}
+
+try {
+  readJson('historical-photo-observations.json').forEach((photo, index) => {
+    MetagrinderHistoricalPhotoObservationSchema.parse(photo);
+    console.log(`PASS historical-photo-observations.json[${index}]`);
+  });
+} catch (error) {
+  failed = true;
+  console.error('FAIL historical-photo-observations.json');
+  console.error(error.errors || error);
 }
 
 try {

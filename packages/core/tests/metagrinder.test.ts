@@ -17,9 +17,12 @@ import {
     MetagrinderCodexParseOutputSchemaArtifactSchema,
     MetagrinderCodexParseRequestArtifactSchema,
     MetagrinderCodexParseResultArtifactSchema,
+    MetagrinderColorHypothesisArtifactSchema,
     MetagrinderExtractArtifactSchema,
     MetagrinderGrammarRevisionArtifactSchema,
     MetagrinderIngestArtifactSchema,
+    MetagrinderHistoricalPhotoObservationArtifactSchema,
+    MetagrinderHistoricalPhotoObservationSchema,
     MetagrinderModeDetectionArtifactSchema,
     MetagrinderMutationArtifactSchema,
     MetagrinderMutationReviewArtifactSchema,
@@ -134,6 +137,7 @@ const {
     runMetagrinderMvp
   } = require('../scripts/lib/metagrinder-mvp.js');
 const researchIngestService = require('../services/researchIngest/index.js');
+const researchHistoricalPhotoService = require('../services/researchHistoricalPhoto/index.js');
 const researchClassifyService = require('../services/researchClassify/index.js');
 const researchExtractService = require('../services/researchExtract/index.js');
 const researchMutationService = require('../services/researchMutation/index.js');
@@ -319,6 +323,112 @@ describe('metagrinder schemas', () => {
     expect(result.chunks).toHaveLength(1);
     expect(result.chunks[0].sourceInputId).toBe('src_001');
     expect(result.chunks[0].chunkKind).toBe('unknown');
+  });
+
+  test('parses historical photo source, collection, chunk, and color hypothesis schemas', () => {
+    const fixture = readFixture('historical-photo-observations.json');
+    const photo = MetagrinderHistoricalPhotoObservationSchema.parse(fixture[0]);
+
+    expect(photo.source.sourceType).toBeUndefined();
+    expect(MetagrinderIngestArtifactSchema.parse({
+      inputId: 'historical_photo_test',
+      title: 'Historical Photo Test',
+      sourceType: 'photo-reference',
+      researchKind: 'historical-scene-research',
+      sourceInputs: [
+        {
+          sourceInputId: 'photo_1914_scoreboard',
+          title: '1914 scoreboard',
+          sourceType: 'photo-reference',
+          path: photo.source.sourcePath,
+          sequence: 0
+        }
+      ],
+      chunks: [
+        {
+          chunkId: 'photo_1914_scoreboard_color',
+          sourceInputId: 'photo_1914_scoreboard',
+          text: 'Low-confidence color hypothesis for a black-and-white photo.',
+          chunkKind: 'color-hypothesis',
+          sequence: 0
+        }
+      ]
+    }).sourceType).toBe('photo-reference');
+
+    expect(ResearchPackageManifestSchema.parse({
+      packageId: 'historical_photo_test_research_package',
+      packageType: 'research-package',
+      title: 'Historical Photo Test',
+      collections: [
+        { id: 'col_photo_observations', type: 'photo-observations', path: 'photo-observations.json' },
+        { id: 'col_color_hypotheses', type: 'color-hypotheses', path: 'color-hypotheses.json' }
+      ],
+      lineage: { sourceInputIds: ['photo_1914_scoreboard'] },
+      confidenceSummary: { overall: 'medium' },
+      reviewStatus: 'draft'
+    }).collections).toHaveLength(2);
+  });
+
+  test('builds historical photo research package artifacts from Indy observations', () => {
+    const fixture = readFixture('historical-photo-observations.json');
+    const artifacts = researchHistoricalPhotoService.buildHistoricalPhotoResearchPackageArtifacts({
+      photos: fixture,
+      inputId: 'indy_historical_photo_test',
+      title: 'Indy Historical Photo Test'
+    });
+
+    expect(artifacts.ingestArtifact.sourceType).toBe('photo-reference');
+    expect(artifacts.ingestArtifact.sourceInputs).toHaveLength(3);
+    expect(artifacts.ingestArtifact.chunks.map((chunk: any) => chunk.chunkKind)).toContain('color-hypothesis');
+    expect(MetagrinderHistoricalPhotoObservationArtifactSchema.parse(artifacts.photoObservationArtifact).photos).toHaveLength(3);
+    expect(MetagrinderColorHypothesisArtifactSchema.parse(artifacts.colorHypothesisArtifact).records).toHaveLength(3);
+    expect(artifacts.researchPackageManifest.collections.map((collection: any) => collection.type)).toEqual([
+      'photo-observations',
+      'color-hypotheses',
+      'research-gaps',
+      'sample-prompts'
+    ]);
+    const genericManifest = researchPackageService.buildResearchPackageManifest({
+      ingestArtifact: artifacts.ingestArtifact,
+      scoreArtifact: {
+        inputId: 'indy_historical_photo_test',
+        corroboratedConceptIds: [],
+        disputedConceptIds: [],
+        confidenceSummary: {
+          overall: 'medium',
+          extraction: 'medium',
+          normalization: 'medium',
+          provenance: 'medium',
+          rights: 'low'
+        },
+        ambiguityFlags: []
+      },
+      historicalPhotoObservationArtifact: artifacts.photoObservationArtifact,
+      colorHypothesisArtifact: artifacts.colorHypothesisArtifact
+    });
+    expect(genericManifest.collections.map((collection: any) => collection.type)).toContain('photo-observations');
+    expect(genericManifest.collections.map((collection: any) => collection.type)).toContain('color-hypotheses');
+    expect(artifacts.samplePromptsArtifact.samples.every((sample: any) =>
+      sample.generatedPrompt.includes('not source evidence')
+    )).toBe(true);
+    expect(artifacts.utdgCandidatesFile.candidates.every((candidate: any) =>
+      candidate.reviewStatus !== 'approved' && candidate.reviewStatus !== 'merged' && candidate.commercialAllowed === false
+    )).toBe(true);
+    expect(artifacts.utdgCandidatesFile.candidates.some((candidate: any) =>
+      candidate.entityType === 'ColorHypothesis'
+    )).toBe(true);
+  });
+
+  test('rejects high-confidence black-and-white color hypotheses without external source refs', () => {
+    const fixture = readFixture('historical-photo-observations.json');
+    const invalid = JSON.parse(JSON.stringify(fixture[0]));
+    invalid.colorHypothesis.colorHypotheses[0].confidence = 'high';
+
+    expect(() => researchHistoricalPhotoService.buildHistoricalPhotoResearchPackageArtifacts({
+      photos: [invalid],
+      inputId: 'invalid_bw_color_test',
+      title: 'Invalid B&W Color Test'
+    })).toThrow(/High-confidence B&W color hypotheses require external source refs/);
   });
 
   test('parses metagrinder mode detection artifact', () => {
@@ -6334,16 +6444,29 @@ Ethical constraint: avoid reducing African American figures to labor roles only;
   });
 
   test('workbench Codex runner uses shell launch on Windows', () => {
-    const invocation = metagrinderWorkbenchServer.codexSpawnInvocation({
-      command: 'codex.cmd',
-      args: ['exec', '-C', 'H:\\Other computers\\My Computer\\Documents\\Cascade Projects\\metagrinder', '-']
-    });
-    if (process.platform === 'win32') {
-      expect(path.basename(invocation.command).toLowerCase()).toBe(path.basename(process.execPath).toLowerCase());
-      expect(invocation.args[0]).toMatch(/@openai[\\/]codex[\\/]bin[\\/]codex\.js$/);
-      expect(invocation.args).toContain('H:\\Other computers\\My Computer\\Documents\\Cascade Projects\\metagrinder');
-    } else {
-      expect(invocation.command).toBe('codex.cmd');
+    const previousAppData = process.env.APPDATA;
+    const fakeAppData = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-codex-appdata-'));
+    try {
+      if (process.platform === 'win32') {
+        const fakeEntrypoint = path.join(fakeAppData, 'npm', 'node_modules', '@openai', 'codex', 'bin', 'codex.js');
+        fs.mkdirSync(path.dirname(fakeEntrypoint), { recursive: true });
+        fs.writeFileSync(fakeEntrypoint, 'console.log("codex");\n', 'utf8');
+        process.env.APPDATA = fakeAppData;
+      }
+      const invocation = metagrinderWorkbenchServer.codexSpawnInvocation({
+        command: 'codex.cmd',
+        args: ['exec', '-C', 'H:\\Other computers\\My Computer\\Documents\\Cascade Projects\\metagrinder', '-']
+      });
+      if (process.platform === 'win32') {
+        expect(path.basename(invocation.command).toLowerCase()).toBe(path.basename(process.execPath).toLowerCase());
+        expect(invocation.args[0]).toMatch(/@openai[\\/]codex[\\/]bin[\\/]codex\.js$/);
+        expect(invocation.args).toContain('H:\\Other computers\\My Computer\\Documents\\Cascade Projects\\metagrinder');
+      } else {
+        expect(invocation.command).toBe('codex.cmd');
+      }
+    } finally {
+      if (previousAppData === undefined) delete process.env.APPDATA;
+      else process.env.APPDATA = previousAppData;
     }
     expect(metagrinderWorkbenchService.normalizeCodexRunStatus({
       status: 'running',

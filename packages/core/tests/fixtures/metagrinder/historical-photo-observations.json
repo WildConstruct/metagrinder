@@ -1,0 +1,427 @@
+[
+  {
+    "observationVersion": "0.1.0",
+    "recordId": "photo_1914_scoreboard",
+    "source": {
+      "sourceId": "1914_C_242_scoreboard",
+      "sourcePath": "C:/Users/behmb/Dropbox/Indie 500 Intro VFX 2026/_REF/Historical Photo Ref/1914/1914-C-242-Scoreboard.jpg",
+      "caption": "1914 scoreboard workers and trackside public",
+      "eraRange": [1914, 1914],
+      "event": "Indianapolis 500",
+      "location": "Indianapolis Motor Speedway",
+      "imageMode": "black_and_white_photo",
+      "rightsBoundary": "reference-only",
+      "sourceConfidence": "medium"
+    },
+    "photoIntake": {
+      "sceneType": "scoreboard_work_crew_and_spectators",
+      "doNotUseAsEvidenceFor": ["true color", "rights clearance"]
+    },
+    "observed": {
+      "people": [
+        {
+          "personId": "p_ground_scoreboard_man",
+          "role": "scoreboard area worker",
+          "garments": [
+            {
+              "slot": "torso",
+              "category": "light shirt with suspenders",
+              "color": { "claim": "light shirt tone; true color unknown", "confidence": "low", "basis": "observed" },
+              "material": { "claim": "woven shirt fabric likely but unconfirmed", "confidence": "low", "basis": "inferred" },
+              "confidence": "medium"
+            }
+          ]
+        }
+      ],
+      "cohorts": [],
+      "sceneEvidence": [
+        { "claim": "Manual scorekeeping structure includes visible workers", "confidence": "high", "basis": "observed" }
+      ]
+    },
+    "inferred": {
+      "claims": [
+        { "claim": "Scoreboard workers need a work-role archetype distinct from spectators", "confidence": "medium", "basis": "inferred" }
+      ],
+      "researchNeeds": [
+        {
+          "question": "What clothing did early Indianapolis Motor Speedway scorekeepers wear around 1914?",
+          "reason": "The photo shows role and silhouette but not standardized wardrobe terminology.",
+          "suggestedSources": ["IMS archive", "1914 race program", "1910s menswear catalogs"]
+        }
+      ]
+    },
+    "unknown": {
+      "unresolvedFields": ["true colors", "exact shoe types"],
+      "blockedClaims": ["uniform standardization", "exact materials", "commercial rights"]
+    },
+    "generatedCandidateUse": {
+      "allowed": ["scoreboard worker lookbook"],
+      "notAllowed": ["source evidence", "true color reconstruction"],
+      "recipeRoutes": [
+        {
+          "routeId": "manual_scoreboard_worker_board",
+          "purpose": "Generate a neutral lookbook of early 1910s race scoreboard workers with shirts, suspenders, brimmed hats, and dark trousers.",
+          "evidenceGuardrail": "Generated clothing is not source evidence; use neutral tones and mark color/material as unresolved."
+        }
+      ]
+    },
+    "colorHypothesis": {
+      "photoProcessHypothesis": [
+        {
+          "claim": "Black-and-white source process unknown; tonal values separate light shirt/hat from darker suspenders/trousers but do not prove hue.",
+          "confidence": "medium",
+          "basis": "observed",
+          "sourceRefs": ["1914-C-242-Scoreboard.jpg"]
+        }
+      ],
+      "tonalEvidence": [
+        {
+          "target": "ground figure hat and shirt",
+          "claim": "Hat and shirt read light against darker suspenders and trousers.",
+          "confidence": "high",
+          "basis": "observed"
+        }
+      ],
+      "historicalColorPriors": [
+        {
+          "target": "1914 scoreboard worker shirt, hat, suspenders, and trousers",
+          "candidateColors": ["white", "cream", "natural straw", "black", "charcoal"],
+          "confidence": "low",
+          "basis": "research_needed",
+          "sourcesNeeded": ["1914 race program", "1910s menswear catalogs", "IMS archive operations photos"]
+        }
+      ],
+      "colorHypotheses": [
+        {
+          "target": "manual scoreboard worker wardrobe",
+          "candidateColors": ["white or cream shirt", "natural straw or light felt hat", "black suspenders", "charcoal trousers"],
+          "confidence": "low",
+          "basis": ["tonal evidence", "period workwear prior"],
+          "notEvidenceFor": ["true source color", "canonical UTDG color", "rights clearance"],
+          "downstreamRefs": {
+            "metagrinder": "scene-grammar:scene_1914_manual_scoreboard",
+            "utdgCandidate": "utdg_1914_scoreboard_worker_archetype",
+            "eracrowdRoute": "manual_scoreboard_worker_board"
+          }
+        }
+      ],
+      "generationPalette": [
+        {
+          "target": "manual_scoreboard_worker_board",
+          "palette": ["cream", "white", "natural straw", "black", "charcoal"],
+          "confidence": "low",
+          "evidenceGuardrail": "Production guidance only; generated colors are not source evidence."
+        }
+      ],
+      "researchNeeds": [
+        {
+          "question": "Can 1914 IMS race programs or operations photos support the shirt, hat, and trouser color range?",
+          "reason": "The image supports role and tonal contrast, not true color.",
+          "suggestedSources": ["IMS archive", "1914 race program", "Library of Congress early automobile race operations photos"]
+        }
+      ],
+      "evidenceBoundary": [
+        "Do not treat tonal lightness as white or straw without external support.",
+        "Do not promote generation palettes as source evidence or canonical UTDG color."
+      ]
+    },
+    "confidenceSummary": { "overall": "medium", "color": "low" },
+    "downstream": {
+      "metagrinderFragments": [
+        { "collectionType": "scene-grammar", "records": [{ "grammarId": "scene_1914_manual_scoreboard" }] }
+      ],
+      "utdgCandidates": [
+        {
+          "candidateId": "utdg_1914_scoreboard_worker_archetype",
+          "entityType": "Archetype",
+          "label": "early 1910s race scoreboard worker",
+          "reviewStatus": "staged",
+          "evidenceBasis": "observed",
+          "rightsProfile": "reference-only",
+          "confidence": "medium",
+          "commercialAllowed": false,
+          "sourceRefs": ["1914-C-242-Scoreboard.jpg"]
+        }
+      ],
+      "eracrowdHandoff": []
+    }
+  },
+  {
+    "observationVersion": "0.1.0",
+    "recordId": "photo_1972_infield_crowd",
+    "source": {
+      "sourceId": "1972_181_0_infield_crowd",
+      "sourcePath": "C:/Users/behmb/Dropbox/Indie 500 Intro VFX 2026/_REF/Historical Photo Ref/1972/1972-181-0.jpg",
+      "caption": "1972 infield spectator crowd on blankets",
+      "eraRange": [1972, 1972],
+      "event": "Indianapolis 500",
+      "location": "Indianapolis Motor Speedway infield",
+      "imageMode": "color_photo",
+      "rightsBoundary": "reference-only",
+      "sourceConfidence": "medium"
+    },
+    "photoIntake": {
+      "sceneType": "infield_spectator_crowd",
+      "doNotUseAsEvidenceFor": ["exact crowd percentages", "rights clearance"]
+    },
+    "observed": {
+      "people": [],
+      "cohorts": [
+        {
+          "cohortId": "cohort_1972_infield_youth_casual",
+          "label": "1972 infield casual youth and adult spectators",
+          "confidence": "high"
+        }
+      ],
+      "sceneEvidence": [
+        { "claim": "Infield spectators sit or recline on blankets with coolers and bags", "confidence": "high", "basis": "observed" }
+      ]
+    },
+    "inferred": {
+      "claims": [
+        { "claim": "Infield crowd generation should use cohort distributions rather than isolated hero outfits", "confidence": "high", "basis": "inferred" }
+      ],
+      "researchNeeds": [
+        {
+          "question": "What were common 1972 American casualwear retail categories matching ringer tees, denim, sleeveless tops, and canvas sneakers?",
+          "reason": "Observed categories are clear but broader research helps generate historically grounded variations.",
+          "suggestedSources": ["Sears 1972 catalog", "JCPenney 1972 catalog", "period sportswear ads"]
+        }
+      ]
+    },
+    "unknown": {
+      "unresolvedFields": ["exact crowd percentages", "brands/logos on shirts"],
+      "blockedClaims": ["cleared graphic or logo reproduction"]
+    },
+    "generatedCandidateUse": {
+      "allowed": ["cohort lookbook board", "crowd distribution prompt"],
+      "notAllowed": ["source evidence", "literal logo or slogan reproduction"],
+      "recipeRoutes": [
+        {
+          "routeId": "1972_infield_casual_crowd_distribution",
+          "purpose": "Generate crowd distribution prompts for casual infield spectators with ringer tees, denim, sleeveless tops, shorts, sneakers, blankets, coolers, and bags.",
+          "evidenceGuardrail": "Generated people, exact outfit percentages, and graphics are fictional and not source evidence."
+        }
+      ]
+    },
+    "colorHypothesis": {
+      "photoProcessHypothesis": [
+        {
+          "claim": "Color photograph with possible scan aging and crowd-distance limits; visible color supports broad palette families but not every occluded garment.",
+          "confidence": "high",
+          "basis": "observed",
+          "sourceRefs": ["1972-181-0.jpg"]
+        }
+      ],
+      "tonalEvidence": [
+        {
+          "target": "foreground casualwear and objects",
+          "claim": "Orange-red sneakers, blue denim, green blankets, red textiles, white coolers, and mixed bright shirts are visible.",
+          "confidence": "high",
+          "basis": "observed"
+        }
+      ],
+      "historicalColorPriors": [
+        {
+          "target": "1972 infield casualwear and picnic material culture",
+          "candidateColors": ["blue denim", "white cotton", "red", "orange-red", "green", "navy"],
+          "confidence": "medium",
+          "basis": "observed",
+          "sourcesNeeded": ["Sears 1972 catalog", "JCPenney 1972 catalog", "period sportswear ads"]
+        }
+      ],
+      "colorHypotheses": [
+        {
+          "target": "1972 infield casual crowd distribution",
+          "candidateColors": ["blue denim range", "white and colored ringer tees", "red and green blanket accents", "orange-red canvas sneakers"],
+          "confidence": "high",
+          "basis": ["observed color photo", "crowd-scale distribution"],
+          "notEvidenceFor": ["exact crowd percentages", "specific brand palettes", "canonical UTDG color", "rights clearance"],
+          "downstreamRefs": {
+            "metagrinder": "concept-clusters:cohort_1972_infield_casual",
+            "utdgCandidate": "utdg_1972_infield_casual_spectator_archetype",
+            "eracrowdRoute": "1972_infield_casual_crowd_distribution"
+          }
+        }
+      ],
+      "generationPalette": [
+        {
+          "target": "1972_infield_casual_crowd_distribution",
+          "palette": ["blue denim", "white cotton", "red", "orange-red", "green", "navy", "tan"],
+          "confidence": "medium",
+          "evidenceGuardrail": "Production guidance only; generated people, graphics, exact percentages, and palette assignments are not source evidence."
+        }
+      ],
+      "researchNeeds": [
+        {
+          "question": "Which 1972 retail catalogs and IMS infield color photos support casualwear color distributions?",
+          "reason": "The photo supports visible palette families but sampled counting and source expansion are needed.",
+          "suggestedSources": ["Sears 1972 catalog", "JCPenney 1972 catalog", "IMS infield photo sets"]
+        }
+      ],
+      "evidenceBoundary": [
+        "Do not treat a single infield photo as exact color-frequency proof.",
+        "Do not promote generated crowd palettes as source evidence or canonical UTDG color."
+      ]
+    },
+    "confidenceSummary": { "overall": "high", "color": "high" },
+    "downstream": {
+      "metagrinderFragments": [
+        { "collectionType": "concept-clusters", "records": [{ "conceptId": "cohort_1972_infield_casual" }] }
+      ],
+      "utdgCandidates": [
+        {
+          "candidateId": "utdg_1972_infield_casual_spectator_archetype",
+          "entityType": "Archetype",
+          "label": "1972 Indy infield casual spectator",
+          "reviewStatus": "staged",
+          "evidenceBasis": "observed",
+          "rightsProfile": "reference-only",
+          "confidence": "high",
+          "commercialAllowed": false,
+          "sourceRefs": ["1972-181-0.jpg"]
+        }
+      ],
+      "eracrowdHandoff": []
+    }
+  },
+  {
+    "observationVersion": "0.1.0",
+    "recordId": "photo_1972_pit_crew",
+    "source": {
+      "sourceId": "1972_DT_72_17_8_joe_leonard_pit_stop",
+      "sourcePath": "C:/Users/behmb/Dropbox/Indie 500 Intro VFX 2026/_REF/Historical Photo Ref/1972/1972-DT-72-17-8-Joe-Leonard-Car-1-Pit-Stop.jpg",
+      "caption": "1972 Joe Leonard car 1 pit stop",
+      "eraRange": [1972, 1972],
+      "event": "Indianapolis 500",
+      "location": "Indianapolis Motor Speedway pit lane",
+      "imageMode": "color_photo",
+      "rightsBoundary": "reference-only",
+      "sourceConfidence": "medium"
+    },
+    "photoIntake": {
+      "sceneType": "pit_crew_action",
+      "doNotUseAsEvidenceFor": ["exact sponsor/logo reproduction", "rights clearance"]
+    },
+    "observed": {
+      "people": [],
+      "cohorts": [
+        {
+          "cohortId": "cohort_1972_pit_crew_red_white",
+          "label": "1972 pit crew red-trouser white-upper uniform cluster",
+          "confidence": "high"
+        }
+      ],
+      "sceneEvidence": [
+        { "claim": "White upper garments and red trousers repeat across the pit crew cluster", "confidence": "high", "basis": "observed" }
+      ]
+    },
+    "inferred": {
+      "claims": [
+        { "claim": "Pit crew records should preserve team/role compatibility without reproducing sponsor marks by default", "confidence": "high", "basis": "inferred" }
+      ],
+      "researchNeeds": [
+        {
+          "question": "What team uniform details, sponsor restrictions, and shoe types are documented for Joe Leonard car 1 pit crew in 1972?",
+          "reason": "Exact sponsor marks and footwear brands need rights and source review.",
+          "suggestedSources": ["IMS 1972 race archive", "team press photos", "period race program"]
+        }
+      ]
+    },
+    "unknown": {
+      "unresolvedFields": ["exact sponsor lettering", "specific shoe brand"],
+      "blockedClaims": ["cleared sponsor graphics", "canonical team uniform spec"]
+    },
+    "generatedCandidateUse": {
+      "allowed": ["pit crew uniform lookbook", "role-specific generation recipe"],
+      "notAllowed": ["source evidence", "literal sponsor or team logo reproduction"],
+      "recipeRoutes": [
+        {
+          "routeId": "1972_pit_crew_uniform_board",
+          "purpose": "Generate rights-safe 1972 pit crew uniform variations with white upper garments, red trousers, red/white athletic shoes, yellow safety-worker variant, and pit equipment context.",
+          "evidenceGuardrail": "Generated logos, sponsor marks, exact team graphics, and faces are fictional and not source evidence."
+        }
+      ]
+    },
+    "colorHypothesis": {
+      "photoProcessHypothesis": [
+        {
+          "claim": "Color photograph with possible scan aging; pit crew garment colors are directly visible, while exact sponsor colors remain unverified.",
+          "confidence": "high",
+          "basis": "observed",
+          "sourceRefs": ["1972-DT-72-17-8-Joe-Leonard-Car-1-Pit-Stop.jpg"]
+        }
+      ],
+      "tonalEvidence": [
+        {
+          "target": "red-trouser pit crew cluster",
+          "claim": "White upper garments, bright red trousers, and red/white footwear repeat across visible crew members.",
+          "confidence": "high",
+          "basis": "observed"
+        }
+      ],
+      "historicalColorPriors": [
+        {
+          "target": "1972 pit crew uniform and safety-worker palette",
+          "candidateColors": ["white", "bright red", "yellow", "olive tan", "black hose"],
+          "confidence": "medium",
+          "basis": "observed",
+          "sourcesNeeded": ["IMS 1972 race archive", "team press photos", "period race program"]
+        }
+      ],
+      "colorHypotheses": [
+        {
+          "target": "1972 pit crew red-white uniform cluster and yellow safety variant",
+          "candidateColors": ["white upper garments", "bright red trousers", "red and white athletic shoes", "yellow cap and shirt"],
+          "confidence": "high",
+          "basis": ["observed color photo", "role-specific repeated uniform cluster"],
+          "notEvidenceFor": ["exact sponsor color", "specific shoe brand palette", "canonical UTDG color", "rights clearance"],
+          "downstreamRefs": {
+            "metagrinder": "scene-grammar:scene_1972_pit_crew_uniform_logic",
+            "utdgCandidate": "utdg_1972_pit_crew_red_white_uniform_rule",
+            "eracrowdRoute": "1972_pit_crew_uniform_board"
+          }
+        }
+      ],
+      "generationPalette": [
+        {
+          "target": "1972_pit_crew_uniform_board",
+          "palette": ["white", "bright red", "yellow", "olive tan", "black", "metallic silver"],
+          "confidence": "medium",
+          "evidenceGuardrail": "Production guidance only; generated sponsor marks, exact team graphics, faces, and brand-specific footwear colors are not source evidence."
+        }
+      ],
+      "researchNeeds": [
+        {
+          "question": "Which 1972 team photos or race program references support exact crew uniform colors, patch colors, and footwear details?",
+          "reason": "The photo supports the broad palette but not cleared sponsor graphics.",
+          "suggestedSources": ["IMS 1972 race archive", "team press photos", "period race program"]
+        }
+      ],
+      "evidenceBoundary": [
+        "Observed color supports the broad uniform palette but not sponsor marks or brand identities.",
+        "Do not promote generated pit crew palettes as source evidence or canonical UTDG color."
+      ]
+    },
+    "confidenceSummary": { "overall": "high", "color": "high" },
+    "downstream": {
+      "metagrinderFragments": [
+        { "collectionType": "scene-grammar", "records": [{ "grammarId": "scene_1972_pit_crew_uniform_logic" }] }
+      ],
+      "utdgCandidates": [
+        {
+          "candidateId": "utdg_1972_pit_crew_red_white_uniform_rule",
+          "entityType": "CompatibilityRule",
+          "label": "1972 Indy pit crew red trouser and white upper garment coordination",
+          "reviewStatus": "staged",
+          "evidenceBasis": "observed",
+          "rightsProfile": "reference-only",
+          "confidence": "high",
+          "commercialAllowed": false,
+          "sourceRefs": ["1972-DT-72-17-8-Joe-Leonard-Car-1-Pit-Stop.jpg"]
+        }
+      ],
+      "eracrowdHandoff": []
+    }
+  }
+]

@@ -11,7 +11,9 @@ const {
   MetagrinderCodexParseRequestArtifactSchema,
   MetagrinderCodexParseResultArtifactSchema,
   MetagrinderExtractArtifactSchema,
+  MetagrinderColorHypothesisArtifactSchema,
   MetagrinderGrammarRevisionArtifactSchema,
+  MetagrinderHistoricalPhotoObservationArtifactSchema,
   MetagrinderIngestArtifactSchema,
   MetagrinderModeDetectionArtifactSchema,
   MetagrinderMutationArtifactSchema,
@@ -329,6 +331,8 @@ function buildResearchPackageManifest({
   codexParseOutputSchemaArtifact,
   codexParseResultArtifact,
   sceneGrammarArtifact,
+  historicalPhotoObservationArtifact,
+  colorHypothesisArtifact,
   researchGapArtifact,
   samplePromptsArtifact,
   sceneGrammarEvaluation,
@@ -406,6 +410,12 @@ function buildResearchPackageManifest({
   }
   if (sceneGrammarArtifact) {
     collections.push({ id: 'col_scene_grammar', type: 'scene-grammar', path: 'scene-grammar.json' });
+  }
+  if (historicalPhotoObservationArtifact) {
+    collections.push({ id: 'col_photo_observations', type: 'photo-observations', path: 'photo-observations.json' });
+  }
+  if (colorHypothesisArtifact) {
+    collections.push({ id: 'col_color_hypotheses', type: 'color-hypotheses', path: 'color-hypotheses.json' });
   }
   if (researchGapArtifact) {
     collections.push({ id: 'col_research_gaps', type: 'research-gaps', path: 'research-gaps.json' });
@@ -652,6 +662,8 @@ function validatePackageArtifacts({
   liveRetrievalRequestsArtifact,
   liveRetrievalCacheWriteArtifact,
   acceptedSceneGrammarArtifact,
+  historicalPhotoObservationArtifact,
+  colorHypothesisArtifact,
   samplePromptsArtifact,
   sceneGrammarEvaluation,
   plausibilityReviewArtifact,
@@ -706,6 +718,12 @@ function validatePackageArtifacts({
   }
   if (sceneGrammarArtifact) {
     MetagrinderSceneGrammarArtifactSchema.parse(sceneGrammarArtifact);
+  }
+  if (historicalPhotoObservationArtifact) {
+    MetagrinderHistoricalPhotoObservationArtifactSchema.parse(historicalPhotoObservationArtifact);
+  }
+  if (colorHypothesisArtifact) {
+    MetagrinderColorHypothesisArtifactSchema.parse(colorHypothesisArtifact);
   }
   if (researchGapArtifact) {
     MetagrinderResearchGapArtifactSchema.parse(researchGapArtifact);

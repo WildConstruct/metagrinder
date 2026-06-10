@@ -37,6 +37,8 @@ export const MetagrinderPackageTypeSchema = z.enum([
 
 export const MetagrinderCollectionTypeSchema = z.enum([
   'source-map',
+  'photo-observations',
+  'color-hypotheses',
   'claims-and-evidence',
   'concept-clusters',
   'prompt-synthesis',
@@ -105,6 +107,7 @@ export const MetagrinderEntityTypeSchema = z.enum([
   'Concept',
   'Archetype',
   'SourceRecordReference',
+  'ColorHypothesis',
   'EvidenceAssertion',
   'CompatibilityRule',
   'SurfaceResponseProfile',
@@ -154,7 +157,8 @@ export const MetagrinderCollectionManifestSchema = z.object({
 export const MetagrinderSourceTypeSchema = z.enum([
   'plain-text',
   'notes-bundle',
-  'research-brief'
+  'research-brief',
+  'photo-reference'
 ]);
 
 export const MetagrinderResearchKindSchema = z.enum([
@@ -171,8 +175,12 @@ export const MetagrinderResearchKindSchema = z.enum([
 export const MetagrinderChunkKindSchema = z.enum([
   'source-note',
   'observation',
+  'photo-observation',
+  'color-hypothesis',
+  'wardrobe-observation',
   'concept-list',
   'generation-rule',
+  'generation-palette',
   'template',
   'uncertainty',
   'reference-table',
@@ -216,6 +224,147 @@ export const MetagrinderIngestArtifactSchema = z.object({
   createdAt: z.string().datetime().optional(),
   sourceInputs: z.array(MetagrinderSourceInputSchema).min(1).default([]),
   chunks: z.array(MetagrinderIngestChunkSchema).min(1)
+});
+
+export const MetagrinderHistoricalPhotoClaimSchema = z.object({
+  claim: z.string(),
+  confidence: MetagrinderConfidenceLevelSchema,
+  basis: z.string()
+}).passthrough();
+
+export const MetagrinderHistoricalPhotoColorHypothesisClaimSchema = z.object({
+  target: z.string(),
+  candidateColors: z.array(z.string()).min(1),
+  confidence: MetagrinderConfidenceLevelSchema,
+  basis: z.array(z.string()).default([]),
+  externalSourceRefs: z.array(z.string()).default([]),
+  notEvidenceFor: z.array(z.string()).default([]),
+  downstreamRefs: z.object({
+    metagrinder: z.string(),
+    utdgCandidate: z.string(),
+    eracrowdRoute: z.string()
+  })
+}).passthrough().superRefine((claim, ctx) => {
+  if (!claim.notEvidenceFor.includes('canonical UTDG color')) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['notEvidenceFor'],
+      message: 'Color hypotheses must not be evidence for canonical UTDG color.'
+    });
+  }
+});
+
+export const MetagrinderHistoricalPhotoGenerationPaletteSchema = z.object({
+  target: z.string(),
+  palette: z.array(z.string()).min(1),
+  confidence: MetagrinderConfidenceLevelSchema,
+  evidenceGuardrail: z.string()
+}).superRefine((palette, ctx) => {
+  if (!palette.evidenceGuardrail.toLowerCase().includes('not source evidence')) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['evidenceGuardrail'],
+      message: 'Generation palettes must state they are not source evidence.'
+    });
+  }
+});
+
+export const MetagrinderHistoricalPhotoColorHypothesisSchema = z.object({
+  photoProcessHypothesis: z.array(MetagrinderHistoricalPhotoClaimSchema).min(1),
+  tonalEvidence: z.array(z.object({
+    target: z.string(),
+    claim: z.string(),
+    confidence: MetagrinderConfidenceLevelSchema,
+    basis: z.string()
+  }).passthrough()).min(1),
+  historicalColorPriors: z.array(z.object({
+    target: z.string(),
+    candidateColors: z.array(z.string()).min(1),
+    confidence: MetagrinderConfidenceLevelSchema,
+    basis: z.string(),
+    sourcesNeeded: z.array(z.string()).min(1)
+  }).passthrough()).default([]),
+  colorHypotheses: z.array(MetagrinderHistoricalPhotoColorHypothesisClaimSchema).min(1),
+  generationPalette: z.array(MetagrinderHistoricalPhotoGenerationPaletteSchema).min(1),
+  researchNeeds: z.array(z.record(z.unknown())).default([]),
+  evidenceBoundary: z.array(z.string()).min(1)
+}).superRefine((hypothesis, ctx) => {
+  const boundary = hypothesis.evidenceBoundary.join(' ').toLowerCase();
+  if (!boundary.includes('source evidence')) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['evidenceBoundary'],
+      message: 'Color hypothesis evidence boundary must mention source evidence.'
+    });
+  }
+});
+
+export const MetagrinderHistoricalPhotoObservationSchema = z.object({
+  observationVersion: z.string(),
+  recordId: z.string(),
+  source: z.object({
+    sourceId: z.string(),
+    sourcePath: z.string(),
+    caption: z.string().optional(),
+    eraRange: z.array(z.number().int()).length(2),
+    event: z.string(),
+    location: z.string().optional(),
+    imageMode: z.enum(['color_photo', 'black_and_white_photo', 'sepia_photo', 'unknown']),
+    rightsBoundary: z.string(),
+    sourceConfidence: MetagrinderConfidenceLevelSchema.optional()
+  }).passthrough(),
+  photoIntake: z.record(z.unknown()),
+  observed: z.record(z.unknown()),
+  inferred: z.object({
+    claims: z.array(MetagrinderHistoricalPhotoClaimSchema).default([]),
+    researchNeeds: z.array(z.record(z.unknown())).default([])
+  }).passthrough(),
+  unknown: z.record(z.unknown()),
+  generatedCandidateUse: z.object({
+    allowed: z.array(z.string()).default([]),
+    notAllowed: z.array(z.string()).default([]),
+    recipeRoutes: z.array(z.object({
+      routeId: z.string(),
+      purpose: z.string(),
+      evidenceGuardrail: z.string()
+    }).passthrough()).default([])
+  }).passthrough(),
+  colorHypothesis: MetagrinderHistoricalPhotoColorHypothesisSchema,
+  confidenceSummary: z.record(z.unknown()),
+  downstream: z.object({
+    metagrinderFragments: z.array(z.record(z.unknown())).default([]),
+    utdgCandidates: z.array(z.record(z.unknown())).default([]),
+    eracrowdHandoff: z.array(z.record(z.unknown())).default([])
+  }).passthrough()
+}).superRefine((photo, ctx) => {
+  if (photo.source.imageMode === 'black_and_white_photo' || photo.source.imageMode === 'sepia_photo') {
+    photo.colorHypothesis.colorHypotheses.forEach((claim, index) => {
+      if (claim.confidence === 'high' && claim.externalSourceRefs.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['colorHypothesis', 'colorHypotheses', index, 'confidence'],
+          message: 'High-confidence B&W color hypotheses require external source refs.'
+        });
+      }
+    });
+  }
+});
+
+export const MetagrinderHistoricalPhotoObservationArtifactSchema = z.object({
+  inputId: z.string(),
+  packageId: z.string(),
+  photos: z.array(MetagrinderHistoricalPhotoObservationSchema).min(1)
+});
+
+export const MetagrinderColorHypothesisArtifactSchema = z.object({
+  inputId: z.string(),
+  packageId: z.string(),
+  records: z.array(z.object({
+    recordId: z.string(),
+    sourceInputId: z.string(),
+    imageMode: z.string(),
+    colorHypothesis: MetagrinderHistoricalPhotoColorHypothesisSchema
+  })).min(1)
 });
 
 export const MetagrinderModeDetectionArtifactSchema = z.object({
@@ -2660,6 +2809,10 @@ export type MetagrinderChunkKind = z.infer<typeof MetagrinderChunkKindSchema>;
 export type MetagrinderSourceInput = z.infer<typeof MetagrinderSourceInputSchema>;
 export type MetagrinderIngestChunk = z.infer<typeof MetagrinderIngestChunkSchema>;
 export type MetagrinderIngestArtifact = z.infer<typeof MetagrinderIngestArtifactSchema>;
+export type MetagrinderHistoricalPhotoObservation = z.infer<typeof MetagrinderHistoricalPhotoObservationSchema>;
+export type MetagrinderHistoricalPhotoObservationArtifact = z.infer<typeof MetagrinderHistoricalPhotoObservationArtifactSchema>;
+export type MetagrinderHistoricalPhotoColorHypothesis = z.infer<typeof MetagrinderHistoricalPhotoColorHypothesisSchema>;
+export type MetagrinderColorHypothesisArtifact = z.infer<typeof MetagrinderColorHypothesisArtifactSchema>;
 export type MetagrinderModeDetectionArtifact = z.infer<typeof MetagrinderModeDetectionArtifactSchema>;
 export type MetagrinderCategoryPriority = z.infer<typeof MetagrinderCategoryPrioritySchema>;
 export type MetagrinderCategoryHypothesisEntry = z.infer<typeof MetagrinderCategoryHypothesisEntrySchema>;
