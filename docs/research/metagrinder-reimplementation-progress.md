@@ -15,6 +15,14 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-06-10 [S3.1] LlmProvider + replay — DONE (Phase 3 begins)
+- changed: src/providers/{types,cache,caching-provider,anthropic,codex-cli,index,providers.test}.ts
+- gates: tsc clean; src 76/76 (9 suites); legacy 134/134
+- notes: The honest-LLM seam. Provider returns UNTRUSTED data validated against the request's Zod schema (throws LlmValidationError on mismatch). record/replay/auto modes; replay reads <runDir>/llm-cache/ and never touches the network (ReplayMissError on miss) — this is how runs become reproducible (determinism of runs via cached artifacts, not of models). Live response cached BEFORE parsing so a parse failure leaves an inspectable artifact. Two real transports (anthropic Messages API, codex-cli spawn) with the network/spawn as the untested boundary and an injectable fetch/transport as the tested seam — 8 tests use a fake transport. Anthropic model defaults to claude-opus-4-8. Cache is deliberately NOT a package-manifest family (provider I/O = cache, per COLLAPSE-MAP). Next: S3.2 extract stage + the per-mode AIS verification layer (this is where ingest spans from S2.1 get used for quote checking).
+
+## 2026-06-10 PHASE 2 EXIT — approved by Brian Behm
+Deterministic spine complete and signed off: span-indexed ingest, byte-identical PSG compiler (base + 7 branches), governance state machine with invariants property-tested, deterministic rule-safe content-plan sampling — all through the validating RunStore (commits e43bb6a, 25bacab, 2ed2312, f2b0295). Phase 3 (semantic stages on the provider interface) begins at S3.1. S0.3 held-out briefs still in progress operator-side; S3.1 (LlmProvider + replay) needs neither briefs nor live API and proceeds now. Briefs gate the live held-out eval at the Phase 3 exit, not the build.
+
 ## 2026-06-10 [S2.4] Content-plan sampling + Phase 2 end-to-end — DONE
 - changed: src/stages/sample/{rng,rules,index,sample.test}.ts, src/pipeline.phase2.test.ts
 - gates: tsc clean; src 68/68 (8 suites); legacy 134/134
