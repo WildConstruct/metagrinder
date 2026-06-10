@@ -1,0 +1,159 @@
+{
+  "version": "1.0.0",
+  "name": "Early twentieth-century public spectacle crowd scene grammar notes Scene Grammar",
+  "description": "Flat Prompt Spaghetti graph compiled from Metagrinder scene grammar.",
+  "metadata": {
+    "type": "ASSET_FRAGMENT",
+    "source": "metagrinder",
+    "tags": [
+      "metagrinder",
+      "scene-grammar"
+    ],
+    "createdAt": "2026-05-02T12:00:00.000Z"
+  },
+  "nodes": [
+    {
+      "id": "scene-context",
+      "type": "TextBlock",
+      "x": 80,
+      "y": 120,
+      "name": "Scene Context",
+      "value": "Scene grammar compiled from 15 source chunks and 52 extracted claims."
+    },
+    {
+      "id": "archetype-choice",
+      "type": "WeightedChoice",
+      "x": 80,
+      "y": 300,
+      "name": "Archetype Choice",
+      "options": [
+        {
+          "text": "Middle-class spectator",
+          "weight": 55
+        },
+        {
+          "text": "Heat-adjusted spectator",
+          "weight": 25
+        },
+        {
+          "text": "Working-class trackside spectator",
+          "weight": 12.5
+        },
+        {
+          "text": "Affluent or club spectator",
+          "weight": 7.5
+        },
+        {
+          "text": "Female middle-class spectator",
+          "weight": 6.5
+        },
+        {
+          "text": "Child or teen spectator",
+          "weight": 4
+        }
+      ]
+    },
+    {
+      "id": "location-choice",
+      "type": "WeightedChoice",
+      "x": 80,
+      "y": 480,
+      "name": "Location Choice",
+      "options": [
+        {
+          "text": "seated or dense social viewing area with more complete outfits and fa...",
+          "weight": 1
+        },
+        {
+          "text": "track-edge viewing zone with more adult men, shirtsleeves, and lower-...",
+          "weight": 1
+        },
+        {
+          "text": "controlled work zone for officials, mechanics, drivers, press, and su...",
+          "weight": 1
+        },
+        {
+          "text": "broader public space with looser posture and mixed casual viewing",
+          "weight": 1
+        },
+        {
+          "text": "movement zone with people passing, clustering, carrying programs, or...",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "environment-choice",
+      "type": "WeightedChoice",
+      "x": 80,
+      "y": 660,
+      "name": "Environment Choice",
+      "options": [
+        {
+          "text": "heat adaptation visible in loosened dress, jacket removal, and practi...",
+          "weight": 1
+        },
+        {
+          "text": "dust accumulation on shoes, hems, trouser cuffs, and lower garments",
+          "weight": 1
+        },
+        {
+          "text": "bright outdoor daylight with hard visibility and squinting",
+          "weight": 1
+        },
+        {
+          "text": "light atmospheric haze from dust, smoke, fuel, or industrial activity",
+          "weight": 1
+        },
+        {
+          "text": "mud, wet hems, and slippery paving influence stance, footwear, and ga...",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "id": "prompt-output",
+      "type": "Output",
+      "x": 1220,
+      "y": 120,
+      "name": "Prompt Output",
+      "template": "{prompt}"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-scene-context-archetype-choice",
+      "source": "scene-context",
+      "target": "archetype-choice"
+    },
+    {
+      "id": "edge-archetype-choice-location-choice",
+      "source": "archetype-choice",
+      "target": "location-choice"
+    },
+    {
+      "id": "edge-location-choice-environment-choice",
+      "source": "location-choice",
+      "target": "environment-choice"
+    },
+    {
+      "id": "edge-environment-choice-prompt-output",
+      "source": "environment-choice",
+      "target": "prompt-output"
+    }
+  ],
+  "regions": [
+    {
+      "id": "region-scene-grammar",
+      "name": "Scene Grammar Prompt",
+      "color": "#22d3ee",
+      "nodes": [
+        "scene-context",
+        "archetype-choice",
+        "location-choice",
+        "environment-choice",
+        "prompt-output"
+      ]
+    }
+  ]
+}

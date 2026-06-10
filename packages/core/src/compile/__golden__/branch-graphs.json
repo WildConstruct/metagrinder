@@ -1,0 +1,671 @@
+{
+  "scene-global-baseline.psg": {
+    "version": "1.0.0",
+    "name": "Early twentieth-century public spectacle crowd scene grammar notes Scene Grammar",
+    "description": "Flat Prompt Spaghetti graph compiled from Metagrinder scene grammar.",
+    "metadata": {
+      "type": "ASSET_FRAGMENT",
+      "source": "metagrinder",
+      "tags": [
+        "metagrinder",
+        "scene-grammar"
+      ],
+      "createdAt": "2026-05-02T12:00:00.000Z"
+    },
+    "nodes": [
+      {
+        "id": "scene-context",
+        "type": "TextBlock",
+        "x": 80,
+        "y": 120,
+        "name": "Scene Context",
+        "value": "Scene grammar compiled from 15 source chunks and 52 extracted claims."
+      },
+      {
+        "id": "archetype-choice",
+        "type": "WeightedChoice",
+        "x": 80,
+        "y": 300,
+        "name": "Archetype Choice",
+        "options": [
+          {
+            "text": "Middle-class spectator",
+            "weight": 55
+          },
+          {
+            "text": "Heat-adjusted spectator",
+            "weight": 25
+          },
+          {
+            "text": "Working-class trackside spectator",
+            "weight": 12.5
+          },
+          {
+            "text": "Affluent or club spectator",
+            "weight": 7.5
+          },
+          {
+            "text": "Female middle-class spectator",
+            "weight": 6.5
+          },
+          {
+            "text": "Child or teen spectator",
+            "weight": 4
+          }
+        ]
+      },
+      {
+        "id": "location-choice",
+        "type": "WeightedChoice",
+        "x": 80,
+        "y": 480,
+        "name": "Location Choice",
+        "options": [
+          {
+            "text": "seated or dense social viewing area with more complete outfits and fa...",
+            "weight": 1
+          },
+          {
+            "text": "track-edge viewing zone with more adult men, shirtsleeves, and lower-...",
+            "weight": 1
+          },
+          {
+            "text": "controlled work zone for officials, mechanics, drivers, press, and su...",
+            "weight": 1
+          },
+          {
+            "text": "broader public space with looser posture and mixed casual viewing",
+            "weight": 1
+          },
+          {
+            "text": "movement zone with people passing, clustering, carrying programs, or...",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "id": "environment-choice",
+        "type": "WeightedChoice",
+        "x": 80,
+        "y": 660,
+        "name": "Environment Choice",
+        "options": [
+          {
+            "text": "heat adaptation visible in loosened dress, jacket removal, and practi...",
+            "weight": 1
+          },
+          {
+            "text": "dust accumulation on shoes, hems, trouser cuffs, and lower garments",
+            "weight": 1
+          },
+          {
+            "text": "bright outdoor daylight with hard visibility and squinting",
+            "weight": 1
+          },
+          {
+            "text": "light atmospheric haze from dust, smoke, fuel, or industrial activity",
+            "weight": 1
+          },
+          {
+            "text": "mud, wet hems, and slippery paving influence stance, footwear, and ga...",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "id": "prompt-output",
+        "type": "Output",
+        "x": 1220,
+        "y": 120,
+        "name": "Prompt Output",
+        "template": "{prompt}"
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-scene-context-archetype-choice",
+        "source": "scene-context",
+        "target": "archetype-choice"
+      },
+      {
+        "id": "edge-archetype-choice-location-choice",
+        "source": "archetype-choice",
+        "target": "location-choice"
+      },
+      {
+        "id": "edge-location-choice-environment-choice",
+        "source": "location-choice",
+        "target": "environment-choice"
+      },
+      {
+        "id": "edge-environment-choice-prompt-output",
+        "source": "environment-choice",
+        "target": "prompt-output"
+      }
+    ],
+    "regions": [
+      {
+        "id": "region-scene-grammar",
+        "name": "Scene Grammar Prompt",
+        "color": "#22d3ee",
+        "nodes": [
+          "scene-context",
+          "archetype-choice",
+          "location-choice",
+          "environment-choice",
+          "prompt-output"
+        ]
+      }
+    ]
+  },
+  "scene-grandstand-branch.psg": {
+    "version": "1.0.0",
+    "name": "Early twentieth-century public spectacle crowd scene grammar notes Grandstand",
+    "description": "Flat Prompt Spaghetti branch graph generated from Metagrinder scene grammar.",
+    "metadata": {
+      "type": "ASSET_FRAGMENT",
+      "source": "metagrinder",
+      "tags": [
+        "metagrinder",
+        "scene-grammar",
+        "branch",
+        "grandstand"
+      ],
+      "createdAt": "2026-05-02T12:00:00.000Z"
+    },
+    "nodes": [
+      {
+        "id": "grandstand-context",
+        "type": "TextBlock",
+        "x": 80,
+        "y": 120,
+        "name": "Grandstand Context",
+        "value": "Grandstand compile-time branch generated from accepted scene grammar rules."
+      },
+      {
+        "id": "grandstand-choice",
+        "type": "WeightedChoice",
+        "x": 80,
+        "y": 300,
+        "name": "Grandstand Choice",
+        "options": [
+          {
+            "text": "adult spectator in formal public daywear with suit, shirt, tie, hat,...",
+            "weight": 55
+          },
+          {
+            "text": "adult spectator adapted to heat with shirt sleeves, suspenders, hat,...",
+            "weight": 25
+          },
+          {
+            "text": "working-class spectator in worn trousers, shirt, suspenders, practica...",
+            "weight": 8.13
+          },
+          {
+            "text": "affluent spectator with cleaner silhouette, light suit, polished shoe...",
+            "weight": 7.5
+          },
+          {
+            "text": "female spectator in long skirt or dress, blouse, large hat, gloves or...",
+            "weight": 11.7
+          },
+          {
+            "text": "child or teen spectator accompanying adults, dressed in period-approp...",
+            "weight": 7.2
+          }
+        ]
+      },
+      {
+        "id": "grandstand-output",
+        "type": "Output",
+        "x": 740,
+        "y": 120,
+        "name": "Grandstand Output",
+        "template": "{prompt}"
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-grandstand-context-grandstand-choice",
+        "source": "grandstand-context",
+        "target": "grandstand-choice"
+      },
+      {
+        "id": "edge-grandstand-choice-grandstand-output",
+        "source": "grandstand-choice",
+        "target": "grandstand-output"
+      }
+    ],
+    "regions": [
+      {
+        "id": "grandstand-region",
+        "name": "Grandstand",
+        "color": "#22d3ee",
+        "nodes": [
+          "grandstand-context",
+          "grandstand-choice",
+          "grandstand-output"
+        ]
+      }
+    ]
+  },
+  "scene-rail-branch.psg": {
+    "version": "1.0.0",
+    "name": "Early twentieth-century public spectacle crowd scene grammar notes Rail or fence",
+    "description": "Flat Prompt Spaghetti branch graph generated from Metagrinder scene grammar.",
+    "metadata": {
+      "type": "ASSET_FRAGMENT",
+      "source": "metagrinder",
+      "tags": [
+        "metagrinder",
+        "scene-grammar",
+        "branch",
+        "rail"
+      ],
+      "createdAt": "2026-05-02T12:00:00.000Z"
+    },
+    "nodes": [
+      {
+        "id": "rail-context",
+        "type": "TextBlock",
+        "x": 80,
+        "y": 120,
+        "name": "Rail or fence Context",
+        "value": "Rail or fence compile-time branch generated from accepted scene grammar rules."
+      },
+      {
+        "id": "rail-choice",
+        "type": "WeightedChoice",
+        "x": 80,
+        "y": 300,
+        "name": "Rail or fence Choice",
+        "options": [
+          {
+            "text": "adult spectator in formal public daywear with suit, shirt, tie, hat,...",
+            "weight": 55
+          },
+          {
+            "text": "adult spectator adapted to heat with shirt sleeves, suspenders, hat,...",
+            "weight": 45
+          },
+          {
+            "text": "working-class spectator in worn trousers, shirt, suspenders, practica...",
+            "weight": 22.5
+          },
+          {
+            "text": "affluent spectator with cleaner silhouette, light suit, polished shoe...",
+            "weight": 7.5
+          },
+          {
+            "text": "female spectator in long skirt or dress, blouse, large hat, gloves or...",
+            "weight": 1.3
+          },
+          {
+            "text": "child or teen spectator accompanying adults, dressed in period-approp...",
+            "weight": 0.8
+          }
+        ]
+      },
+      {
+        "id": "rail-output",
+        "type": "Output",
+        "x": 740,
+        "y": 120,
+        "name": "Rail or fence Output",
+        "template": "{prompt}"
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-rail-context-rail-choice",
+        "source": "rail-context",
+        "target": "rail-choice"
+      },
+      {
+        "id": "edge-rail-choice-rail-output",
+        "source": "rail-choice",
+        "target": "rail-output"
+      }
+    ],
+    "regions": [
+      {
+        "id": "rail-region",
+        "name": "Rail or fence",
+        "color": "#22d3ee",
+        "nodes": [
+          "rail-context",
+          "rail-choice",
+          "rail-output"
+        ]
+      }
+    ]
+  },
+  "scene-pit-branch.psg": {
+    "version": "1.0.0",
+    "name": "Early twentieth-century public spectacle crowd scene grammar notes Pit or official area",
+    "description": "Flat Prompt Spaghetti branch graph generated from Metagrinder scene grammar.",
+    "metadata": {
+      "type": "ASSET_FRAGMENT",
+      "source": "metagrinder",
+      "tags": [
+        "metagrinder",
+        "scene-grammar",
+        "branch",
+        "pit"
+      ],
+      "createdAt": "2026-05-02T12:00:00.000Z"
+    },
+    "nodes": [
+      {
+        "id": "pit-context",
+        "type": "TextBlock",
+        "x": 80,
+        "y": 120,
+        "name": "Pit or official area Context",
+        "value": "Pit or official area compile-time branch generated from accepted scene grammar rules."
+      },
+      {
+        "id": "pit-choice",
+        "type": "WeightedChoice",
+        "x": 80,
+        "y": 300,
+        "name": "Pit or official area Choice",
+        "options": [
+          {
+            "text": "worker, official, mechanic, driver, or press role in controlled work...",
+            "weight": 5.5
+          }
+        ]
+      },
+      {
+        "id": "pit-output",
+        "type": "Output",
+        "x": 740,
+        "y": 120,
+        "name": "Pit or official area Output",
+        "template": "{prompt}"
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-pit-context-pit-choice",
+        "source": "pit-context",
+        "target": "pit-choice"
+      },
+      {
+        "id": "edge-pit-choice-pit-output",
+        "source": "pit-choice",
+        "target": "pit-output"
+      }
+    ],
+    "regions": [
+      {
+        "id": "pit-region",
+        "name": "Pit or official area",
+        "color": "#22d3ee",
+        "nodes": [
+          "pit-context",
+          "pit-choice",
+          "pit-output"
+        ]
+      }
+    ]
+  },
+  "scene-infield-branch.psg": {
+    "version": "1.0.0",
+    "name": "Early twentieth-century public spectacle crowd scene grammar notes Infield or grounds",
+    "description": "Flat Prompt Spaghetti branch graph generated from Metagrinder scene grammar.",
+    "metadata": {
+      "type": "ASSET_FRAGMENT",
+      "source": "metagrinder",
+      "tags": [
+        "metagrinder",
+        "scene-grammar",
+        "branch",
+        "infield"
+      ],
+      "createdAt": "2026-05-02T12:00:00.000Z"
+    },
+    "nodes": [
+      {
+        "id": "infield-context",
+        "type": "TextBlock",
+        "x": 80,
+        "y": 120,
+        "name": "Infield or grounds Context",
+        "value": "Infield or grounds compile-time branch generated from accepted scene grammar rules."
+      },
+      {
+        "id": "infield-choice",
+        "type": "WeightedChoice",
+        "x": 80,
+        "y": 300,
+        "name": "Infield or grounds Choice",
+        "options": [
+          {
+            "text": "adult spectator in formal public daywear with suit, shirt, tie, hat,...",
+            "weight": 55
+          },
+          {
+            "text": "adult spectator adapted to heat with shirt sleeves, suspenders, hat,...",
+            "weight": 25
+          },
+          {
+            "text": "working-class spectator in worn trousers, shirt, suspenders, practica...",
+            "weight": 15.63
+          },
+          {
+            "text": "affluent spectator with cleaner silhouette, light suit, polished shoe...",
+            "weight": 7.5
+          },
+          {
+            "text": "female spectator in long skirt or dress, blouse, large hat, gloves or...",
+            "weight": 6.5
+          },
+          {
+            "text": "child or teen spectator accompanying adults, dressed in period-approp...",
+            "weight": 5
+          }
+        ]
+      },
+      {
+        "id": "infield-output",
+        "type": "Output",
+        "x": 740,
+        "y": 120,
+        "name": "Infield or grounds Output",
+        "template": "{prompt}"
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-infield-context-infield-choice",
+        "source": "infield-context",
+        "target": "infield-choice"
+      },
+      {
+        "id": "edge-infield-choice-infield-output",
+        "source": "infield-choice",
+        "target": "infield-output"
+      }
+    ],
+    "regions": [
+      {
+        "id": "infield-region",
+        "name": "Infield or grounds",
+        "color": "#22d3ee",
+        "nodes": [
+          "infield-context",
+          "infield-choice",
+          "infield-output"
+        ]
+      }
+    ]
+  },
+  "scene-negative-constraints.psg": {
+    "version": "1.0.0",
+    "name": "Early twentieth-century public spectacle crowd scene grammar notes Negative Constraints",
+    "description": "Flat Prompt Spaghetti branch graph generated from Metagrinder scene grammar.",
+    "metadata": {
+      "type": "ASSET_FRAGMENT",
+      "source": "metagrinder",
+      "tags": [
+        "metagrinder",
+        "scene-grammar",
+        "branch",
+        "negative-constraints"
+      ],
+      "createdAt": "2026-05-02T12:00:00.000Z"
+    },
+    "nodes": [
+      {
+        "id": "negative-constraints-context",
+        "type": "TextBlock",
+        "x": 80,
+        "y": 120,
+        "name": "Negative Constraints Context",
+        "value": "Negative Constraints compile-time branch generated from accepted scene grammar rules."
+      },
+      {
+        "id": "negative-constraints-choice",
+        "type": "WeightedChoice",
+        "x": 80,
+        "y": 300,
+        "name": "Negative Constraints Choice",
+        "options": [
+          {
+            "text": "Avoid modern fan clothing, branded jerseys, T-shirts, shorts, modern...",
+            "weight": 2
+          },
+          {
+            "text": "Do not randomize so broadly that the crowd loses its tight historical...",
+            "weight": 2
+          },
+          {
+            "text": "Avoid incompatible class, wardrobe, and location combinations unless...",
+            "weight": 2
+          },
+          {
+            "text": "Do not reduce underrepresented groups to workers or service roles onl...",
+            "weight": 3
+          },
+          {
+            "text": "Avoid wrong-era silhouettes and theatrical period cliches.",
+            "weight": 2
+          },
+          {
+            "text": "Do not overpopulate women in rail or controlled work zones without so...",
+            "weight": 2
+          }
+        ]
+      },
+      {
+        "id": "negative-constraints-output",
+        "type": "Output",
+        "x": 740,
+        "y": 120,
+        "name": "Negative Constraints Output",
+        "template": "{prompt}"
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-negative-constraints-context-negative-constraints-choice",
+        "source": "negative-constraints-context",
+        "target": "negative-constraints-choice"
+      },
+      {
+        "id": "edge-negative-constraints-choice-negative-constraints-output",
+        "source": "negative-constraints-choice",
+        "target": "negative-constraints-output"
+      }
+    ],
+    "regions": [
+      {
+        "id": "negative-constraints-region",
+        "name": "Negative Constraints",
+        "color": "#22d3ee",
+        "nodes": [
+          "negative-constraints-context",
+          "negative-constraints-choice",
+          "negative-constraints-output"
+        ]
+      }
+    ]
+  },
+  "scene-specimen-reference-router.psg": {
+    "version": "1.0.0",
+    "name": "Early twentieth-century public spectacle crowd scene grammar notes Specimen Reference Router",
+    "description": "Flat Prompt Spaghetti branch graph generated from Metagrinder scene grammar.",
+    "metadata": {
+      "type": "ASSET_FRAGMENT",
+      "source": "metagrinder",
+      "tags": [
+        "metagrinder",
+        "scene-grammar",
+        "branch",
+        "specimen-reference-router"
+      ],
+      "createdAt": "2026-05-02T12:00:00.000Z"
+    },
+    "nodes": [
+      {
+        "id": "specimen-reference-router-context",
+        "type": "TextBlock",
+        "x": 80,
+        "y": 120,
+        "name": "Specimen Reference Router Context",
+        "value": "Specimen Reference Router compile-time branch generated from accepted scene grammar rules."
+      },
+      {
+        "id": "specimen-reference-router-choice",
+        "type": "WeightedChoice",
+        "x": 80,
+        "y": 300,
+        "name": "Specimen Reference Router Choice",
+        "options": [
+          {
+            "text": "notes: Visual reference caption: dense rows of male spectators in str...",
+            "weight": 1
+          },
+          {
+            "text": "Research gaps: Some weight ranges are useful first-pass modeling assu...",
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "id": "specimen-reference-router-output",
+        "type": "Output",
+        "x": 740,
+        "y": 120,
+        "name": "Specimen Reference Router Output",
+        "template": "{prompt}"
+      }
+    ],
+    "edges": [
+      {
+        "id": "edge-specimen-reference-router-context-specimen-reference-router-choice",
+        "source": "specimen-reference-router-context",
+        "target": "specimen-reference-router-choice"
+      },
+      {
+        "id": "edge-specimen-reference-router-choice-specimen-reference-router-output",
+        "source": "specimen-reference-router-choice",
+        "target": "specimen-reference-router-output"
+      }
+    ],
+    "regions": [
+      {
+        "id": "specimen-reference-router-region",
+        "name": "Specimen Reference Router",
+        "color": "#22d3ee",
+        "nodes": [
+          "specimen-reference-router-context",
+          "specimen-reference-router-choice",
+          "specimen-reference-router-output"
+        ]
+      }
+    ]
+  }
+}

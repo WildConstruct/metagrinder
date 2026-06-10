@@ -1,0 +1,2257 @@
+{
+  "inputId": "research-input-historical-crowd-grammar",
+  "sceneContext": {
+    "contextId": "research-input-historical-crowd-grammar_scene_context",
+    "title": "Early twentieth-century public spectacle crowd scene grammar notes",
+    "researchKind": "historical-scene-research",
+    "summary": "Scene grammar compiled from 15 source chunks and 52 extracted claims.",
+    "sourceInputIds": [
+      "research-input-historical-crowd-grammar"
+    ],
+    "sourceChunkIds": [
+      "research-input-historical-crowd-grammar_chunk_001",
+      "research-input-historical-crowd-grammar_chunk_002",
+      "research-input-historical-crowd-grammar_chunk_003",
+      "research-input-historical-crowd-grammar_chunk_004",
+      "research-input-historical-crowd-grammar_chunk_005",
+      "research-input-historical-crowd-grammar_chunk_006",
+      "research-input-historical-crowd-grammar_chunk_007",
+      "research-input-historical-crowd-grammar_chunk_008",
+      "research-input-historical-crowd-grammar_chunk_009",
+      "research-input-historical-crowd-grammar_chunk_010",
+      "research-input-historical-crowd-grammar_chunk_011",
+      "research-input-historical-crowd-grammar_chunk_012",
+      "research-input-historical-crowd-grammar_chunk_013",
+      "research-input-historical-crowd-grammar_chunk_014",
+      "research-input-historical-crowd-grammar_chunk_015"
+    ]
+  },
+  "sourceLinks": [
+    {
+      "sourceInputId": "research-input-historical-crowd-grammar",
+      "title": "Early twentieth-century public spectacle crowd scene grammar notes",
+      "path": "research-input-historical-crowd-grammar.txt"
+    }
+  ],
+  "evidence": [
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_001_claim_001",
+      "text": "Source notes: The scene is a dense public spectacle crowd in an early twentieth-century American urban setting.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_001"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_001_claim_002",
+      "text": "The visible population is overwhelmingly adult men, roughly 82-90%, with adult women around 6-12% and children or teens around 2-6%.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_001"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_001_claim_003",
+      "text": "The dominant visual baseline is formal public daywear under heat and dust, with high silhouette uniformity and subtle variation rather than broad costume variety.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_001"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_002_claim_001",
+      "text": "Archetype weights: Middle-class spectator: adult male baseline, dark or mid-tone sack suit, waistcoat, white shirt, tie, leather shoes, straw boater or bowler.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_002"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_002_claim_002",
+      "text": "Behavior includes watching intently, standing with hands behind back, and clustering in respectable public rows.",
+      "claimType": "behavior-and-motion",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_002"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_002_claim_003",
+      "text": "Weight: 50-60%.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_002"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_003_claim_001",
+      "text": "Heat-adjusted spectator: adult male, straw boater, white shirt, suspenders visible, jacket removed or carried, sleeves rolled, dark trousers, dusty shoes.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_003_claim_002",
+      "text": "Behavior includes leaning on a rail, squinting in bright daylight, and watching the central action.",
+      "claimType": "lighting",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_003_claim_003",
+      "text": "Weight: 20-30%.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_004_claim_001",
+      "text": "Working-class trackside spectator: adult male, flat cap or worn straw hat, rolled sleeves, suspenders, darker worn trousers, practical work boots.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_004"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_004_claim_002",
+      "text": "Behavior includes standing at the rail, smoking, peering around others, and clustering with other spectators.",
+      "claimType": "behavior-and-motion",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_004"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_004_claim_003",
+      "text": "Weight: 10-15%.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_004"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_005_claim_001",
+      "text": "Affluent or club spectator: adult male, light linen suit, Panama hat or clean boater, polished shoes, gloves, cane or pocket watch.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_005"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_005_claim_002",
+      "text": "Weight: 5-10%.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_005"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_005_claim_003",
+      "text": "This archetype needs stronger behavior evidence before promotion.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_005"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_006_claim_001",
+      "text": "Female middle-class spectator: adult woman in shirtwaist blouse, long skirt, large hat, gloves, parasol, or structured handbag.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_006"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_006_claim_002",
+      "text": "Female spectators are sparse but visually important and should appear more often in grandstand and social viewing zones than at the rail.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "inferred",
+      "confidence": "medium",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_006"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_006_claim_003",
+      "text": "Weight: 5-8%.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_006"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_007_claim_001",
+      "text": "Child or teen spectator: boys in knee trousers, caps, shirts with suspenders; girls in light dresses, sailor collars, wide-brim hats, and dark stockings.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_007"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_007_claim_002",
+      "text": "They appear with adults and should not dominate.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_007"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_007_claim_003",
+      "text": "Weight: 2-6%.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_007"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_008_claim_001",
+      "text": "African American or otherwise underrepresented local community spectator: include sparse but present middle-class and working-class spectators with the same class variation, public dress, and spectator behavior as comparable attendees.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_008"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_008_claim_002",
+      "text": "Do not make Black characters only workers or service roles.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_008"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_009_claim_001",
+      "text": "Location-zone logic: If location zone is grandstand, increase adult women, children, middle-class spectators, affluent spectators, and complete outfits; decrease dirty workwear and pit crew cues.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_009_claim_002",
+      "text": "If location zone is rail, increase adult men, shirtsleeves, working-class and lower-middle-class spectators, jacket-removed heat states; decrease children and affluent women.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_009_claim_003",
+      "text": "If location zone is pit or official area, force worker, official, driver, mechanic, or press roles; increase dust coats, caps, goggles, armbands, clipboards, timing sheets, and work gloves; exclude casual viewer-only archetypes.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_009_claim_004",
+      "text": "If location zone is infield, allow a broader public mix, looser posture, seated grass groups, umbrellas, and casual public viewing.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_009_claim_005",
+      "text": "If location zone is walkway, bias toward walking groups, concession approaches, people carrying programs, and people pausing to watch.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_010_claim_001",
+      "text": "Wardrobe systems: Formal daywear includes sack suits, waistcoats, stiff collars, ties, leather shoes, straw boaters, bowlers, and subdued colors.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_010"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_010_claim_002",
+      "text": "Heat-adjusted daywear includes white shirts, suspenders, jacket removed, sleeves rolled, dusty shoes, and loosened ties.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_010"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_010_claim_003",
+      "text": "Female public daywear includes shirtwaist blouses, long skirts, large decorated hats, gloves, scarves, parasols, and practical laced shoes.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_010"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_010_claim_004",
+      "text": "Work or official wear includes dust coats, caps, goggles, gloves, armbands, timing sheets, and clipboards.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_010"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_011_claim_001",
+      "text": "Environmental modifiers: Heat state affects jacket use, sleeve state, posture, and sweat or fatigue.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_011"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_011_claim_002",
+      "text": "Dust soiling affects shoes, hems, trouser cuffs, lower skirts, and workwear.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_011"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_011_claim_003",
+      "text": "Bright daylight affects squinting, hat use, and hard visibility.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_011"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_011_claim_004",
+      "text": "Smoke or haze may come from dust, fuel, machinery, or nearby industrial activity.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "inferred",
+      "confidence": "medium",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_011"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_012_claim_001",
+      "text": "Visual reference notes: Visual reference caption: dense rows of male spectators in straw boaters and dark suits, high silhouette uniformity, wood or steel viewing structure, subdued fabric tones.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_012"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_012_claim_002",
+      "text": "Visual reference caption: shirtsleeves and suspenders near a rail, jackets carried over arms, dusty shoes, practical stance, bright daylight.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_012"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_012_claim_003",
+      "text": "Visual reference caption: sparse female spectators with large hats seated or standing behind denser male rows, useful for silhouette breaks and social viewing zones.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_012"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_013_claim_001",
+      "text": "Negative constraints: Avoid modern fan behavior, branded jerseys, modern T-shirts, shorts, baseball caps, modern sunglasses, bright synthetic colors, and contemporary camera-phone posture.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_013_claim_002",
+      "text": "Avoid making the scene too Victorian: no frock-coat baseline, no top-hat crowd baseline, no bustle silhouettes, and no theatrical retro-futurist goggles on ordinary spectators.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_013_claim_003",
+      "text": "Avoid randomizing too broadly.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_013_claim_004",
+      "text": "The crowd should have low variance, high consistency, and micro-variation inside tight archetype bands.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_013_claim_005",
+      "text": "Avoid incompatible wardrobe mixing, such as affluent Panama-hat cues with worn working-class suspenders, unless the source explicitly supports the exception.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_013_claim_006",
+      "text": "Avoid overpopulating women at the rail or controlled work zones without source support.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_013_claim_007",
+      "text": "Ethical constraint: do not reduce Black or underrepresented characters to worker-only roles; allow middle-class spectators, working-class spectators, family members, and worker roles where spatially logical.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_014_claim_001",
+      "text": "Research gaps: Some weight ranges are useful first-pass modeling assumptions but need stronger citations before promotion.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_014_claim_002",
+      "text": "Grandstand female and children distributions need stronger zone-specific support.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_014_claim_003",
+      "text": "Affluent spectator behavior is under-specified.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_014_claim_004",
+      "text": "Visual reference captions support hats and silhouettes but do not yet prove exact fabric textures.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_014_claim_005",
+      "text": "Negative constraints must be enforced by compatibility rules rather than remaining prose.",
+      "claimType": "people-and-crowd",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    },
+    {
+      "evidenceId": "research-input-historical-crowd-grammar_chunk_015_claim_001",
+      "text": "Sample output: Adult male heat-adjusted spectator in a straw boater, white shirt, suspenders, dark trousers, jacket carried over one arm, dusty shoes, leaning near the rail and watching the central action.",
+      "claimType": "wardrobe",
+      "attributionMode": "paraphrased",
+      "confidence": "high",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    }
+  ],
+  "populationModel": {
+    "modelId": "research-input-historical-crowd-grammar_population_model",
+    "label": "Visible scene population model",
+    "baselineWeights": [
+      {
+        "label": "Middle-class spectator",
+        "min": 50,
+        "max": 60,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_002",
+          "research-input-historical-crowd-grammar_chunk_006",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "medium"
+      },
+      {
+        "label": "Heat-adjusted spectator",
+        "min": 20,
+        "max": 30,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_003",
+          "research-input-historical-crowd-grammar_chunk_004",
+          "research-input-historical-crowd-grammar_chunk_007",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_010",
+          "research-input-historical-crowd-grammar_chunk_012",
+          "research-input-historical-crowd-grammar_chunk_013",
+          "research-input-historical-crowd-grammar_chunk_015"
+        ],
+        "confidence": "medium"
+      },
+      {
+        "label": "Working-class trackside spectator",
+        "min": 10,
+        "max": 15,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_004",
+          "research-input-historical-crowd-grammar_chunk_008",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "low"
+      },
+      {
+        "label": "Affluent or club spectator",
+        "min": 5,
+        "max": 10,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_005",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_013",
+          "research-input-historical-crowd-grammar_chunk_014"
+        ],
+        "confidence": "medium"
+      },
+      {
+        "label": "Female middle-class spectator",
+        "min": 5,
+        "max": 8,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_001",
+          "research-input-historical-crowd-grammar_chunk_006",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_010",
+          "research-input-historical-crowd-grammar_chunk_012",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "low"
+      },
+      {
+        "label": "Child or teen spectator",
+        "min": 2,
+        "max": 6,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_001",
+          "research-input-historical-crowd-grammar_chunk_007",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_014"
+        ],
+        "confidence": "medium"
+      },
+      {
+        "label": "Underrepresented middle-class spectator",
+        "min": 5,
+        "max": 8,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_008",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "medium"
+      },
+      {
+        "label": "Worker or official role",
+        "min": 3,
+        "max": 8,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_008",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_010",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "low"
+      }
+    ],
+    "notes": [
+      "Weights are deterministic first-pass grammar hints and require review before promotion.",
+      "Classified 5 concept buckets into scene grammar inputs."
+    ],
+    "sourceChunkIds": [
+      "research-input-historical-crowd-grammar_chunk_002",
+      "research-input-historical-crowd-grammar_chunk_006",
+      "research-input-historical-crowd-grammar_chunk_009",
+      "research-input-historical-crowd-grammar_chunk_013",
+      "research-input-historical-crowd-grammar_chunk_003",
+      "research-input-historical-crowd-grammar_chunk_004",
+      "research-input-historical-crowd-grammar_chunk_007",
+      "research-input-historical-crowd-grammar_chunk_010",
+      "research-input-historical-crowd-grammar_chunk_012",
+      "research-input-historical-crowd-grammar_chunk_015",
+      "research-input-historical-crowd-grammar_chunk_008",
+      "research-input-historical-crowd-grammar_chunk_005",
+      "research-input-historical-crowd-grammar_chunk_014",
+      "research-input-historical-crowd-grammar_chunk_001"
+    ]
+  },
+  "archetypes": [
+    {
+      "archetypeId": "middle_class_spectator",
+      "label": "Middle-class spectator",
+      "summary": "Middle-class spectator: adult male baseline, dark or mid-tone sack suit, waistcoat, white shirt, tie, leather shoes, straw boater or bowler. Behavior includes watching intently, standing with hands behind back, and clustering in respectable public rows. Weight: 50-60%.",
+      "role": "spectator",
+      "genderPresentation": "male",
+      "classBand": "middle",
+      "weightRange": {
+        "label": "Middle-class spectator",
+        "min": 50,
+        "max": 60,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_002",
+          "research-input-historical-crowd-grammar_chunk_006",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "medium"
+      },
+      "dominantAttributes": [
+        "straw boater",
+        "white shirt",
+        "tie",
+        "leather shoes"
+      ],
+      "optionalAttributes": [
+        "waistcoat"
+      ],
+      "wardrobeRefs": [
+        "formal_daywear",
+        "heat_adjusted_daywear",
+        "hat_system",
+        "lower_body_daywear",
+        "female_public_daywear",
+        "work_or_official_wear"
+      ],
+      "behaviorRefs": [
+        "watching_track",
+        "leaning",
+        "walking_group",
+        "seated_viewing",
+        "working_or_official"
+      ],
+      "locationZoneRefs": [],
+      "promptText": "adult spectator in formal public daywear with suit, shirt, tie, hat, and restrained period styling",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_002",
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "archetypeId": "heat_adjusted_spectator",
+      "label": "Heat-adjusted spectator",
+      "summary": "Heat-adjusted spectator: adult male, straw boater, white shirt, suspenders visible, jacket removed or carried, sleeves rolled, dark trousers, dusty shoes. Behavior includes leaning on a rail, squinting in bright daylight, and watching the central action. Weight: 20-30%.",
+      "role": "spectator",
+      "genderPresentation": "male",
+      "classBand": "lower_middle",
+      "weightRange": {
+        "label": "Heat-adjusted spectator",
+        "min": 20,
+        "max": 30,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_003",
+          "research-input-historical-crowd-grammar_chunk_004",
+          "research-input-historical-crowd-grammar_chunk_007",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_010",
+          "research-input-historical-crowd-grammar_chunk_012",
+          "research-input-historical-crowd-grammar_chunk_013",
+          "research-input-historical-crowd-grammar_chunk_015"
+        ],
+        "confidence": "medium"
+      },
+      "dominantAttributes": [
+        "straw boater",
+        "white shirt",
+        "suspenders"
+      ],
+      "optionalAttributes": [],
+      "wardrobeRefs": [
+        "formal_daywear",
+        "heat_adjusted_daywear",
+        "hat_system",
+        "lower_body_daywear",
+        "period_footwear",
+        "female_public_daywear",
+        "work_or_official_wear"
+      ],
+      "behaviorRefs": [
+        "watching_track",
+        "leaning",
+        "walking_group",
+        "seated_viewing",
+        "working_or_official"
+      ],
+      "locationZoneRefs": [
+        "rail"
+      ],
+      "promptText": "adult spectator adapted to heat with shirt sleeves, suspenders, hat, dusty shoes, and jacket removed or carried",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_007",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "archetypeId": "working_class_trackside",
+      "label": "Working-class trackside spectator",
+      "summary": "Working-class trackside spectator: adult male, flat cap or worn straw hat, rolled sleeves,",
+      "role": "spectator",
+      "genderPresentation": "male",
+      "classBand": "working",
+      "weightRange": {
+        "label": "Working-class trackside spectator",
+        "min": 10,
+        "max": 15,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_004",
+          "research-input-historical-crowd-grammar_chunk_008",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "low"
+      },
+      "dominantAttributes": [
+        "rolled sleeves",
+        "flat cap"
+      ],
+      "optionalAttributes": [],
+      "wardrobeRefs": [
+        "heat_adjusted_daywear",
+        "hat_system",
+        "lower_body_daywear",
+        "period_footwear",
+        "work_or_official_wear"
+      ],
+      "behaviorRefs": [
+        "leaning",
+        "walking_group",
+        "seated_viewing",
+        "working_or_official"
+      ],
+      "locationZoneRefs": [],
+      "promptText": "working-class spectator in worn trousers, shirt, suspenders, practical shoes, and less polished styling",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_008",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "archetypeId": "affluent_spectator",
+      "label": "Affluent or club spectator",
+      "summary": "Affluent or club spectator: adult male, light linen suit, Panama hat or clean boater, polished shoes, gloves, cane or pocket watch. Weight: 5-10%. This archetype needs stronger behavior evidence before promotion.",
+      "role": "spectator",
+      "genderPresentation": "male",
+      "classBand": "affluent",
+      "weightRange": {
+        "label": "Affluent or club spectator",
+        "min": 5,
+        "max": 10,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_005",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_013",
+          "research-input-historical-crowd-grammar_chunk_014"
+        ],
+        "confidence": "medium"
+      },
+      "dominantAttributes": [
+        "linen suit",
+        "Panama hat"
+      ],
+      "optionalAttributes": [
+        "gloves",
+        "cane"
+      ],
+      "wardrobeRefs": [
+        "formal_daywear",
+        "heat_adjusted_daywear",
+        "hat_system",
+        "work_or_official_wear"
+      ],
+      "behaviorRefs": [
+        "leaning",
+        "walking_group",
+        "seated_viewing",
+        "working_or_official"
+      ],
+      "locationZoneRefs": [],
+      "promptText": "affluent spectator with cleaner silhouette, light suit, polished shoes, and refined accessories",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_005",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_014"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "archetypeId": "female_middle_class_spectator",
+      "label": "Female middle-class spectator",
+      "summary": "women around 6-12% and",
+      "role": "spectator",
+      "genderPresentation": "female",
+      "classBand": "middle",
+      "weightRange": {
+        "label": "Female middle-class spectator",
+        "min": 5,
+        "max": 8,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_001",
+          "research-input-historical-crowd-grammar_chunk_006",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_010",
+          "research-input-historical-crowd-grammar_chunk_012",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "low"
+      },
+      "dominantAttributes": [],
+      "optionalAttributes": [],
+      "wardrobeRefs": [
+        "formal_daywear",
+        "heat_adjusted_daywear",
+        "hat_system",
+        "lower_body_daywear",
+        "period_footwear",
+        "female_public_daywear",
+        "work_or_official_wear"
+      ],
+      "behaviorRefs": [
+        "leaning",
+        "walking_group",
+        "seated_viewing",
+        "working_or_official"
+      ],
+      "locationZoneRefs": [],
+      "promptText": "female spectator in long skirt or dress, blouse, large hat, gloves or parasol, placed in social viewing zones",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_001",
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "archetypeId": "child_or_teen_spectator",
+      "label": "Child or teen spectator",
+      "summary": "children or teens around 2-6%. The dominant visual baseline is formal public daywear under heat and dust, with high silhouette uniformity and subtle variation rather than broad costume variety. Child or teen spectator: boys in knee trousers, caps, shirts with",
+      "role": "child",
+      "genderPresentation": "child",
+      "classBand": "family",
+      "weightRange": {
+        "label": "Child or teen spectator",
+        "min": 2,
+        "max": 6,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_001",
+          "research-input-historical-crowd-grammar_chunk_007",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_014"
+        ],
+        "confidence": "medium"
+      },
+      "dominantAttributes": [],
+      "optionalAttributes": [],
+      "wardrobeRefs": [
+        "formal_daywear",
+        "heat_adjusted_daywear",
+        "lower_body_daywear",
+        "work_or_official_wear"
+      ],
+      "behaviorRefs": [
+        "leaning",
+        "walking_group",
+        "seated_viewing",
+        "working_or_official"
+      ],
+      "locationZoneRefs": [],
+      "promptText": "child or teen spectator accompanying adults, dressed in period-appropriate youth clothing",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_001",
+        "research-input-historical-crowd-grammar_chunk_007",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_014"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "archetypeId": "underrepresented_middle_class_spectator",
+      "label": "Underrepresented middle-class spectator",
+      "summary": "African American or otherwise underrepresented local community spectator: include sparse but present middle-class and",
+      "role": "spectator",
+      "genderPresentation": "male",
+      "classBand": "middle",
+      "raceEthnicityContext": "underrepresented_local_community",
+      "weightRange": {
+        "label": "Underrepresented middle-class spectator",
+        "min": 5,
+        "max": 8,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_008",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "medium"
+      },
+      "dominantAttributes": [],
+      "optionalAttributes": [],
+      "wardrobeRefs": [
+        "heat_adjusted_daywear",
+        "hat_system",
+        "work_or_official_wear"
+      ],
+      "behaviorRefs": [
+        "leaning"
+      ],
+      "locationZoneRefs": [],
+      "promptText": "well-dressed underrepresented community spectator with the same class variation and spectator behavior as comparable public attendees",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_008",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "archetypeId": "worker_official_pit_role",
+      "label": "Worker or official role",
+      "summary": "workers or service roles.",
+      "role": "worker",
+      "genderPresentation": "male",
+      "classBand": "working",
+      "weightRange": {
+        "label": "Worker or official role",
+        "min": 3,
+        "max": 8,
+        "unit": "percent",
+        "sourceInputIds": [
+          "research-input-historical-crowd-grammar"
+        ],
+        "sourceChunkIds": [
+          "research-input-historical-crowd-grammar_chunk_008",
+          "research-input-historical-crowd-grammar_chunk_009",
+          "research-input-historical-crowd-grammar_chunk_010",
+          "research-input-historical-crowd-grammar_chunk_013"
+        ],
+        "confidence": "low"
+      },
+      "dominantAttributes": [],
+      "optionalAttributes": [],
+      "wardrobeRefs": [
+        "formal_daywear",
+        "heat_adjusted_daywear",
+        "hat_system",
+        "lower_body_daywear",
+        "period_footwear",
+        "female_public_daywear",
+        "work_or_official_wear"
+      ],
+      "behaviorRefs": [
+        "leaning",
+        "walking_group",
+        "seated_viewing",
+        "working_or_official"
+      ],
+      "locationZoneRefs": [],
+      "promptText": "worker, official, mechanic, driver, or press role in controlled work areas with practical workwear and source-supported tools",
+      "sourceInputIds": [
+        "research-input-historical-crowd-grammar"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_008",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "demographicDistributions": [
+    {
+      "distributionId": "visible_population_distribution",
+      "label": "Visible population distribution",
+      "entries": [
+        {
+          "label": "adult_men",
+          "min": 82,
+          "max": 90,
+          "unit": "percent",
+          "sourceInputIds": [
+            "research-input-historical-crowd-grammar"
+          ],
+          "sourceChunkIds": [
+            "research-input-historical-crowd-grammar_chunk_001",
+            "research-input-historical-crowd-grammar_chunk_009",
+            "research-input-historical-crowd-grammar_chunk_014"
+          ],
+          "confidence": "medium"
+        },
+        {
+          "label": "adult_women",
+          "min": 6,
+          "max": 12,
+          "unit": "percent",
+          "sourceInputIds": [
+            "research-input-historical-crowd-grammar"
+          ],
+          "sourceChunkIds": [
+            "research-input-historical-crowd-grammar_chunk_001",
+            "research-input-historical-crowd-grammar_chunk_009",
+            "research-input-historical-crowd-grammar_chunk_014"
+          ],
+          "confidence": "medium"
+        },
+        {
+          "label": "children_and_teens",
+          "min": 2,
+          "max": 6,
+          "unit": "percent",
+          "sourceInputIds": [
+            "research-input-historical-crowd-grammar"
+          ],
+          "sourceChunkIds": [
+            "research-input-historical-crowd-grammar_chunk_001",
+            "research-input-historical-crowd-grammar_chunk_009",
+            "research-input-historical-crowd-grammar_chunk_014"
+          ],
+          "confidence": "medium"
+        }
+      ],
+      "appliesToRefs": [
+        "populationModel.visible_crowd"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_001",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    },
+    {
+      "distributionId": "grandstand_distribution",
+      "label": "Grandstand distribution",
+      "entries": [
+        {
+          "label": "adult_men",
+          "min": 75,
+          "max": 85,
+          "unit": "percent",
+          "sourceInputIds": [
+            "research-input-historical-crowd-grammar"
+          ],
+          "sourceChunkIds": [
+            "research-input-historical-crowd-grammar_chunk_006",
+            "research-input-historical-crowd-grammar_chunk_009",
+            "research-input-historical-crowd-grammar_chunk_014"
+          ],
+          "confidence": "medium"
+        },
+        {
+          "label": "adult_women",
+          "min": 10,
+          "max": 18,
+          "unit": "percent",
+          "sourceInputIds": [
+            "research-input-historical-crowd-grammar"
+          ],
+          "sourceChunkIds": [
+            "research-input-historical-crowd-grammar_chunk_006",
+            "research-input-historical-crowd-grammar_chunk_009",
+            "research-input-historical-crowd-grammar_chunk_014"
+          ],
+          "confidence": "medium"
+        },
+        {
+          "label": "children_and_teens",
+          "min": 3,
+          "max": 7,
+          "unit": "percent",
+          "sourceInputIds": [
+            "research-input-historical-crowd-grammar"
+          ],
+          "sourceChunkIds": [
+            "research-input-historical-crowd-grammar_chunk_006",
+            "research-input-historical-crowd-grammar_chunk_009",
+            "research-input-historical-crowd-grammar_chunk_014"
+          ],
+          "confidence": "medium"
+        }
+      ],
+      "appliesToRefs": [
+        "locationZones.grandstand"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    },
+    {
+      "distributionId": "rail_distribution",
+      "label": "Rail or fence distribution",
+      "entries": [
+        {
+          "label": "adult_men",
+          "min": 90,
+          "max": 96,
+          "unit": "percent",
+          "sourceInputIds": [
+            "research-input-historical-crowd-grammar"
+          ],
+          "sourceChunkIds": [
+            "research-input-historical-crowd-grammar_chunk_003",
+            "research-input-historical-crowd-grammar_chunk_004",
+            "research-input-historical-crowd-grammar_chunk_006",
+            "research-input-historical-crowd-grammar_chunk_009",
+            "research-input-historical-crowd-grammar_chunk_012",
+            "research-input-historical-crowd-grammar_chunk_013",
+            "research-input-historical-crowd-grammar_chunk_015"
+          ],
+          "confidence": "medium"
+        },
+        {
+          "label": "adult_women",
+          "min": 1,
+          "max": 5,
+          "unit": "percent",
+          "sourceInputIds": [
+            "research-input-historical-crowd-grammar"
+          ],
+          "sourceChunkIds": [
+            "research-input-historical-crowd-grammar_chunk_003",
+            "research-input-historical-crowd-grammar_chunk_004",
+            "research-input-historical-crowd-grammar_chunk_006",
+            "research-input-historical-crowd-grammar_chunk_009",
+            "research-input-historical-crowd-grammar_chunk_012",
+            "research-input-historical-crowd-grammar_chunk_013",
+            "research-input-historical-crowd-grammar_chunk_015"
+          ],
+          "confidence": "medium"
+        }
+      ],
+      "appliesToRefs": [
+        "locationZones.rail"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    },
+    {
+      "distributionId": "pit_distribution",
+      "label": "Pit or official area distribution",
+      "entries": [
+        {
+          "label": "worker_official_driver_mechanic_roles",
+          "min": 98,
+          "max": 100,
+          "unit": "percent",
+          "sourceInputIds": [
+            "research-input-historical-crowd-grammar"
+          ],
+          "sourceChunkIds": [
+            "research-input-historical-crowd-grammar_chunk_009"
+          ],
+          "confidence": "medium"
+        }
+      ],
+      "appliesToRefs": [
+        "locationZones.pit"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "distributionId": "infield_distribution",
+      "label": "Infield or grounds distribution",
+      "entries": [],
+      "appliesToRefs": [
+        "locationZones.infield"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "distributionId": "walkway_distribution",
+      "label": "Walkway or concession approach distribution",
+      "entries": [],
+      "appliesToRefs": [
+        "locationZones.walkway"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    }
+  ],
+  "wardrobeSystem": [
+    {
+      "wardrobeId": "formal_daywear",
+      "label": "formal daywear",
+      "items": [
+        "sack suit",
+        "waistcoat",
+        "white shirt",
+        "tie"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_001",
+        "research-input-historical-crowd-grammar_chunk_002",
+        "research-input-historical-crowd-grammar_chunk_005",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_012"
+      ]
+    },
+    {
+      "wardrobeId": "heat_adjusted_daywear",
+      "label": "heat adjusted daywear",
+      "items": [
+        "white shirt",
+        "suspenders",
+        "jacket removed",
+        "dark trousers"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_007",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    },
+    {
+      "wardrobeId": "hat_system",
+      "label": "hat system",
+      "items": [
+        "straw boater",
+        "flat cap",
+        "Panama hat",
+        "bowler"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_002",
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_005",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    },
+    {
+      "wardrobeId": "lower_body_daywear",
+      "label": "lower body daywear",
+      "items": [
+        "straight cuffed trousers",
+        "dark trousers",
+        "knickerbockers",
+        "long skirt",
+        "matching suit skirt"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_007",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    },
+    {
+      "wardrobeId": "period_footwear",
+      "label": "period footwear",
+      "items": [
+        "leather oxford shoes",
+        "lace-up boots",
+        "practical laced shoes",
+        "spats or gaiters"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_010"
+      ]
+    },
+    {
+      "wardrobeId": "female_public_daywear",
+      "label": "female public daywear",
+      "items": [
+        "shirtwaist blouse",
+        "long skirt",
+        "large hat",
+        "gloves",
+        "parasol"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_012"
+      ]
+    },
+    {
+      "wardrobeId": "work_or_official_wear",
+      "label": "work or official wear",
+      "items": [
+        "dust coat",
+        "cap",
+        "goggles",
+        "work gloves"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    }
+  ],
+  "groomingAndHair": [],
+  "propsAndAccessories": [
+    {
+      "wardrobeId": "spectator_accessories",
+      "label": "spectator accessories",
+      "items": [
+        "parasol",
+        "cane",
+        "gloves",
+        "pocket watch",
+        "program"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_005",
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010"
+      ]
+    },
+    {
+      "wardrobeId": "work_area_tools",
+      "label": "work area tools",
+      "items": [
+        "clipboard",
+        "timing sheet",
+        "goggles",
+        "work gloves"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    },
+    {
+      "wardrobeId": "weather_comfort_objects",
+      "label": "weather comfort objects",
+      "items": [
+        "umbrella",
+        "scarf",
+        "muff"
+      ],
+      "avoidItems": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    }
+  ],
+  "locationZones": [
+    {
+      "zoneId": "grandstand",
+      "label": "Grandstand",
+      "promptText": "seated or dense social viewing area with more complete outfits and family groups",
+      "demographicDistributionRefs": [
+        "grandstand_distribution"
+      ],
+      "archetypeBiases": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    },
+    {
+      "zoneId": "rail",
+      "label": "Rail or fence",
+      "promptText": "track-edge viewing zone with more adult men, shirtsleeves, and lower-middle or working-class spectators",
+      "demographicDistributionRefs": [
+        "rail_distribution"
+      ],
+      "archetypeBiases": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    },
+    {
+      "zoneId": "pit",
+      "label": "Pit or official area",
+      "promptText": "controlled work zone for officials, mechanics, drivers, press, and support roles",
+      "demographicDistributionRefs": [
+        "pit_distribution"
+      ],
+      "archetypeBiases": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "zoneId": "infield",
+      "label": "Infield or grounds",
+      "promptText": "broader public space with looser posture and mixed casual viewing",
+      "demographicDistributionRefs": [
+        "infield_distribution"
+      ],
+      "archetypeBiases": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "zoneId": "walkway",
+      "label": "Walkway or concession approach",
+      "promptText": "movement zone with people passing, clustering, carrying programs, or pausing",
+      "demographicDistributionRefs": [
+        "walkway_distribution"
+      ],
+      "archetypeBiases": [],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    }
+  ],
+  "behaviorStates": [
+    {
+      "behaviorId": "watching_track",
+      "label": "watching track",
+      "promptText": "watching the central action with focused attention",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_002",
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    },
+    {
+      "behaviorId": "leaning",
+      "label": "leaning",
+      "promptText": "leaning at a rail or edge to see better",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    },
+    {
+      "behaviorId": "walking_group",
+      "label": "walking group",
+      "promptText": "moving or clustering in small public groups",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ]
+    },
+    {
+      "behaviorId": "seated_viewing",
+      "label": "seated viewing",
+      "promptText": "seated in a denser viewing area",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    },
+    {
+      "behaviorId": "working_or_official",
+      "label": "working or official",
+      "promptText": "performing work, official, mechanical, or support duties",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010"
+      ]
+    }
+  ],
+  "environmentalModifiers": [
+    {
+      "modifierId": "heat_state",
+      "label": "heat state",
+      "promptText": "heat adaptation visible in loosened dress, jacket removal, and practical comfort choices",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_001",
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_011",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    },
+    {
+      "modifierId": "dust_soiling",
+      "label": "dust soiling",
+      "promptText": "dust accumulation on shoes, hems, trouser cuffs, and lower garments",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_001",
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_010",
+        "research-input-historical-crowd-grammar_chunk_011",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ]
+    },
+    {
+      "modifierId": "bright_daylight",
+      "label": "bright daylight",
+      "promptText": "bright outdoor daylight with hard visibility and squinting",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_011",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ]
+    },
+    {
+      "modifierId": "smoke_or_haze",
+      "label": "smoke or haze",
+      "promptText": "light atmospheric haze from dust, smoke, fuel, or industrial activity",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_011"
+      ]
+    },
+    {
+      "modifierId": "mud_state",
+      "label": "mud state",
+      "promptText": "mud, wet hems, and slippery paving influence stance, footwear, and garment edges",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    }
+  ],
+  "visualReferenceSets": [
+    {
+      "referenceId": "research-input-historical-crowd-grammar_visual_reference_001",
+      "kind": "image-reference",
+      "path": "references/research-input-historical-crowd-grammar-001.jpg",
+      "caption": "notes: Visual reference caption: dense rows of male spectators in straw boaters and dark suits, high silhouette uniformity, wood or steel viewing structure, subdued fabric tones. Visual reference caption: shirtsleeves and suspenders near a rail, jackets carried over arms, dusty shoes, practical stance, bright daylight. Visual reference caption: sparse female spectators with large hats seated or standing behind denser male rows, useful for silhouette breaks and social viewing zones.",
+      "supports": [
+        "Visual reference notes: Visual reference caption: dense rows of male spectators in straw boaters and dark suits, high silhouette uniformity, wood or steel viewing structure, subdued fabric tones",
+        "Visual reference caption: shirtsleeves and suspenders near a rail, jackets carried over arms, dusty shoes, practical stance, bright daylight",
+        "Visual reference caption: sparse female spectators with large hats seated or standing behind denser male rows, useful for silhouette breaks and social viewing zones"
+      ],
+      "linkedArchetypeIds": [
+        "middle_class_spectator",
+        "heat_adjusted_spectator",
+        "working_class_trackside"
+      ],
+      "rightsProfile": "reference-only",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_012"
+      ]
+    },
+    {
+      "referenceId": "research-input-historical-crowd-grammar_visual_reference_002",
+      "kind": "image-reference",
+      "path": "references/research-input-historical-crowd-grammar-002.jpg",
+      "caption": "Research gaps: Some weight ranges are useful first-pass modeling assumptions but need stronger citations before promotion. Grandstand female and children distributions need stronger zone-specific support. Affluent spectator behavior is under-specified. Visual reference captions support hats and silhouettes but do not yet prove exact fabric textures. Negative constraints must be enforced by compatibility rules rather than remaining prose.",
+      "supports": [
+        "Research gaps: Some weight ranges are useful first-pass modeling assumptions but need stronger citations before promotion",
+        "Grandstand female and children distributions need stronger zone-specific support",
+        "Affluent spectator behavior is under-specified",
+        "Visual reference captions support hats and silhouettes but do not yet prove exact fabric textures",
+        "Negative constraints must be enforced by compatibility rules rather than remaining prose"
+      ],
+      "linkedArchetypeIds": [
+        "middle_class_spectator",
+        "heat_adjusted_spectator",
+        "working_class_trackside"
+      ],
+      "rightsProfile": "reference-only",
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_014"
+      ]
+    }
+  ],
+  "compatibilityRules": [
+    {
+      "ruleId": "rail_bias_rule",
+      "label": "Rail zones bias adult men and heat adjustment",
+      "condition": {
+        "field": "location_zone",
+        "operator": "equals",
+        "value": "rail"
+      },
+      "effects": [
+        {
+          "action": "increase",
+          "target": "adult_men"
+        },
+        {
+          "action": "increase",
+          "target": "shirtsleeves"
+        },
+        {
+          "action": "decrease",
+          "target": "children"
+        },
+        {
+          "action": "decrease",
+          "target": "affluent_women"
+        }
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_003",
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_012",
+        "research-input-historical-crowd-grammar_chunk_013",
+        "research-input-historical-crowd-grammar_chunk_015"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "ruleId": "grandstand_bias_rule",
+      "label": "Grandstand zones bias family and complete outfits",
+      "condition": {
+        "field": "location_zone",
+        "operator": "equals",
+        "value": "grandstand"
+      },
+      "effects": [
+        {
+          "action": "increase",
+          "target": "adult_women"
+        },
+        {
+          "action": "increase",
+          "target": "children"
+        },
+        {
+          "action": "increase",
+          "target": "complete_outfits"
+        },
+        {
+          "action": "decrease",
+          "target": "dirty_workwear"
+        }
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_006",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_014"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "ruleId": "pit_bias_rule",
+      "label": "Pit zones force work and official roles",
+      "condition": {
+        "field": "location_zone",
+        "operator": "equals",
+        "value": "pit"
+      },
+      "effects": [
+        {
+          "action": "force",
+          "target": "worker_or_official_roles"
+        },
+        {
+          "action": "increase",
+          "target": "dust_coats_caps_goggles"
+        },
+        {
+          "action": "exclude",
+          "target": "casual_viewer_only"
+        }
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "ruleId": "infield_bias_rule",
+      "label": "Infield zones allow broader public mix",
+      "condition": {
+        "field": "location_zone",
+        "operator": "equals",
+        "value": "infield"
+      },
+      "effects": [
+        {
+          "action": "allow",
+          "target": "family_groups"
+        },
+        {
+          "action": "increase",
+          "target": "looser_posture"
+        },
+        {
+          "action": "bias-toward",
+          "target": "casual_public_viewing"
+        }
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_009"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "ruleId": "ethical_representation_not_worker_only",
+      "label": "Underrepresented groups must not collapse into worker-only roles",
+      "condition": {
+        "field": "race_ethnicity_context",
+        "operator": "exists",
+        "value": "underrepresented_local_community"
+      },
+      "effects": [
+        {
+          "action": "allow",
+          "target": "middle_class_spectator"
+        },
+        {
+          "action": "allow",
+          "target": "working_class_spectator"
+        },
+        {
+          "action": "avoid",
+          "target": "service_role_only"
+        },
+        {
+          "action": "avoid",
+          "target": "outsider_criminal_only"
+        }
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_008",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "negativeConstraints": [
+    {
+      "constraintId": "avoid_modern_artifacts",
+      "label": "Avoid modern artifacts",
+      "text": "Avoid modern fan clothing, branded jerseys, T-shirts, shorts, modern sunglasses, and baseball caps.",
+      "constraintType": "modern-artifact-risk",
+      "appliesTo": [],
+      "enforcement": {
+        "avoid": [
+          "t-shirt",
+          "jersey",
+          "baseball cap",
+          "shorts",
+          "modern sunglasses"
+        ],
+        "allow": [],
+        "force": [],
+        "exclude": [
+          "modern_fan_artifacts"
+        ]
+      },
+      "enforcedByRuleIds": [
+        "rail_bias_rule",
+        "ethical_representation_not_worker_only"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "constraintId": "avoid_overbroad_variation",
+      "label": "Avoid overbroad variation",
+      "text": "Do not randomize so broadly that the crowd loses its tight historical silhouette.",
+      "constraintType": "negative",
+      "appliesTo": [],
+      "enforcedByRuleIds": [
+        "rail_bias_rule",
+        "ethical_representation_not_worker_only"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "constraintId": "avoid_incompatible_wardrobe",
+      "label": "Avoid incompatible wardrobe mixing",
+      "text": "Avoid incompatible class, wardrobe, and location combinations unless sourced as an exception.",
+      "constraintType": "compatibility",
+      "appliesTo": [],
+      "enforcedByRuleIds": [
+        "rail_bias_rule",
+        "grandstand_bias_rule",
+        "pit_bias_rule",
+        "infield_bias_rule",
+        "ethical_representation_not_worker_only"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_004",
+        "research-input-historical-crowd-grammar_chunk_005",
+        "research-input-historical-crowd-grammar_chunk_008",
+        "research-input-historical-crowd-grammar_chunk_009",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "constraintId": "avoid_worker_only_representation",
+      "label": "Avoid worker-only representation",
+      "text": "Do not reduce underrepresented groups to workers or service roles only; allow middle-class spectator, working-class spectator, worker, and family-member variants where spatially plausible.",
+      "constraintType": "ethical-historical-representation",
+      "appliesTo": [
+        "race_ethnicity_context.underrepresented_local_community",
+        "archetypes",
+        "role_sampling"
+      ],
+      "enforcement": {
+        "avoid": [
+          "service_role_only"
+        ],
+        "allow": [
+          "middle_class_spectator",
+          "working_class_spectator",
+          "worker",
+          "family_member"
+        ],
+        "force": [],
+        "exclude": []
+      },
+      "enforcedByRuleIds": [
+        "rail_bias_rule",
+        "ethical_representation_not_worker_only"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_008",
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "constraintId": "avoid_wrong_era_silhouette",
+      "label": "Avoid wrong-era silhouette",
+      "text": "Avoid wrong-era silhouettes and theatrical period cliches.",
+      "constraintType": "modern-artifact-risk",
+      "appliesTo": [],
+      "enforcedByRuleIds": [
+        "rail_bias_rule",
+        "ethical_representation_not_worker_only"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "constraintId": "avoid_unbalanced_location_gender",
+      "label": "Avoid unbalanced location placement",
+      "text": "Do not overpopulate women in rail or controlled work zones without source support.",
+      "constraintType": "compatibility",
+      "appliesTo": [],
+      "enforcedByRuleIds": [
+        "rail_bias_rule",
+        "ethical_representation_not_worker_only"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    },
+    {
+      "constraintId": "avoid_outsider_criminal_only",
+      "label": "Avoid outsider criminal-only representation",
+      "text": "Do not depict foreign traders or outsiders only as thieves or criminals; keep them as ordinary commercial participants unless a source supports otherwise.",
+      "constraintType": "ethical-historical-representation",
+      "appliesTo": [],
+      "enforcedByRuleIds": [
+        "rail_bias_rule",
+        "ethical_representation_not_worker_only"
+      ],
+      "sourceChunkIds": [
+        "research-input-historical-crowd-grammar_chunk_013"
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "uncertainties": [
+    "Review whether this inference is sufficiently supported: Female spectators are sparse but visually important and should appear more often in grandstand and social viewing zones than at the rail.",
+    "Review whether this inference is sufficiently supported: Smoke or haze may come from dust, fuel, machinery, or nearby industrial activity."
+  ],
+  "reviewFlags": [
+    "ethical-constraint-detected",
+    "visual-reference-routing-manifest-only"
+  ]
+}

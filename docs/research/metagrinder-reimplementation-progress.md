@@ -15,6 +15,19 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-06-10 [S2.2] PSG compiler port — in_progress (base linear done)
+- changed: src/compile/{psg,scene-grammar-psg,scene-grammar-psg.test}.ts, src/compile/__fixtures__/historical-crowd-grammar.ts, src/compile/__golden__/* (captured), scripts/capture-legacy-psg-golden.js
+- gates: tsc clean; src 41/41 (5 suites); legacy 134/134 (run earlier this session)
+- notes: Resolved the apparent byte-identity-vs-schema-divergence tension — the compiler reads only fields the new SceneGrammar carries (incl. the "15 chunks/52 claims" string, which lives in sceneContext.summary, NOT computed). So byte-identity IS achievable and proven for the base linear PSG. Key technique: Zod .parse() reorders keys, so builders construct plain objects in the EXACT golden key order (id,type,x,y,name,payload) and the compiler serializes the hand-built object (validates a copy). Authored the first real new-shape grammar fixture by mechanical translation of the legacy capture — a permanent asset for S2.4 sampling + S3.3 target. Capture script moved to scripts/ (requires legacy; src/ must not). REMAINING: 7 branch graphs + semantic-choice path (AC-2.2b), sampler, plausibility eval, compile-diff. accepted-target golden waits on S2.3 (compiler is target-agnostic).
+
+## 2026-06-10 [S2.1] Ingest + span index — done (Phase 2 begins)
+- changed: src/stages/ingest/{chunk,index,ingest.test}.ts
+- gates: tsc clean; src 38/38 (4 suites); legacy 134/134
+- notes: Deliberate honesty split — legacy researchIngest tangled deterministic chunking with fixture-shaped classification (RESEARCH_HEADING_TAXONOMY: wardrobe/atmosphere; detectChunkKind keyword tables). Ported ONLY the structural half: paragraph spans + structural heading detection. chunkKind stays 'unknown' for text mode (extract classifies, Phase 3); photo mode sets it because the adapter structurally knows what it rendered. Span invariant: chunk.text is the verbatim trimmed slice of the newline-normalized canonical text (internal newlines preserved), so canonical.slice(start,end)===text always — the substrate for AIS quote verification in S3.2. Both input modes (text, photo-observation) emit identical SourceChunk shape so downstream never branches on mode.
+
+## 2026-06-10 PHASE 1 EXIT — approved by Brian Behm
+Schema core, codegen + contracts, validating run-folder store with content-hash IDs and resumable stage states, and eval corpus all green (src 28, legacy 134). Commits 7e9c76d (historical-photo) + 42054b9 (reimpl Phase 0-1). Phase 2 (deterministic spine) begins at S2.1. S0.3 held-out briefs still in progress on the operator side — does not gate Phase 2; gates Phase 3 semantic evals.
+
 ## 2026-06-10 [S1.5] Eval corpus port — done
 - changed: src/eval/corpus/{briefs/(12 files),judgments.json}, src/eval/corpus.ts, corpus.test.ts
 - gates: tsc clean; src 28/28 (3 suites); legacy 134/134
