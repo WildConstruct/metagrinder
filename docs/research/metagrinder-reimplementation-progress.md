@@ -15,6 +15,12 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-06-10 [S2.4] Content-plan sampling + Phase 2 end-to-end — DONE
+- changed: src/stages/sample/{rng,rules,index,sample.test}.ts, src/pipeline.phase2.test.ts
+- gates: tsc clean; src 68/68 (8 suites); legacy 134/134
+- notes: Seed-deterministic sampler (mulberry32, no Math.random) emits content-plans; hard compatibility rules (exclude/incompatible-with/avoid) enforced at sampling time by resample — emit nothing rather than a violating plan. AC-2.4b proven over 40 seeds × 20 plans = 0 violations, plus an unsatisfiable-rule → 0 plans case. This is the NEW canonical sampler that supersedes the legacy buildSamplePromptsArtifact (per S2.2 re-scope). Phase 2 end-to-end smoke wires ingest→placeholder grammar→PSG compile→sample through RunStore with resumable manifest state.
+- PHASE 2 EXIT GATE REACHED — awaiting human sign-off. Spine complete: ingest (span-indexed), PSG compiler (byte-identical), governance (invariants property-tested), content-plan sampling (deterministic + rule-safe), all through the validating run store. Carry-forward into Phase 3: compile-diff (small S2.2 leftover) and registering 'psg' as a stored artifact family.
+
 ## 2026-06-10 [S2.3] Governance state machine — DONE
 - changed: src/stages/govern/{index,target,govern.test}.ts, src/schemas/operator-state.ts (IntakeApproval), schemas/index.ts
 - gates: tsc clean; src 62/62 (6 suites); legacy 134/134
