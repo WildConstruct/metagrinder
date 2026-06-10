@@ -15,6 +15,11 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-06-10 [S2.3] Governance state machine — DONE
+- changed: src/stages/govern/{index,target,govern.test}.ts, src/schemas/operator-state.ts (IntakeApproval), schemas/index.ts
+- gates: tsc clean; src 62/62 (6 suites); legacy 134/134
+- notes: The moat, implemented as pure functions with the "What Must Never Happen" list as property tests (for-all over statuses, not single examples). Forward chain: promoteApprovedCandidates (only approved+non-mismatched → sources) → applyAcceptedRevisions (only accepted decisions; citation gate: material change needs 'approved' citation OR explicit decision.citationOverride; rejected/needs_review/mixed → confirmation delta + warning; low-quality source blocks silent high confidence; supersession via supersedesRevisionId replacing the same target). Backward: computeIntegrityFlags cascades retraction → flags on dependent evidence/claims/deltas, NEVER rewrites (hole 2). Deliberately did NOT port the legacy applyRevisionToGrammar "+2 to min/max" hack — that was fixture nonsense; new applicator sets the revision's proposedValue and classifies material-vs-confirmation by deep comparison. Remaining for Phase 2 exit: S2.4 content-plan sampling (+ the small compile-diff leftover). Then end-to-end ingest→grammar→compile wiring + Phase 2 exit sign-off.
+
 ## 2026-06-10 [S2.2] PSG compiler port — DONE (base + 7 branches)
 - changed: scene-grammar-psg.ts (+buildBranchSceneGrammarPsgs, branchWeight, buildBranchPsg), __fixtures__/historical-crowd-grammar.ts (+role/gender/class, zone labels, 7 negative constraints verbatim, clean visual refs), scene-grammar-psg.test.ts (+branch suite)
 - gates: tsc clean; src 50/50 (5 suites)

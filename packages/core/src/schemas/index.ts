@@ -12,6 +12,7 @@ export * from './scene-grammar';
 export * from './choice-graph';
 export * from './source-lifecycle';
 export * from './revisions';
+export * from './operator-state';
 export * from './retrieval';
 export * from './gap-registry';
 export * from './campaign';
