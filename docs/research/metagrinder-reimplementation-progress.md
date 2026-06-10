@@ -15,6 +15,11 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-06-10 [S2.2] PSG compiler port — DONE (base + 7 branches)
+- changed: scene-grammar-psg.ts (+buildBranchSceneGrammarPsgs, branchWeight, buildBranchPsg), __fixtures__/historical-crowd-grammar.ts (+role/gender/class, zone labels, 7 negative constraints verbatim, clean visual refs), scene-grammar-psg.test.ts (+branch suite)
+- gates: tsc clean; src 50/50 (5 suites)
+- notes: 6/7 branches byte-identical to legacy (baseline, grandstand, rail, pit, infield, negative-constraints). branchWeight verified — grandstand weights 55/25/8.13/7.5/11.7/7.2 reproduced exactly from archetype role/gender/class. The 7th (specimen-reference-router) consumed legacy EXTRACTOR NOISE (captions like "notes: Visual reference caption:..."); byte-matching that would just copy garbage, so the fixture carries clean authored references and the router is checked structurally — a deliberate, documented divergence. Re-scoped S2.2 leftovers honestly: legacy sampler superseded by S2.4 content-plan sampling (not ported); compile-diff waits on S2.3 accepted grammar; semantic-choice-graph PSG path moves to the choice-graph stage (S3.x). Phase 2 exit now needs S2.3 (governance state machine) + S2.4 (content-plan sampling).
+
 ## 2026-06-10 [S2.2] PSG compiler port — in_progress (base linear done)
 - changed: src/compile/{psg,scene-grammar-psg,scene-grammar-psg.test}.ts, src/compile/__fixtures__/historical-crowd-grammar.ts, src/compile/__golden__/* (captured), scripts/capture-legacy-psg-golden.js
 - gates: tsc clean; src 41/41 (5 suites); legacy 134/134 (run earlier this session)
