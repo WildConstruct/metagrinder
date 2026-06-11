@@ -15,6 +15,11 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-06-10 [S3.3] Grammar draft + choice-graph stages — DONE
+- changed: src/stages/grammar/{verify,index,grammar.test}.ts, src/stages/choices/index.ts, schemas/scene-grammar.ts (+SceneGrammarPayloadSchema)
+- gates: tsc clean; src 91/91 (11 suites); legacy 134/134
+- notes: Grammar verify mirrors extract verify — every grammar record's provenance is gated on chunk existence (an archetype with no real source is DROPPED), plus arithmetic sanity (weight-range order; archetype weight-mass band 40–200%). The stage always sets grammarTarget='base' — 'accepted' is produced ONLY by the governance state machine from accepted deltas, never drafted. choices = deterministic projection grammar→axes (archetype/zone/environment), the inspectable boundary before PSG; LLM-assisted axis refinement is a future upgrade behind the same artifact. AC-3.3a is the anti-regression made explicit: a source-cleanliness test reads grammar/choices .ts and asserts ZERO fixture vocabulary (middle_class/heat_adjusted/straw boater/grandstand/spectator/peasant/medieval/overcoat) — the old failure mode (hardcoded archetype tables) is now test-forbidden in code. AC-3.3b proven for BOTH historical-crowd and medieval-market by ingesting the real input fixtures, citing real content-hash chunk ids, and confirming all archetype provenance verifies. Next: S3.4 realization stage (plan→prose + faithfulness gate) — the last semantic stage before the S3.5 eval harness where S0.3 briefs land.
+
 ## 2026-06-10 [S3.2] Extract stage + AIS verification — DONE (AC-3.2a)
 - changed: src/stages/extract/{verify,index,extract.test}.ts, schemas/extraction.ts (+ExtractionPayloadSchema), providers/types.ts (schema generic input-open fix)
 - gates: tsc clean; src 84/84 (10 suites); legacy 134/134

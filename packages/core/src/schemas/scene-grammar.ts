@@ -134,6 +134,30 @@ export const DemographicDistributionSchema = z.object({
 });
 export type DemographicDistribution = z.infer<typeof DemographicDistributionSchema>;
 
+/** What the LLM drafts — grammar content only. The stage owns envelope,
+ *  analysisMode, and grammarTarget (always 'base' for a fresh draft). */
+export const SceneGrammarPayloadSchema = z.object({
+  sceneContext: z.object({
+    contextId: z.string(),
+    title: z.string(),
+    researchKind: ResearchKindSchema,
+    summary: z.string(),
+    provenance: ProvenanceSchema
+  }),
+  archetypes: z.array(SceneArchetypeSchema).default([]),
+  demographicDistributions: z.array(DemographicDistributionSchema).default([]),
+  itemSystems: z.array(ItemSystemSchema).default([]),
+  locationZones: z.array(LocationZoneSchema).default([]),
+  behaviorStates: z.array(BehaviorStateSchema).default([]),
+  environmentalModifiers: z.array(EnvironmentalModifierSchema).default([]),
+  visualReferences: z.array(VisualReferenceSchema).default([]),
+  compatibilityRules: z.array(CompatibilityRuleSchema).default([]),
+  negativeConstraints: z.array(NegativeConstraintSchema).default([]),
+  uncertainties: z.array(z.string()).default([]),
+  reviewFlags: z.array(z.string()).default([])
+});
+export type SceneGrammarPayload = z.infer<typeof SceneGrammarPayloadSchema>;
+
 export const SceneGrammarSchema = artifactEnvelope('scene-grammar').extend({
   analysisMode: AnalysisModeSchema,
   /** 'base' = derived from inputs; 'accepted' = base + accepted, citation-gated deltas. */
