@@ -15,6 +15,11 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-06-10 [S3.4] Realization stage — DONE
+- changed: src/stages/realize/{gate,index,realize.test}.ts, schemas/content-plan.ts (RealizedPrompt +utdgRefs/evidenceRefs)
+- gates: tsc clean; src 99/99 (12 suites); legacy 134/134
+- notes: Closes the plan-then-realize loop. Plans stay canonical; prose is derived and per-model. Three deterministic profiles (caption-prose for LLM-encoder models, keyword-stack for CLIP-era, tag-stream for Danbooru-style) + an LLM caption realizer. The faithfulnessGate runs on EVERY realization — the data-to-text literature's finding (neural fluency injects unsupported content) is mitigated by the standard slot-coverage + unsupported-content check (lexical proxy for NLI; model-entailment is a future upgrade behind the seam). Tested: a model caption that drops a slot or invents content is flagged, not trusted — same untrusted-LLM discipline as extract/grammar. Refs inherited plan slot → realized prompt so consumers don't rejoin (garment-work principle). All four Phase 3 semantic stages now exist (extract, grammar, choices, realize), each gated. Next: S3.5 — promote the epic4 evaluator into src/eval/, add ERA/shift + judge meta-gate, and this is where S0.3 held-out briefs + AC-3.2b (beat heuristic baseline) land. S3.5 needs the briefs to fully close; the evaluator + replay-corpus scoring can be built first.
+
 ## 2026-06-10 [S3.3] Grammar draft + choice-graph stages — DONE
 - changed: src/stages/grammar/{verify,index,grammar.test}.ts, src/stages/choices/index.ts, schemas/scene-grammar.ts (+SceneGrammarPayloadSchema)
 - gates: tsc clean; src 91/91 (11 suites); legacy 134/134

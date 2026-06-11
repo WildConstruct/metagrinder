@@ -44,6 +44,9 @@ export const RealizedPromptSchema = z.object({
     unsupportedContent: GateStatusSchema.default('pending'),
     notes: z.array(z.string()).default([])
   }),
+  /** Inherited from the plan's slots so consumers need not rejoin against the plan. */
+  utdgRefs: z.array(z.string()).default([]),
+  evidenceRefs: z.array(z.string()).default([]),
   modelFamilyHint: z.string().optional()
 });
 export type RealizedPrompt = z.infer<typeof RealizedPromptSchema>;
