@@ -15,6 +15,11 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-06-10 [S3.2] Extract stage + AIS verification — DONE (AC-3.2a)
+- changed: src/stages/extract/{verify,index,extract.test}.ts, schemas/extraction.ts (+ExtractionPayloadSchema), providers/types.ts (schema generic input-open fix)
+- gates: tsc clean; src 84/84 (10 suites); legacy 134/134
+- notes: THE payoff — the S2.1 byte spans get used. verify.ts is AIS operationalized: chunk-id existence (missing → record dropped), quoted → must be a verbatim substring of a cited chunk (else downgraded AND demoted quoted→paraphrased + confidence→low + warning), paraphrased → lexical containment overlap ≥0.6 (an explicit, documented proxy for NLI — the real model-entailment check is a future upgrade behind the same seam), inferred → never source-verified, requires a reasoningNote, capped low. Pure functions; LLM output untrusted until checked. The structural fix for the original keyword-table failure: extraction quality is now gated by source-grounding, not by a vocabulary table. Type fix: LlmRequest.schema is z.ZodType<T,_,unknown> so schemas with .default() bind T to the OUTPUT type. AC-3.2b (eval ≥ heuristic baseline) genuinely needs the evaluator (S3.5) + recorded/real extraction on the corpus → deferred to S3.5, where S0.3 held-out briefs also become load-bearing. Next: S3.3 grammar-draft + choice-graph stages.
+
 ## 2026-06-10 [S3.1] LlmProvider + replay — DONE (Phase 3 begins)
 - changed: src/providers/{types,cache,caching-provider,anthropic,codex-cli,index,providers.test}.ts
 - gates: tsc clean; src 76/76 (9 suites); legacy 134/134

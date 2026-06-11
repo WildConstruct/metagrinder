@@ -13,8 +13,9 @@ export interface LlmRequest<T> {
   stage: string;
   system?: string;
   prompt: string;
-  /** Zod schema the raw response must satisfy after JSON parse. */
-  schema: z.ZodType<T>;
+  /** Zod schema the raw response must satisfy after JSON parse. Input is left
+   *  open (schemas with .default() have input != output) so T binds to output. */
+  schema: z.ZodType<T, z.ZodTypeDef, unknown>;
   /** Stable name for the schema (part of the cache key; also a tool name hint). */
   schemaName: string;
   maxRetries?: number;

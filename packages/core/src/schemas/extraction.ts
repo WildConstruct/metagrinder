@@ -65,6 +65,21 @@ export const ExtractionCategorySchema = z.object({
   rationale: z.string().optional()
 });
 
+/**
+ * What the LLM returns — semantic content only. The stage owns the envelope
+ * (artifact/runId/createdAt) and analysisMode, so the model never invents them.
+ */
+export const ExtractionPayloadSchema = z.object({
+  detectedResearchKind: z.string().optional(),
+  categories: z.array(ExtractionCategorySchema).default([]),
+  claims: z.array(ExtractedClaimSchema).default([]),
+  concepts: z.array(ConceptCandidateSchema).default([]),
+  evidence: z.array(EvidenceExcerptSchema).default([]),
+  uncertaintySpans: z.array(UncertaintySpanSchema).default([]),
+  openQuestions: z.array(OpenQuestionSchema).default([])
+});
+export type ExtractionPayload = z.infer<typeof ExtractionPayloadSchema>;
+
 export const ExtractionSchema = artifactEnvelope('extraction').extend({
   analysisMode: AnalysisModeSchema,
   detectedResearchKind: z.string().optional(),
