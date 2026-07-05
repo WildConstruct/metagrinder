@@ -12,7 +12,7 @@ describe('base scene-grammar PSG compiler (S2.2)', () => {
   test('[AC-2.2a] byte-identical to legacy golden for historical-crowd (base target)', () => {
     const psg = buildSceneGrammarPsg(historicalCrowdGrammar(), FIXED_NOW);
     const serialized = `${JSON.stringify(psg, null, 2)}\n`;
-    const golden = fs.readFileSync(GOLDEN, 'utf8');
+    const golden = fs.readFileSync(GOLDEN, 'utf8').replace(/\r\n/g, '\n');
     expect(serialized).toBe(golden);
   });
 
