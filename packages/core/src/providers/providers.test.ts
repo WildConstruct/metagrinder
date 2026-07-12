@@ -71,6 +71,20 @@ describe('caching provider (S3.1)', () => {
     expect(calls).toBe(1);
   });
 
+  test('[AC-3.5c] transport receives the generated output schema in its prompt', async () => {
+    const runDir = tmpRun();
+    let observedPrompt = '';
+    const transport: Transport = async ({ prompt }) => {
+      observedPrompt = prompt;
+      return { rawText: '{"label":"a","weight":1}' };
+    };
+    const provider = createCachingProvider({ runDir, transport, providerId: 'fake', model: 'm', mode: 'record', now: NOW });
+    await provider.complete(req());
+    expect(observedPrompt).toContain('OUTPUT JSON SCHEMA');
+    expect(observedPrompt).toContain('"label"');
+    expect(observedPrompt).toContain('"weight"');
+  });
+
   test('cache key separates stages and prompts', async () => {
     const runDir = tmpRun();
     const transport: Transport = async ({ stage }) => ({ rawText: `{"label":"${stage}","weight":1}` });

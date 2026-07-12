@@ -33,3 +33,7 @@ pnpm eval:src -- <legacy|replay> <run-dir> <base-grammar.json> <output.json> [ac
 rebuild extraction artifacts stamped `analysisMode: 'replayed-llm-semantic'`.
 The report contains corpus rubric scores, expressive-range metrics, and an
 explained base-to-accepted generative shift when both grammars are supplied.
+
+The rebuilt corpus pipeline is available as `pnpm eval:corpus -- record ...`
+followed by `pnpm eval:corpus -- replay ...`. The operator-only held-out command
+and fence policy live in `src/eval/holdout/README.md`; agents must not execute it.

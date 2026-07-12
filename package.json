@@ -17,7 +17,9 @@
     "test:metagrinder": "pnpm --filter @promptscape/core test:metagrinder",
     "test:src": "pnpm --filter @promptscape/core test:src",
     "typecheck:src": "pnpm --filter @promptscape/core typecheck:src",
-    "eval:src": "pnpm --filter @promptscape/core eval:src"
+    "eval:src": "pnpm --filter @promptscape/core eval:src",
+    "eval:corpus": "pnpm --filter @promptscape/core eval:corpus",
+    "eval:holdout": "pnpm --filter @promptscape/core eval:holdout"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

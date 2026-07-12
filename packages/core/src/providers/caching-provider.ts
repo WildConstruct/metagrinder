@@ -6,6 +6,7 @@ import {
   LlmValidationError,
   ReplayMissError
 } from './types';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import { cacheKeyFor, readCacheEntry, writeCacheEntry } from './cache';
 
 export type ProviderMode = 'replay' | 'record' | 'auto';
@@ -36,13 +37,20 @@ export function createCachingProvider(opts: {
     ...(opts.modelVersion !== undefined ? { modelVersion: opts.modelVersion } : {}),
 
     async complete<T>(req: LlmRequest<T>): Promise<LlmResult<T>> {
+      const outputSchema = zodToJsonSchema(req.schema, { name: req.schemaName, $refStrategy: 'none' });
+      const transportPrompt = [
+        req.prompt,
+        '',
+        'OUTPUT JSON SCHEMA (return one JSON object matching this schema exactly):',
+        JSON.stringify(outputSchema)
+      ].join('\n');
       const cacheKey = cacheKeyFor({
         provider: opts.providerId,
         model: opts.model,
         ...(opts.modelVersion !== undefined ? { modelVersion: opts.modelVersion } : {}),
         stage: req.stage,
         ...(req.system !== undefined ? { system: req.system } : {}),
-        prompt: req.prompt,
+        prompt: transportPrompt,
         schemaName: req.schemaName
       });
       const cached = opts.mode === 'record' ? undefined : readCacheEntry(opts.runDir, cacheKey);
@@ -54,7 +62,7 @@ export function createCachingProvider(opts: {
         replayed = true;
       } else {
         if (opts.mode === 'replay') throw new ReplayMissError(cacheKey, req.stage);
-        const out = await opts.transport({ stage: req.stage, ...(req.system !== undefined ? { system: req.system } : {}), prompt: req.prompt, schemaName: req.schemaName });
+        const out = await opts.transport({ stage: req.stage, ...(req.system !== undefined ? { system: req.system } : {}), prompt: transportPrompt, schemaName: req.schemaName });
         rawText = out.rawText;
         replayed = false;
         writeCacheEntry(opts.runDir, {
@@ -65,7 +73,7 @@ export function createCachingProvider(opts: {
           model: opts.model,
           ...(opts.modelVersion !== undefined ? { modelVersion: opts.modelVersion } : {}),
           ...(req.system !== undefined ? { system: req.system } : {}),
-          prompt: req.prompt,
+          prompt: transportPrompt,
           rawText,
           createdAt: now()
         });

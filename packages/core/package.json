@@ -14,17 +14,19 @@
     "run:research-brief-lab": "node scripts/serve-research-brief-lab.js",
     "codegen:json-schema": "tsx src/schemas/emit-json-schema.ts",
     "eval:src": "tsx src/eval/run.ts",
+    "eval:corpus": "tsx src/eval/run-corpus.ts",
+    "eval:holdout": "tsx src/eval/run-holdout.ts",
     "test:src": "jest --config jest.src.config.cjs",
     "typecheck:src": "tsc --noEmit -p src/tsconfig.json",
     "test:metagrinder": "jest --config jest.metagrinder.config.cjs",
     "test:metagrinder:coverage": "jest --config jest.metagrinder.config.cjs --coverage"
   },
   "dependencies": {
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "tsx": "^4.22.4",
-    "zod-to-json-schema": "^3.25.2"
+    "tsx": "^4.22.4"
   }
 }

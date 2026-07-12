@@ -15,6 +15,12 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-07-12 [S3.5] Rebuilt corpus record/replay runner — blocked_on_human (run card)
+- changed: src/eval/run-corpus.ts + run-holdout.ts; RunStore-backed ingest→extract→grammar→choices→plans→realization; generated output schema bound into provider prompts/cache identity; corpus/holdout commands and fence policy
+- gates: tsc clean; src 110/110 (14 suites); legacy 134/134; contract consumption green; synthetic record→replay score 9/10 with zero replay transport calls
+- RUN CARD for operator: configure the chosen provider, run `pnpm eval:corpus -- record <anthropic|codex-cli> <run-dir>`, then the same command with `replay`; review `<run-dir>/eval-report.json`. Required: rebuilt corpus score ≥106/120; compare against the 114/120 semantic bootstrap. The existing S0.3 card remains the single separate holdout action.
+- notes: Agent-side S3.5 mechanics are complete. No provider credentials were accessed and no held-out material was read. Stop here per A4.3 rather than building more proof helpers around the human action.
+
 ## BASELINE — corpus semantic-bootstrap 114/120 @ fe22900
 Verified by the promoted rubric scorer against the committed Epic 4 semantic run; this is a bootstrap comparator, not a claim about rebuilt-pipeline output.
 
@@ -124,7 +130,7 @@ Schema core, codegen + contracts, validating run-folder store with content-hash 
 - RUN CARD for operator: confirm deletion of (1) `node_modules (1)/` — duplicate copy folder, (2) `.pnpm-store/` — obsolete in-repo store superseded by `store-dir=C:\pnpm-store`. Optionally (3) stale `packages/core/jest.config.cjs` now vs at S6.1. On confirmation, any agent session executes the deletions and closes S0.2.
 
 ## 2026-06-10 [S0.3] Eval fence — blocked_on_human (run card)
-- RUN CARD for operator: author 6–10 held-out briefs + judgments in a folder outside the repo (suggested `..\metagrinder-holdout\`), domains not in current fixtures (technical, culinary, sports, fantasy, industrial...). No agent may read that folder (loop rule A4.1). The in-repo holdout runner gets built with S3.5; brief authoring is the long-lead item and can start now.
+- RUN CARD for operator: author 6–10 held-out briefs + judgments in a folder outside the repo (suggested `..\metagrinder-holdout\`), domains not in current fixtures (technical, culinary, sports, fantasy, industrial). No agent may read that folder (loop rule A4.1). Set `METAGRINDER_HOLDOUT_DIR`, then run `pnpm eval:holdout -- record <anthropic|codex-cli> <run-dir>`; review `<run-dir>/holdout-eval-report.json`.
 
 ## 2026-06-10 [S0.1] Fix the package manager — done
 - changed: .npmrc (new: external store-dir), README.md (Environment notes), AGENTS.md (canonical test command), node_modules rebuilt clean
