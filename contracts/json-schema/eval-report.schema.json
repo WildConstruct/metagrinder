@@ -1,0 +1,346 @@
+{
+  "$ref": "#/definitions/eval-report",
+  "definitions": {
+    "eval-report": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "eval-report"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "corpus": {
+          "type": "object",
+          "properties": {
+            "corpusVersion": {
+              "type": "string"
+            },
+            "sourceKind": {
+              "type": "string",
+              "enum": [
+                "legacy-bootstrap",
+                "replayed-extraction",
+                "holdout-extraction"
+              ]
+            },
+            "totalScore": {
+              "type": "number"
+            },
+            "totalMax": {
+              "type": "number"
+            },
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "expectedMode": {
+                    "type": "string"
+                  },
+                  "actualMode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "recommendedFocus": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "warningCount": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "breakdown": {
+                    "type": "object",
+                    "properties": {
+                      "mode": {
+                        "type": "number"
+                      },
+                      "focus": {
+                        "type": "number"
+                      },
+                      "rationale": {
+                        "type": "number"
+                      },
+                      "warnings": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "mode",
+                      "focus",
+                      "rationale",
+                      "warnings"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "score": {
+                    "type": "number"
+                  },
+                  "maxScore": {
+                    "type": "number"
+                  },
+                  "problems": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "id",
+                  "expectedMode",
+                  "actualMode",
+                  "recommendedFocus",
+                  "warningCount",
+                  "breakdown",
+                  "score",
+                  "maxScore",
+                  "problems"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "corpusVersion",
+            "sourceKind",
+            "totalScore",
+            "totalMax",
+            "results"
+          ],
+          "additionalProperties": false
+        },
+        "era": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "object",
+              "properties": {
+                "grammarTarget": {
+                  "type": "string",
+                  "enum": [
+                    "base",
+                    "accepted"
+                  ]
+                },
+                "seed": {
+                  "type": "integer"
+                },
+                "sampleCountRequested": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "sampleCountEmitted": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "emissionRate": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "constraintViolationRate": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "lexicalDiversity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "evidenceCoverage": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "archetypeMix": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "modifierMix": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                }
+              },
+              "required": [
+                "grammarTarget",
+                "seed",
+                "sampleCountRequested",
+                "sampleCountEmitted",
+                "emissionRate",
+                "constraintViolationRate",
+                "lexicalDiversity",
+                "evidenceCoverage",
+                "archetypeMix",
+                "modifierMix"
+              ],
+              "additionalProperties": false
+            },
+            "accepted": {
+              "type": "object",
+              "properties": {
+                "grammarTarget": {
+                  "type": "string",
+                  "enum": [
+                    "base",
+                    "accepted"
+                  ]
+                },
+                "seed": {
+                  "type": "integer"
+                },
+                "sampleCountRequested": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "sampleCountEmitted": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "emissionRate": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "constraintViolationRate": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "lexicalDiversity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "evidenceCoverage": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "archetypeMix": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                },
+                "modifierMix": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1
+                  }
+                }
+              },
+              "required": [
+                "grammarTarget",
+                "seed",
+                "sampleCountRequested",
+                "sampleCountEmitted",
+                "emissionRate",
+                "constraintViolationRate",
+                "lexicalDiversity",
+                "evidenceCoverage",
+                "archetypeMix",
+                "modifierMix"
+              ],
+              "additionalProperties": false
+            },
+            "shift": {
+              "type": "object",
+              "properties": {
+                "totalVariationDistance": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "archetypeShareDelta": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                },
+                "modifierShareDelta": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "number"
+                  }
+                },
+                "lexicalDiversityDelta": {
+                  "type": "number"
+                },
+                "evidenceCoverageDelta": {
+                  "type": "number"
+                },
+                "emissionRateDelta": {
+                  "type": "number"
+                },
+                "explanations": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "totalVariationDistance",
+                "archetypeShareDelta",
+                "modifierShareDelta",
+                "lexicalDiversityDelta",
+                "evidenceCoverageDelta",
+                "emissionRateDelta",
+                "explanations"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "base"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "corpus",
+        "era"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

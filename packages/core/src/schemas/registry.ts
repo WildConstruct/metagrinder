@@ -3,6 +3,7 @@ import { CampaignSchema } from './campaign';
 import { ChoiceGraphSchema } from './choice-graph';
 import { ContentPlansSchema } from './content-plan';
 import { ExtractionSchema } from './extraction';
+import { EvalReportSchema } from './eval';
 import { GapRegistrySchema } from './gap-registry';
 import { ResearchPackageManifestSchema } from './package-manifest';
 import { ImportReceiptSchema } from './receipts';
@@ -35,7 +36,8 @@ export const ARTIFACT_SCHEMAS = {
   'run-manifest': RunManifestSchema,
   'research-package': ResearchPackageManifestSchema,
   'utdg-candidates': UtdgCandidatesSchema,
-  'import-receipt': ImportReceiptSchema
+  'import-receipt': ImportReceiptSchema,
+  'eval-report': EvalReportSchema
 } satisfies Record<string, z.ZodTypeAny>;
 
 export type StoredArtifactFamily = keyof typeof ARTIFACT_SCHEMAS;

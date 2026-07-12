@@ -15,6 +15,17 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## BASELINE — corpus semantic-bootstrap 114/120 @ fe22900
+Verified by the promoted rubric scorer against the committed Epic 4 semantic run; this is a bootstrap comparator, not a claim about rebuilt-pipeline output.
+
+## BASELINE — corpus heuristic 106/120 @ fe22900
+Verified by the same promoted scorer against the committed Epic 4 heuristic run.
+
+## 2026-07-12 [S3.5] Eval harness promotion — in_progress
+- changed: src/eval/{scorer,era,run,evaluator.test}.ts; schemas/eval.ts + generated contract; eval:src command; rebuild README usage
+- gates: tsc clean; src 107/107 (13 suites); legacy 134/134; contract consumption green; bootstrap scores 114 semantic vs 106 heuristic
+- notes: AC-3.5a/b pass. The scorer has a strict rebuilt-extraction adapter that rejects non-replay-stamped artifacts; no rebuilt replay corpus exists yet, so AC-3.2b and the Phase 3 exit remain open. The existing S0.3 human run card remains the single holdout action; no held-out material was read.
+
 ## 2026-07-12 [S3.4a] Audit correctness hardening — DONE
 - changed: src/providers cache identity; extract provenance confidence propagation; RunStore path containment + manifest-hash enforcement; regression tests for all three boundaries
 - gates: tsc clean; src 103/103 (12 suites); legacy 134/134; replay evals n/a (S3.5 remains the next story and no baseline exists yet)

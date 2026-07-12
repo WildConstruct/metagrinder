@@ -16,7 +16,8 @@
     "run:research-brief-lab": "pnpm --filter @promptscape/core run:research-brief-lab",
     "test:metagrinder": "pnpm --filter @promptscape/core test:metagrinder",
     "test:src": "pnpm --filter @promptscape/core test:src",
-    "typecheck:src": "pnpm --filter @promptscape/core typecheck:src"
+    "typecheck:src": "pnpm --filter @promptscape/core typecheck:src",
+    "eval:src": "pnpm --filter @promptscape/core eval:src"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

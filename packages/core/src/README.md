@@ -22,3 +22,14 @@ providers/   LlmProvider: anthropic | openai | codex-cli | replay
 eval/        corpus, rubric scorer, ERA/shift tooling, judge meta-gate, holdout runner
 review/      generated review.html + thin workbench server
 ```
+
+Promoted evaluator command (S3.5 core):
+
+```text
+pnpm eval:src -- <legacy|replay> <run-dir> <base-grammar.json> <output.json> [accepted-grammar.json]
+```
+
+`legacy` reproduces the committed Epic 4 bootstrap baseline. `replay` accepts only
+rebuild extraction artifacts stamped `analysisMode: 'replayed-llm-semantic'`.
+The report contains corpus rubric scores, expressive-range metrics, and an
+explained base-to-accepted generative shift when both grammars are supplied.

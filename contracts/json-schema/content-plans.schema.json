@@ -213,6 +213,20 @@
                 },
                 "additionalProperties": false
               },
+              "utdgRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "evidenceRefs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
               "modelFamilyHint": {
                 "type": "string"
               }

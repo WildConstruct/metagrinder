@@ -13,6 +13,7 @@
     "run:metagrinder-workbench": "node scripts/serve-metagrinder-workbench.js",
     "run:research-brief-lab": "node scripts/serve-research-brief-lab.js",
     "codegen:json-schema": "tsx src/schemas/emit-json-schema.ts",
+    "eval:src": "tsx src/eval/run.ts",
     "test:src": "jest --config jest.src.config.cjs",
     "typecheck:src": "tsc --noEmit -p src/tsconfig.json",
     "test:metagrinder": "jest --config jest.metagrinder.config.cjs",
