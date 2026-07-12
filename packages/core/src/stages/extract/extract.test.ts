@@ -78,6 +78,14 @@ describe('extract verification layer (S3.2)', () => {
     expect(noNote.extraction.warnings.some((w) => /cannot be high confidence/.test(w.message))).toBe(true);
   });
 
+  test('[AC-3.4a.2] inferred evidence persists its confidence downgrade in provenance', () => {
+    const inferred = prov([c0], 'inferred', { confidence: 'high', reasoningNote: 'contextual inference' });
+    const { extraction } = runVerify({
+      evidence: [{ evidenceId: 'ev1', text: 'the scene is upscale', provenance: inferred }]
+    });
+    expect(extraction.evidence[0]!.provenance.confidence).toBe('low');
+  });
+
   test('verifyProvenance is pure and returns a fresh provenance object', () => {
     const original = prov([c0], 'quoted');
     const out = verifyProvenance(original, 'medium', 'wool overcoats', buildChunkIndex(pkg()));

@@ -82,6 +82,31 @@ describe('caching provider (S3.1)', () => {
     expect(b.data.label).toBe('grammar');
   });
 
+  test('[AC-3.4a.1] cache identity separates provider, model, and model version', async () => {
+    const runDir = tmpRun();
+    const firstTransport: Transport = async () => ({ rawText: '{"label":"first","weight":1}' });
+    const first = createCachingProvider({
+      runDir, transport: firstTransport, providerId: 'provider-a', model: 'model-a', modelVersion: 'v1', mode: 'record', now: NOW
+    });
+    await first.complete(req());
+
+    let secondCalls = 0;
+    const secondTransport: Transport = async () => {
+      secondCalls++;
+      return { rawText: '{"label":"second","weight":2}' };
+    };
+    const second = createCachingProvider({
+      runDir, transport: secondTransport, providerId: 'provider-b', model: 'model-b', modelVersion: 'v2', mode: 'auto', now: NOW
+    });
+    const result = await second.complete(req());
+
+    expect(secondCalls).toBe(1);
+    expect(result.replayed).toBe(false);
+    expect(result.data.label).toBe('second');
+    expect(result.provider).toBe('provider-b');
+    expect(result.model).toBe('model-b');
+  });
+
   test('[AC-3.1b] model is recorded per stage in the run manifest', async () => {
     const baseDir = tmpRun();
     const store = RunStore.create({ baseDir, runId: 'run_p', inputId: 'i', parserVersion: '0.1.0', now: NOW });

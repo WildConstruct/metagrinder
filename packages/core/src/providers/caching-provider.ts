@@ -36,7 +36,15 @@ export function createCachingProvider(opts: {
     ...(opts.modelVersion !== undefined ? { modelVersion: opts.modelVersion } : {}),
 
     async complete<T>(req: LlmRequest<T>): Promise<LlmResult<T>> {
-      const cacheKey = cacheKeyFor({ stage: req.stage, ...(req.system !== undefined ? { system: req.system } : {}), prompt: req.prompt, schemaName: req.schemaName });
+      const cacheKey = cacheKeyFor({
+        provider: opts.providerId,
+        model: opts.model,
+        ...(opts.modelVersion !== undefined ? { modelVersion: opts.modelVersion } : {}),
+        stage: req.stage,
+        ...(req.system !== undefined ? { system: req.system } : {}),
+        prompt: req.prompt,
+        schemaName: req.schemaName
+      });
       const cached = opts.mode === 'record' ? undefined : readCacheEntry(opts.runDir, cacheKey);
       let rawText: string;
       let replayed: boolean;

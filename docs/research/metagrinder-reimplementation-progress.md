@@ -15,6 +15,11 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-07-12 [S3.4a] Audit correctness hardening — DONE
+- changed: src/providers cache identity; extract provenance confidence propagation; RunStore path containment + manifest-hash enforcement; regression tests for all three boundaries
+- gates: tsc clean; src 103/103 (12 suites); legacy 134/134; replay evals n/a (S3.5 remains the next story and no baseline exists yet)
+- notes: Model/provider/version changes now intentionally miss older replay cache entries instead of silently misattributing them. RunStore rejects escaped run/artifact paths and valid-schema tampering. No semantic prompts, corpus judgments, or held-out material changed or read.
+
 ## 2026-06-10 [S3.4] Realization stage — DONE
 - changed: src/stages/realize/{gate,index,realize.test}.ts, schemas/content-plan.ts (RealizedPrompt +utdgRefs/evidenceRefs)
 - gates: tsc clean; src 99/99 (12 suites); legacy 134/134

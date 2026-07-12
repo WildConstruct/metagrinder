@@ -100,6 +100,34 @@ describe('RunStore', () => {
     expect(() => store.readArtifact('source-package', 'source-package.json')).toThrow(ArtifactValidationError);
   });
 
+  test('[AC-3.4a.3] read rejects valid-schema content whose manifest hash no longer matches', () => {
+    const store = RunStore.create({
+      baseDir: tmpBase(), runId: 'run_hash', inputId: 'input_test', parserVersion: '0.1.0', now: NOW
+    });
+    const filePath = store.writeArtifact(
+      'source-package', 'source-package.json', validSourcePackage('run_hash'), NOW
+    );
+    const tampered = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    tampered.title = 'Valid but tampered title';
+    fs.writeFileSync(filePath, `${JSON.stringify(tampered, null, 2)}\n`, 'utf8');
+    expect(() => store.readArtifact('source-package', 'source-package.json')).toThrow(/content hash mismatch/);
+  });
+
+  test('[AC-3.4a.3] run and artifact paths cannot escape their configured roots', () => {
+    const baseDir = tmpBase();
+    expect(() => RunStore.create({
+      baseDir, runId: '../escaped-run', inputId: 'i', parserVersion: '0.1.0', now: NOW
+    })).toThrow(/must stay within/);
+
+    const store = RunStore.create({
+      baseDir, runId: 'run_safe', inputId: 'input_test', parserVersion: '0.1.0', now: NOW
+    });
+    expect(() => store.writeArtifact(
+      'source-package', '../escaped.json', validSourcePackage('run_safe'), NOW
+    )).toThrow(/must stay within/);
+    expect(fs.existsSync(path.join(baseDir, 'escaped.json'))).toBe(false);
+  });
+
   test('[AC-1.4b] stage states survive restart via open()', () => {
     const baseDir = tmpBase();
     const store = RunStore.create({

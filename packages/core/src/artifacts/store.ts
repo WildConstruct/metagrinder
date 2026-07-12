@@ -17,6 +17,16 @@ import { sha256Hex } from './ids';
 
 const MANIFEST_FILE = 'run-manifest.json';
 
+function resolveContainedPath(root: string, candidate: string, label: string): string {
+  const resolvedRoot = path.resolve(root);
+  const resolvedCandidate = path.resolve(resolvedRoot, candidate);
+  const relative = path.relative(resolvedRoot, resolvedCandidate);
+  if (relative === '' || relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    throw new Error(`${label} must stay within ${resolvedRoot}: ${candidate}`);
+  }
+  return resolvedCandidate;
+}
+
 export class ArtifactValidationError extends Error {
   constructor(family: string, public readonly issues: string) {
     super(`artifact failed ${family} schema validation: ${issues}`);
@@ -38,7 +48,7 @@ export class RunStore {
     now?: () => string;
   }): RunStore {
     const now = options.now ?? (() => new Date().toISOString());
-    const runDir = path.join(options.baseDir, options.runId);
+    const runDir = resolveContainedPath(options.baseDir, options.runId, 'run path');
     fs.mkdirSync(runDir, { recursive: true });
     if (fs.existsSync(path.join(runDir, MANIFEST_FILE))) {
       throw new Error(`run folder already has a manifest: ${runDir} — use RunStore.open()`);
@@ -77,7 +87,7 @@ export class RunStore {
       throw new ArtifactValidationError(family, parsed.error.message);
     }
     const serialized = `${JSON.stringify(parsed.data, null, 2)}\n`;
-    const filePath = path.join(this.runDir, fileName);
+    const filePath = resolveContainedPath(this.runDir, fileName, 'artifact path');
     fs.mkdirSync(path.dirname(filePath), { recursive: true });
     fs.writeFileSync(filePath, serialized, 'utf8');
 
@@ -103,10 +113,20 @@ export class RunStore {
     if (!schema) {
       throw new Error(`unknown artifact family: ${family}`);
     }
-    const raw = fs.readFileSync(path.join(this.runDir, fileName), 'utf8');
+    const filePath = resolveContainedPath(this.runDir, fileName, 'artifact path');
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const artifactId = `${family}:${fileName}`;
+    const record = this.manifest.artifacts.find((artifact) => artifact.artifactId === artifactId);
+    if (!record) {
+      throw new Error(`artifact is not recorded in the run manifest: ${artifactId}`);
+    }
     const parsed = schema.safeParse(JSON.parse(raw));
     if (!parsed.success) {
       throw new ArtifactValidationError(family, parsed.error.message);
+    }
+    const actualHash = sha256Hex(raw);
+    if (actualHash !== record.contentSha256) {
+      throw new Error(`artifact content hash mismatch: ${artifactId}`);
     }
     return parsed.data as T;
   }

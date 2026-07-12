@@ -52,7 +52,7 @@ export function verifyProvenance(
   const missing = citedIds.filter((id) => !chunkById.has(id));
   if (citedIds.length === 0 || missing.length > 0) {
     return {
-      provenance: { ...provenance, verification: 'rejected' },
+      provenance: { ...provenance, confidence: 'low', verification: 'rejected' },
       confidence: 'low',
       disposition: 'rejected',
       warnings: [citedIds.length === 0 ? 'record cites no chunk' : `cites nonexistent chunk(s): ${missing.join(', ')}`]
@@ -69,19 +69,20 @@ export function verifyProvenance(
       (t) => t.includes(excerpt) || normalizeWs(t).includes(exNorm)
     );
     if (isSubstring) {
-      return { provenance: { ...provenance, verification: 'verified' }, confidence: declaredConfidence, disposition: 'verified', warnings };
+      return { provenance: { ...provenance, confidence: declaredConfidence, verification: 'verified' }, confidence: declaredConfidence, disposition: 'verified', warnings };
     }
     warnings.push('quoted excerpt is not a verbatim substring of any cited chunk — downgraded');
-    return { provenance: { ...provenance, verification: 'downgraded', attributionMode: 'paraphrased' }, confidence: 'low', disposition: 'downgraded', warnings };
+    return { provenance: { ...provenance, confidence: 'low', verification: 'downgraded', attributionMode: 'paraphrased' }, confidence: 'low', disposition: 'downgraded', warnings };
   }
 
   if (provenance.attributionMode === 'paraphrased' || provenance.attributionMode === 'web_retrieved') {
     const best = Math.max(0, ...citedTexts.map((t) => containmentOverlap(excerpt, t)));
     if (best >= PARAPHRASE_OVERLAP_THRESHOLD) {
-      return { provenance: { ...provenance, verification: 'verified' }, confidence: declaredConfidence, disposition: 'verified', warnings };
+      return { provenance: { ...provenance, confidence: declaredConfidence, verification: 'verified' }, confidence: declaredConfidence, disposition: 'verified', warnings };
     }
     warnings.push(`paraphrase weakly grounded in source (overlap ${best.toFixed(2)} < ${PARAPHRASE_OVERLAP_THRESHOLD}) — downgraded`);
-    return { provenance: { ...provenance, verification: 'downgraded' }, confidence: lower(declaredConfidence), disposition: 'downgraded', warnings };
+    const confidence = lower(declaredConfidence);
+    return { provenance: { ...provenance, confidence, verification: 'downgraded' }, confidence, disposition: 'downgraded', warnings };
   }
 
   // 3. inferred: never source-verified; needs a reasoning note; capped low
@@ -90,7 +91,7 @@ export function verifyProvenance(
     warnings.push('inferred record without a reasoning note');
   }
   if (declaredConfidence === 'high') warnings.push('inferred record cannot be high confidence — capped to low');
-  return { provenance: { ...provenance, verification: 'unverified' }, confidence: conf, disposition: 'unverified', warnings };
+  return { provenance: { ...provenance, confidence: conf, verification: 'unverified' }, confidence: conf, disposition: 'unverified', warnings };
 }
 
 export function buildChunkIndex(sourcePackage: SourcePackage): Map<string, SourceChunk> {
