@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import type { RunManifest, StageRecord } from '../schemas/run-manifest';
-import { RunManifestSchema } from '../schemas/run-manifest';
+import type { BudgetCaps, BudgetLedger, RunManifest, StageRecord } from '../schemas/run-manifest';
+import { BudgetLedgerSchema, RunManifestSchema } from '../schemas/run-manifest';
 import type { StageState } from '../schemas/vocabulary';
 import { schemaFor } from '../schemas/registry';
 import { sha256Hex } from './ids';
@@ -34,6 +34,24 @@ export class ArtifactValidationError extends Error {
   }
 }
 
+export class BudgetExceededError extends Error {
+  constructor(
+    public readonly stage: string,
+    public readonly ledgerIds: string[],
+    message: string
+  ) {
+    super(message);
+    this.name = 'BudgetExceededError';
+  }
+}
+
+export interface BudgetReservation {
+  stage: string;
+  kind: 'llm' | 'judge';
+  ledgerIds: string[];
+  reservedOutputTokens: number;
+}
+
 export class RunStore {
   private constructor(
     public readonly runDir: string,
@@ -59,7 +77,14 @@ export class RunStore {
       inputId: options.inputId,
       createdAt: now(),
       updatedAt: now(),
-      parserVersion: options.parserVersion
+      parserVersion: options.parserVersion,
+      budgets: [{
+        ledgerId: `run:${options.runId}`,
+        scope: 'run',
+        scopeId: options.runId,
+        caps: {},
+        usage: { llmCalls: 0, judgeCalls: 0, estimatedInputTokens: 0, estimatedOutputTokens: 0 }
+      }]
     });
     const store = new RunStore(runDir, manifest);
     store.persistManifest();
@@ -179,6 +204,111 @@ export class RunStore {
         : { stage, providerId, modelId }
     ];
     this.touch(new Date().toISOString());
+  }
+
+  getBudgetLedgers(): BudgetLedger[] {
+    return this.manifest.budgets.map((ledger) => BudgetLedgerSchema.parse(JSON.parse(JSON.stringify(ledger))));
+  }
+
+  configureBudget(args: {
+    ledgerId: string;
+    scope: BudgetLedger['scope'];
+    scopeId: string;
+    caps: BudgetCaps;
+    now?: () => string;
+  }): void {
+    const existing = this.manifest.budgets.find((ledger) => ledger.ledgerId === args.ledgerId);
+    if (existing) {
+      existing.scope = args.scope;
+      existing.scopeId = args.scopeId;
+      existing.caps = { ...args.caps };
+    } else {
+      this.manifest.budgets.push(BudgetLedgerSchema.parse({
+        ledgerId: args.ledgerId,
+        scope: args.scope,
+        scopeId: args.scopeId,
+        caps: args.caps
+      }));
+    }
+    for (const record of this.manifest.stages) {
+      if (record.state === 'blocked_on_gate' && record.gate === 'budget-cap') {
+        record.state = 'pending';
+        delete record.gate;
+        delete record.error;
+      }
+    }
+    this.touch((args.now ?? (() => new Date().toISOString()))());
+  }
+
+  reserveBudget(args: {
+    stage: string;
+    kind: 'llm' | 'judge';
+    estimatedInputTokens: number;
+    reservedOutputTokens: number;
+    ledgerIds?: string[];
+    now?: () => string;
+  }): BudgetReservation {
+    const inputTokens = Math.max(0, Math.ceil(args.estimatedInputTokens));
+    const outputTokens = Math.max(0, Math.ceil(args.reservedOutputTokens));
+    const ledgerIds = args.ledgerIds ?? this.manifest.budgets.map((ledger) => ledger.ledgerId);
+    const ledgers = ledgerIds.map((ledgerId) => {
+      const ledger = this.manifest.budgets.find((candidate) => candidate.ledgerId === ledgerId);
+      if (!ledger) throw new Error(`budget ledger not found: ${ledgerId}`);
+      return ledger;
+    });
+    const failures: string[] = [];
+    for (const ledger of ledgers) {
+      const projectedLlmCalls = ledger.usage.llmCalls + (args.kind === 'llm' ? 1 : 0);
+      const projectedJudgeCalls = ledger.usage.judgeCalls + (args.kind === 'judge' ? 1 : 0);
+      const projectedTokens = ledger.usage.estimatedInputTokens + ledger.usage.estimatedOutputTokens
+        + inputTokens + outputTokens;
+      if (ledger.caps.maxLlmCalls !== undefined && projectedLlmCalls > ledger.caps.maxLlmCalls) {
+        failures.push(`${ledger.ledgerId} maxLlmCalls`);
+      }
+      if (ledger.caps.maxJudgeCalls !== undefined && projectedJudgeCalls > ledger.caps.maxJudgeCalls) {
+        failures.push(`${ledger.ledgerId} maxJudgeCalls`);
+      }
+      if (ledger.caps.maxEstimatedTokens !== undefined && projectedTokens > ledger.caps.maxEstimatedTokens) {
+        failures.push(`${ledger.ledgerId} maxEstimatedTokens`);
+      }
+    }
+    if (failures.length > 0) {
+      const message = `budget cap exceeded before ${args.stage}: ${failures.join(', ')}`;
+      this.setStageState(args.stage, 'blocked_on_gate', { gate: 'budget-cap', error: message }, args.now);
+      throw new BudgetExceededError(args.stage, ledgerIds, message);
+    }
+    for (const ledger of ledgers) {
+      if (args.kind === 'llm') ledger.usage.llmCalls++;
+      else ledger.usage.judgeCalls++;
+      ledger.usage.estimatedInputTokens += inputTokens;
+      ledger.usage.estimatedOutputTokens += outputTokens;
+    }
+    this.touch((args.now ?? (() => new Date().toISOString()))());
+    return { stage: args.stage, kind: args.kind, ledgerIds, reservedOutputTokens: outputTokens };
+  }
+
+  settleBudget(
+    reservation: BudgetReservation,
+    actualOutputTokens: number,
+    now?: () => string
+  ): void {
+    const actual = Math.max(0, Math.ceil(actualOutputTokens));
+    const failures: string[] = [];
+    for (const ledgerId of reservation.ledgerIds) {
+      const ledger = this.manifest.budgets.find((candidate) => candidate.ledgerId === ledgerId);
+      if (!ledger) throw new Error(`budget ledger not found while settling: ${ledgerId}`);
+      ledger.usage.estimatedOutputTokens += actual - reservation.reservedOutputTokens;
+      const total = ledger.usage.estimatedInputTokens + ledger.usage.estimatedOutputTokens;
+      if (ledger.caps.maxEstimatedTokens !== undefined && total > ledger.caps.maxEstimatedTokens) {
+        failures.push(`${ledger.ledgerId} maxEstimatedTokens`);
+      }
+    }
+    this.touch((now ?? (() => new Date().toISOString()))());
+    if (failures.length > 0) {
+      const message = `budget cap exceeded after ${reservation.stage}: ${failures.join(', ')}`;
+      this.setStageState(reservation.stage, 'blocked_on_gate', { gate: 'budget-cap', error: message }, now);
+      throw new BudgetExceededError(reservation.stage, reservation.ledgerIds, message);
+    }
   }
 
   private touch(timestamp: string): void {

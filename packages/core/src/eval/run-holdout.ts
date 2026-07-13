@@ -4,7 +4,7 @@ import { buildProvider, type ProviderMode } from '../providers';
 import { SceneGrammarSchema } from '../schemas';
 import { loadCorpus } from './corpus';
 import { evaluateRun } from './run';
-import { runCorpusPipeline } from './run-corpus';
+import { budgetCapsFromEnv, runCorpusPipeline } from './run-corpus';
 
 type ProviderKind = 'anthropic' | 'codex-cli';
 
@@ -31,10 +31,12 @@ export async function runHoldout(
   const results = await runCorpusPipeline({
     corpus,
     baseDir: runDir,
-    providerForRun: (briefRunDir) => buildProvider({
+    runBudgetCaps: budgetCapsFromEnv(env),
+    providerForRun: (briefRunDir, store) => buildProvider({
       runDir: briefRunDir,
       kind: providerKind,
-      mode
+      mode,
+      budgetStore: store
     })
   });
   const eraBrief = results[0];

@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { BudgetExceededError, RunStore } from '../artifacts/store';
 import { createCachingProvider, type Transport } from '../providers';
 import type { Corpus } from './corpus';
 import { loadCorpus } from './corpus';
@@ -107,5 +108,29 @@ describe('S3.5 rebuilt corpus record/replay runner', () => {
     expect(plans.realized).toHaveLength(4);
     expect(fs.existsSync(path.join(briefDir, 'semantic-choice-graph.json'))).toBe(true);
     expect(scoreExtractionRun(corpus, baseDir).totalScore).toBe(9);
+  });
+
+  test('budget cap remains blocked through the pipeline wrapper and resumes after a raise', async () => {
+    const corpus = oneBriefCorpus();
+    const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-corpus-budget-'));
+    let calls = 0;
+    const providerForRun = (runDir: string, store: RunStore) => createCachingProvider({
+      runDir,
+      transport: async (req) => { calls++; return { rawText: responseFor(req) }; },
+      providerId: 'fake', model: 'model-a', mode: 'record', budgetStore: store,
+      outputTokenReserve: 32, now: () => NOW
+    });
+    await expect(runCorpusPipeline({
+      corpus, baseDir, providerForRun, now: () => NOW,
+      runBudgetCaps: { maxLlmCalls: 0, maxEstimatedTokens: 10_000 }
+    })).rejects.toBeInstanceOf(BudgetExceededError);
+    expect(calls).toBe(0);
+    expect(RunStore.open(path.join(baseDir, 'broadway')).getStageState('extract')).toBe('blocked_on_gate');
+
+    await runCorpusPipeline({
+      corpus, baseDir, providerForRun, now: () => NOW,
+      runBudgetCaps: { maxLlmCalls: 2, maxEstimatedTokens: 10_000 }
+    });
+    expect(calls).toBe(2);
   });
 });

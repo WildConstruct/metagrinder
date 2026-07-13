@@ -8,6 +8,7 @@ import {
 } from './types';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { cacheKeyFor, readCacheEntry, writeCacheEntry } from './cache';
+import type { BudgetReservation, RunStore } from '../artifacts/store';
 
 export type ProviderMode = 'replay' | 'record' | 'auto';
 
@@ -27,6 +28,9 @@ export function createCachingProvider(opts: {
   model: string;
   modelVersion?: string;
   mode: ProviderMode;
+  budgetStore?: RunStore;
+  budgetLedgerIds?: string[];
+  outputTokenReserve?: number;
   now?: () => string;
 }): LlmProvider {
   const now = opts.now ?? (() => new Date().toISOString());
@@ -62,7 +66,25 @@ export function createCachingProvider(opts: {
         replayed = true;
       } else {
         if (opts.mode === 'replay') throw new ReplayMissError(cacheKey, req.stage);
-        const out = await opts.transport({ stage: req.stage, ...(req.system !== undefined ? { system: req.system } : {}), prompt: transportPrompt, schemaName: req.schemaName });
+        let reservation: BudgetReservation | undefined;
+        if (opts.budgetStore) {
+          const inputText = `${req.system ?? ''}\n${transportPrompt}`;
+          reservation = opts.budgetStore.reserveBudget({
+            stage: req.stage,
+            kind: req.stage === 'judge' ? 'judge' : 'llm',
+            estimatedInputTokens: Math.ceil(inputText.length / 4),
+            reservedOutputTokens: opts.outputTokenReserve ?? 4096,
+            ...(opts.budgetLedgerIds !== undefined ? { ledgerIds: opts.budgetLedgerIds } : {}),
+            now
+          });
+        }
+        let out: Awaited<ReturnType<Transport>>;
+        try {
+          out = await opts.transport({ stage: req.stage, ...(req.system !== undefined ? { system: req.system } : {}), prompt: transportPrompt, schemaName: req.schemaName });
+        } catch (error) {
+          if (reservation && opts.budgetStore) opts.budgetStore.settleBudget(reservation, 0, now);
+          throw error;
+        }
         rawText = out.rawText;
         replayed = false;
         writeCacheEntry(opts.runDir, {
@@ -77,6 +99,9 @@ export function createCachingProvider(opts: {
           rawText,
           createdAt: now()
         });
+        if (reservation && opts.budgetStore) {
+          opts.budgetStore.settleBudget(reservation, Math.ceil(rawText.length / 4), now);
+        }
       }
 
       const parsed = req.schema.safeParse(extractJson(rawText));

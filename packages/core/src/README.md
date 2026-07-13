@@ -40,3 +40,9 @@ and fence policy live in `src/eval/holdout/README.md`; agents must not execute i
 
 Judge-scored metrics are guarded by `pnpm eval:judge -- ...`; the external human
 calibration format and pass conditions are documented in `src/eval/judge/README.md`.
+
+Live provider commands persist budget usage in each run manifest. Optional caps
+use `METAGRINDER_MAX_LLM_CALLS`, `METAGRINDER_MAX_JUDGE_CALLS`, and
+`METAGRINDER_MAX_ESTIMATED_TOKENS`. Set `METAGRINDER_CAMPAIGN_ID` plus the
+corresponding `METAGRINDER_CAMPAIGN_MAX_*` variables to charge a campaign ledger
+alongside each run ledger. Replay cache hits do not consume budget.

@@ -143,6 +143,85 @@
             "additionalProperties": false
           },
           "default": []
+        },
+        "budgets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ledgerId": {
+                "type": "string"
+              },
+              "scope": {
+                "type": "string",
+                "enum": [
+                  "run",
+                  "campaign"
+                ]
+              },
+              "scopeId": {
+                "type": "string"
+              },
+              "caps": {
+                "type": "object",
+                "properties": {
+                  "maxLlmCalls": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "maxJudgeCalls": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "maxEstimatedTokens": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                },
+                "additionalProperties": false,
+                "default": {}
+              },
+              "usage": {
+                "type": "object",
+                "properties": {
+                  "llmCalls": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0
+                  },
+                  "judgeCalls": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0
+                  },
+                  "estimatedInputTokens": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0
+                  },
+                  "estimatedOutputTokens": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 0
+                  }
+                },
+                "additionalProperties": false,
+                "default": {
+                  "llmCalls": 0,
+                  "judgeCalls": 0,
+                  "estimatedInputTokens": 0,
+                  "estimatedOutputTokens": 0
+                }
+              }
+            },
+            "required": [
+              "ledgerId",
+              "scope",
+              "scopeId"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
         }
       },
       "required": [

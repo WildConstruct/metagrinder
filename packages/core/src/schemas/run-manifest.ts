@@ -37,6 +37,35 @@ export const ModelRecordSchema = z.object({
 });
 export type ModelRecord = z.infer<typeof ModelRecordSchema>;
 
+export const BudgetCapsSchema = z.object({
+  maxLlmCalls: z.number().int().nonnegative().optional(),
+  maxJudgeCalls: z.number().int().nonnegative().optional(),
+  maxEstimatedTokens: z.number().int().nonnegative().optional()
+});
+export type BudgetCaps = z.infer<typeof BudgetCapsSchema>;
+
+export const BudgetUsageSchema = z.object({
+  llmCalls: z.number().int().nonnegative().default(0),
+  judgeCalls: z.number().int().nonnegative().default(0),
+  estimatedInputTokens: z.number().int().nonnegative().default(0),
+  estimatedOutputTokens: z.number().int().nonnegative().default(0)
+});
+export type BudgetUsage = z.infer<typeof BudgetUsageSchema>;
+
+export const BudgetLedgerSchema = z.object({
+  ledgerId: z.string(),
+  scope: z.enum(['run', 'campaign']),
+  scopeId: z.string(),
+  caps: BudgetCapsSchema.default({}),
+  usage: BudgetUsageSchema.default({
+    llmCalls: 0,
+    judgeCalls: 0,
+    estimatedInputTokens: 0,
+    estimatedOutputTokens: 0
+  })
+});
+export type BudgetLedger = z.infer<typeof BudgetLedgerSchema>;
+
 export const RunManifestSchema = z.object({
   artifact: z.literal('run-manifest'),
   schemaVersion: z.string().default('0.1.0'),
@@ -47,6 +76,7 @@ export const RunManifestSchema = z.object({
   parserVersion: z.string(),
   stages: z.array(StageRecordSchema).default([]),
   artifacts: z.array(ArtifactRecordSchema).default([]),
-  models: z.array(ModelRecordSchema).default([])
+  models: z.array(ModelRecordSchema).default([]),
+  budgets: z.array(BudgetLedgerSchema).default([])
 });
 export type RunManifest = z.infer<typeof RunManifestSchema>;

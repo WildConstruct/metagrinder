@@ -1,8 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { RunStore } from '../artifacts/store';
+import { BudgetExceededError, RunStore } from '../artifacts/store';
 import { buildProvider, type LlmProvider, type ProviderMode } from '../providers';
-import { ContentPlansSchema, SceneGrammarSchema } from '../schemas';
+import { ContentPlansSchema, SceneGrammarSchema, type BudgetCaps } from '../schemas';
 import { deriveChoiceGraph } from '../stages/choices';
 import { extract } from '../stages/extract';
 import { draftGrammar } from '../stages/grammar';
@@ -45,8 +45,10 @@ async function stage<T>(
     store.setStageState(stageName, 'complete', { outputArtifacts }, now);
     return result;
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    store.setStageState(stageName, 'failed', { error: message }, now);
+    if (!(error instanceof BudgetExceededError)) {
+      const message = error instanceof Error ? error.message : String(error);
+      store.setStageState(stageName, 'failed', { error: message }, now);
+    }
     throw error;
   }
 }
@@ -54,13 +56,33 @@ async function stage<T>(
 async function runBrief(args: {
   brief: CorpusBrief;
   baseDir: string;
-  providerForRun: (runDir: string) => LlmProvider;
+  providerForRun: (runDir: string, store: RunStore) => LlmProvider;
   now: () => string;
   plansPerBrief: number;
   seed: number;
+  runBudgetCaps?: BudgetCaps;
+  campaignBudget?: { campaignId: string; caps: BudgetCaps };
 }): Promise<CorpusRunResult> {
   const store = openOrCreateStore(args.baseDir, args.brief, args.now);
-  const provider = args.providerForRun(store.runDir);
+  if (args.runBudgetCaps !== undefined) {
+    store.configureBudget({
+      ledgerId: `run:${args.brief.id}`,
+      scope: 'run',
+      scopeId: args.brief.id,
+      caps: args.runBudgetCaps,
+      now: args.now
+    });
+  }
+  if (args.campaignBudget !== undefined) {
+    store.configureBudget({
+      ledgerId: `campaign:${args.campaignBudget.campaignId}`,
+      scope: 'campaign',
+      scopeId: args.campaignBudget.campaignId,
+      caps: args.campaignBudget.caps,
+      now: args.now
+    });
+  }
+  const provider = args.providerForRun(store.runDir, store);
   const createdAt = args.now();
 
   const sourcePackage = await stage(store, 'ingest', args.now, () => {
@@ -139,10 +161,12 @@ async function runBrief(args: {
 export async function runCorpusPipeline(args: {
   corpus: Corpus;
   baseDir: string;
-  providerForRun: (runDir: string) => LlmProvider;
+  providerForRun: (runDir: string, store: RunStore) => LlmProvider;
   now?: () => string;
   plansPerBrief?: number;
   seed?: number;
+  runBudgetCaps?: BudgetCaps;
+  campaignBudget?: { campaignId: string; caps: BudgetCaps };
 }): Promise<CorpusRunResult[]> {
   const now = args.now ?? (() => new Date().toISOString());
   const plansPerBrief = args.plansPerBrief ?? 32;
@@ -156,13 +180,34 @@ export async function runCorpusPipeline(args: {
       providerForRun: args.providerForRun,
       now,
       plansPerBrief,
-      seed
+      seed,
+      ...(args.runBudgetCaps !== undefined ? { runBudgetCaps: args.runBudgetCaps } : {}),
+      ...(args.campaignBudget !== undefined ? { campaignBudget: args.campaignBudget } : {})
     }));
   }
   return results;
 }
 
 type ProviderKind = 'anthropic' | 'codex-cli';
+
+function optionalCap(env: NodeJS.ProcessEnv, name: string): number | undefined {
+  const raw = env[name];
+  if (raw === undefined || raw.trim() === '') return undefined;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 0) throw new Error(`${name} must be a nonnegative integer`);
+  return value;
+}
+
+export function budgetCapsFromEnv(env: NodeJS.ProcessEnv, prefix = 'METAGRINDER'): BudgetCaps {
+  const maxLlmCalls = optionalCap(env, `${prefix}_MAX_LLM_CALLS`);
+  const maxJudgeCalls = optionalCap(env, `${prefix}_MAX_JUDGE_CALLS`);
+  const maxEstimatedTokens = optionalCap(env, `${prefix}_MAX_ESTIMATED_TOKENS`);
+  return {
+    ...(maxLlmCalls !== undefined ? { maxLlmCalls } : {}),
+    ...(maxJudgeCalls !== undefined ? { maxJudgeCalls } : {}),
+    ...(maxEstimatedTokens !== undefined ? { maxEstimatedTokens } : {})
+  };
+}
 
 async function main(argv: string[]): Promise<void> {
   const [modeRaw, providerRaw, baseDirRaw] = argv;
@@ -175,10 +220,19 @@ async function main(argv: string[]): Promise<void> {
   const providerKind = providerRaw as ProviderKind;
   const baseDir = path.resolve(baseDirRaw);
   const corpus = loadCorpus();
+  const runBudgetCaps = budgetCapsFromEnv(process.env);
+  const campaignId = process.env.METAGRINDER_CAMPAIGN_ID;
+  const campaignBudget = campaignId
+    ? { campaignId, caps: budgetCapsFromEnv(process.env, 'METAGRINDER_CAMPAIGN') }
+    : undefined;
   const results = await runCorpusPipeline({
     corpus,
     baseDir,
-    providerForRun: (runDir) => buildProvider({ runDir, kind: providerKind, mode })
+    runBudgetCaps,
+    ...(campaignBudget !== undefined ? { campaignBudget } : {}),
+    providerForRun: (runDir, store) => buildProvider({
+      runDir, kind: providerKind, mode, budgetStore: store
+    })
   });
 
   if (mode === 'replay') {

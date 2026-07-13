@@ -8,6 +8,7 @@ import { createCachingProvider, type ProviderMode } from './caching-provider';
 import { anthropicTransport } from './anthropic';
 import { codexCliTransport } from './codex-cli';
 import type { LlmProvider, Transport } from './types';
+import type { RunStore } from '../artifacts/store';
 
 /**
  * Builds a provider for a run folder. `kind` selects the transport; `mode`
@@ -22,6 +23,9 @@ export function buildProvider(opts: {
   providerId?: string;
   model?: string;
   modelVersion?: string;
+  budgetStore?: RunStore;
+  budgetLedgerIds?: string[];
+  outputTokenReserve?: number;
   now?: () => string;
 }): LlmProvider {
   let transport: Transport;
@@ -56,6 +60,9 @@ export function buildProvider(opts: {
     model,
     ...(opts.modelVersion !== undefined ? { modelVersion: opts.modelVersion } : {}),
     mode: opts.mode,
+    ...(opts.budgetStore !== undefined ? { budgetStore: opts.budgetStore } : {}),
+    ...(opts.budgetLedgerIds !== undefined ? { budgetLedgerIds: opts.budgetLedgerIds } : {}),
+    ...(opts.outputTokenReserve !== undefined ? { outputTokenReserve: opts.outputTokenReserve } : {}),
     ...(opts.now !== undefined ? { now: opts.now } : {})
   });
 }

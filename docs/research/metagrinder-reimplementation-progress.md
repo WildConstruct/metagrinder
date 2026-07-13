@@ -15,6 +15,11 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-07-12 [S3.7] Persistent run/campaign budget ledger — DONE
+- changed: schemas/run-manifest.ts budgets; RunStore configure/reserve/settle + budget-cap transition; caching provider live-only charging; corpus/holdout/judge command integration
+- gates: tsc clean; src 119/119 (16 suites); legacy 134/134; contract consumption green
+- notes: Run and campaign ledgers persist together; replay consumes no budget; LLM and judge call caps are independent; estimated input/output tokens are reserved before transport and reconciled after. Pipeline error handling preserves `blocked_on_gate` on cap failure, and raising caps moves budget-blocked stages back to pending for retry.
+
 ## 2026-07-12 [S3.6] Judge stress-test meta-gate — blocked_on_human (run card)
 - changed: src/eval/{judge,judge-battery,run-judge-gate,judge.test}.ts; analytic/mirrored stress gate; calibration agreement + MAE; hard judge-metric guard; eval-report contract + operator policy
 - gates: tsc clean; src 116/116 (15 suites); legacy 134/134; contract consumption green; biased judge and missing-calibration cases both refused
