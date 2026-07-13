@@ -329,6 +329,201 @@
             "base"
           ],
           "additionalProperties": false
+        },
+        "judgeGate": {
+          "type": "object",
+          "properties": {
+            "passed": {
+              "type": "boolean"
+            },
+            "seed": {
+              "type": "integer"
+            },
+            "stressAccuracy": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "positionConsistency": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "thresholds": {
+              "type": "object",
+              "properties": {
+                "minStressAccuracy": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "minPositionConsistency": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "minCalibrationAgreement": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "maxCalibrationMae": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "minCalibrationRatings": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "required": [
+                "minStressAccuracy",
+                "minPositionConsistency",
+                "minCalibrationAgreement",
+                "maxCalibrationMae",
+                "minCalibrationRatings"
+              ],
+              "additionalProperties": false
+            },
+            "stressResults": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "caseId": {
+                    "type": "string"
+                  },
+                  "initialCandidateSide": {
+                    "type": "string",
+                    "enum": [
+                      "left",
+                      "right"
+                    ]
+                  },
+                  "initialPreferred": {
+                    "type": "string",
+                    "enum": [
+                      "candidate",
+                      "reference",
+                      "tie"
+                    ]
+                  },
+                  "mirroredPreferred": {
+                    "type": "string",
+                    "enum": [
+                      "candidate",
+                      "reference",
+                      "tie"
+                    ]
+                  },
+                  "expectedPreferred": {
+                    "type": "string",
+                    "enum": [
+                      "candidate",
+                      "reference",
+                      "tie"
+                    ]
+                  },
+                  "correct": {
+                    "type": "boolean"
+                  },
+                  "positionConsistent": {
+                    "type": "boolean"
+                  },
+                  "analyticComplete": {
+                    "type": "boolean"
+                  },
+                  "candidateScore": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 4
+                  },
+                  "referenceScore": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 4
+                  }
+                },
+                "required": [
+                  "caseId",
+                  "initialCandidateSide",
+                  "initialPreferred",
+                  "mirroredPreferred",
+                  "expectedPreferred",
+                  "correct",
+                  "positionConsistent",
+                  "analyticComplete",
+                  "candidateScore",
+                  "referenceScore"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "calibration": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "missing",
+                    "pass",
+                    "fail"
+                  ]
+                },
+                "ratingCount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "preferenceAgreement": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "meanAbsoluteError": {
+                  "anyOf": [
+                    {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "status",
+                "ratingCount",
+                "preferenceAgreement",
+                "meanAbsoluteError"
+              ],
+              "additionalProperties": false
+            },
+            "failures": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "passed",
+            "seed",
+            "stressAccuracy",
+            "positionConsistency",
+            "thresholds",
+            "stressResults",
+            "calibration",
+            "failures"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [

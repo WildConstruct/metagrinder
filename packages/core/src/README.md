@@ -37,3 +37,6 @@ explained base-to-accepted generative shift when both grammars are supplied.
 The rebuilt corpus pipeline is available as `pnpm eval:corpus -- record ...`
 followed by `pnpm eval:corpus -- replay ...`. The operator-only held-out command
 and fence policy live in `src/eval/holdout/README.md`; agents must not execute it.
+
+Judge-scored metrics are guarded by `pnpm eval:judge -- ...`; the external human
+calibration format and pass conditions are documented in `src/eval/judge/README.md`.

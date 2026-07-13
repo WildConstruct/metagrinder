@@ -15,6 +15,12 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-07-12 [S3.6] Judge stress-test meta-gate — blocked_on_human (run card)
+- changed: src/eval/{judge,judge-battery,run-judge-gate,judge.test}.ts; analytic/mirrored stress gate; calibration agreement + MAE; hard judge-metric guard; eval-report contract + operator policy
+- gates: tsc clean; src 116/116 (15 suites); legacy 134/134; contract consumption green; biased judge and missing-calibration cases both refused
+- RUN CARD for operator: create the external ratings file described in `src/eval/judge/README.md`, set `METAGRINDER_JUDGE_CALIBRATION`, run `pnpm eval:judge -- record <anthropic|codex-cli> <run-dir>`, then replay it; review `<run-dir>/judge-meta-gate.json`. Required: `passed: true` before any judge-scored metric is reported.
+- notes: Synthetic ratings prove the mechanics only; no human agreement is claimed. Stop at this gate and proceed to S3.7 rather than adding more judge-proof helpers.
+
 ## 2026-07-12 [S3.5] Rebuilt corpus record/replay runner — blocked_on_human (run card)
 - changed: src/eval/run-corpus.ts + run-holdout.ts; RunStore-backed ingest→extract→grammar→choices→plans→realization; generated output schema bound into provider prompts/cache identity; corpus/holdout commands and fence policy
 - gates: tsc clean; src 110/110 (14 suites); legacy 134/134; contract consumption green; synthetic record→replay score 9/10 with zero replay transport calls

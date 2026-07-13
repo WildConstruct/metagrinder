@@ -16,6 +16,7 @@
     "eval:src": "tsx src/eval/run.ts",
     "eval:corpus": "tsx src/eval/run-corpus.ts",
     "eval:holdout": "tsx src/eval/run-holdout.ts",
+    "eval:judge": "tsx src/eval/run-judge-gate.ts",
     "test:src": "jest --config jest.src.config.cjs",
     "typecheck:src": "tsc --noEmit -p src/tsconfig.json",
     "test:metagrinder": "jest --config jest.metagrinder.config.cjs",

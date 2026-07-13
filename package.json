@@ -19,7 +19,8 @@
     "typecheck:src": "pnpm --filter @promptscape/core typecheck:src",
     "eval:src": "pnpm --filter @promptscape/core eval:src",
     "eval:corpus": "pnpm --filter @promptscape/core eval:corpus",
-    "eval:holdout": "pnpm --filter @promptscape/core eval:holdout"
+    "eval:holdout": "pnpm --filter @promptscape/core eval:holdout",
+    "eval:judge": "pnpm --filter @promptscape/core eval:judge"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

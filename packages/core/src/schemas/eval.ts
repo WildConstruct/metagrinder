@@ -55,12 +55,81 @@ export const GenerativeShiftReportSchema = z.object({
 });
 export type GenerativeShiftReport = z.infer<typeof GenerativeShiftReportSchema>;
 
+export const JudgeCriterionSchema = z.object({
+  criterionId: z.string(),
+  label: z.string(),
+  description: z.string()
+});
+export type JudgeCriterion = z.infer<typeof JudgeCriterionSchema>;
+
+export const JudgeStressCaseSchema = z.object({
+  caseId: z.string(),
+  candidate: z.string().min(1),
+  reference: z.string().min(1),
+  expectedPreferred: z.enum(['candidate', 'reference', 'tie'])
+});
+export type JudgeStressCase = z.infer<typeof JudgeStressCaseSchema>;
+
+export const HumanCalibrationRatingSchema = z.object({
+  caseId: z.string(),
+  preferred: z.enum(['candidate', 'reference', 'tie']),
+  candidateScore: z.number().min(0).max(4),
+  referenceScore: z.number().min(0).max(4)
+});
+export type HumanCalibrationRating = z.infer<typeof HumanCalibrationRatingSchema>;
+
+export const PairwiseJudgeResponseSchema = z.object({
+  winner: z.enum(['left', 'right', 'tie']),
+  criteria: z.array(z.object({
+    criterionId: z.string(),
+    leftScore: z.number().min(0).max(4),
+    rightScore: z.number().min(0).max(4),
+    rationale: z.string().min(1)
+  })).min(1)
+});
+export type PairwiseJudgeResponse = z.infer<typeof PairwiseJudgeResponseSchema>;
+
+export const JudgeMetaGateReportSchema = z.object({
+  passed: z.boolean(),
+  seed: z.number().int(),
+  stressAccuracy: z.number().min(0).max(1),
+  positionConsistency: z.number().min(0).max(1),
+  thresholds: z.object({
+    minStressAccuracy: z.number().min(0).max(1),
+    minPositionConsistency: z.number().min(0).max(1),
+    minCalibrationAgreement: z.number().min(0).max(1),
+    maxCalibrationMae: z.number().nonnegative(),
+    minCalibrationRatings: z.number().int().positive()
+  }),
+  stressResults: z.array(z.object({
+    caseId: z.string(),
+    initialCandidateSide: z.enum(['left', 'right']),
+    initialPreferred: z.enum(['candidate', 'reference', 'tie']),
+    mirroredPreferred: z.enum(['candidate', 'reference', 'tie']),
+    expectedPreferred: z.enum(['candidate', 'reference', 'tie']),
+    correct: z.boolean(),
+    positionConsistent: z.boolean(),
+    analyticComplete: z.boolean(),
+    candidateScore: z.number().min(0).max(4),
+    referenceScore: z.number().min(0).max(4)
+  })),
+  calibration: z.object({
+    status: z.enum(['missing', 'pass', 'fail']),
+    ratingCount: z.number().int().nonnegative(),
+    preferenceAgreement: z.number().min(0).max(1).nullable(),
+    meanAbsoluteError: z.number().nonnegative().nullable()
+  }),
+  failures: z.array(z.string())
+});
+export type JudgeMetaGateReport = z.infer<typeof JudgeMetaGateReportSchema>;
+
 export const EvalReportSchema = artifactEnvelope('eval-report').extend({
   corpus: CorpusEvalReportSchema,
   era: z.object({
     base: ExpressiveRangeReportSchema,
     accepted: ExpressiveRangeReportSchema.optional(),
     shift: GenerativeShiftReportSchema.optional()
-  })
+  }),
+  judgeGate: JudgeMetaGateReportSchema.optional()
 });
 export type EvalReport = z.infer<typeof EvalReportSchema>;
