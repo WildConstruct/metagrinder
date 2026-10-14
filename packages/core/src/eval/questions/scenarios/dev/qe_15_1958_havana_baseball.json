@@ -1,0 +1,171 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_15_1958_havana_baseball",
+  "title": "1958 Havana baseball-stadium concourse",
+  "split": "dev",
+  "situation": {
+    "who": "Fans, vendors, ushers, mixed class attendees",
+    "what": "Baseball game concourse circulation",
+    "where": "Stadium concourse and stand approaches",
+    "when": "1958 day game",
+    "why": "Sports outing",
+    "how": "Vendor calls, seat approaches, program sales"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Pre-revolution material culture",
+    "No later revolutionary iconography as default",
+    "No tropical tourism reduction"
+  ],
+  "productionRequirements": [
+    "vendors",
+    "sports behavior",
+    "signage",
+    "class mix"
+  ],
+  "goldGaps": [
+    {
+      "slot": "zones",
+      "channels": [],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_props_accessories",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "demographic_mix",
+      "channels": [],
+      "priority": 0.8,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [
+        "exclusion"
+      ],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_revolution_icons",
+      "kind": "political_flattening",
+      "description": "Later revolutionary iconography",
+      "matchHints": [
+        "revolutionary iconography",
+        "che shirt default"
+      ]
+    },
+    {
+      "id": "anti_tourism",
+      "kind": "cliche_substitution",
+      "description": "Tropical tourism motifs",
+      "matchHints": [
+        "tropical tourism"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Applying later revolutionary iconography or reducing the scene to tropical tourism motifs",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

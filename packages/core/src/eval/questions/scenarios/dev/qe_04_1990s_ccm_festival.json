@@ -1,0 +1,342 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_04_1990s_ccm_festival",
+  "title": "1990s Christian music festival attendees",
+  "split": "dev",
+  "situation": {
+    "who": "Youth and family festival-goers, volunteers, security, merch sellers, worship leaders visible from crowd",
+    "what": "Outdoor or fairground Christian music festival / multi-act concert day",
+    "where": "US festival grounds: main stage lawn, merch row, food booths, prayer/info tents, parking overflow",
+    "when": "1990s, typically warm-season daytime into evening",
+    "why": "Worship, entertainment, youth culture, church group outing, artist fandom",
+    "how": "Lawn seating/standing, church-group clusters, merch lines, altar-call or hands-raised moments without caricature"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "adequate",
+      "priority": 0.95,
+      "notes": "Youth fan, parent/chaperone, volunteer, security, merch seller"
+    },
+    {
+      "slot": "zones",
+      "status": "adequate",
+      "priority": 0.85,
+      "notes": "Stage lawn, merch row, food, prayer/info tent, parking edge"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "thin",
+      "priority": 0.95,
+      "notes": "Boxy tees, denim, cargo shorts, sundresses, sandals/sneakers"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "thin",
+      "priority": 0.7,
+      "notes": "Curtain bangs / short crops / perms late decade — keep light touch"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "thin",
+      "priority": 0.8,
+      "notes": "Fanny packs, disposable cameras, foam seat pads, water bottles, lanyards"
+    },
+    {
+      "slot": "behaviors",
+      "status": "thin",
+      "priority": 0.8,
+      "notes": "Standing clusters, hands raised sparingly, merch queue, blanket seating"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "thin",
+      "priority": 0.75,
+      "notes": "Security at gates/perimeter; merch sellers at booths not stage pit default"
+    },
+    {
+      "slot": "negatives",
+      "status": "adequate",
+      "priority": 0.9,
+      "notes": "Block phone-sea, athleisure, mall-goth defaults, mockery of worship"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "thin",
+      "priority": 0.75,
+      "notes": "Church-group youth + families; regional US variety without invented census"
+    },
+    {
+      "slot": "lod_far",
+      "status": "thin",
+      "priority": 0.5,
+      "notes": "Dense lawn color field of tees and denim"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "thin",
+      "priority": 0.7
+    },
+    {
+      "slot": "lod_near",
+      "status": "thin",
+      "priority": 0.65,
+      "notes": "WWJD-style bracelet motif only as rare prop, not brand spam"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "thin",
+      "priority": 0.7,
+      "notes": "Dusty fairground light, stage PA haze optional, warm golden hour"
+    }
+  ],
+  "hardConstraints": [
+    "Grounded realism only — no satirical or mocking portrayal of worship",
+    "Avoid identifying living private individuals",
+    "Block 2010s–2020s phone-sea and athleisure defaults unless evidenced",
+    "No LED wristbands, selfie sticks, or festival-influencer kit as defaults",
+    "Merch logos genericized unless rights-cleared"
+  ],
+  "productionRequirements": [
+    "youth fashion",
+    "camping vendors merch",
+    "denominational diversity without mockery"
+  ],
+  "goldGaps": [
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette",
+        "coOccurrence",
+        "frequency"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "zones",
+      "channels": [
+        "spatialAttach"
+      ],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_props_accessories",
+      "channels": [],
+      "priority": 0.8,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [
+        "exclusion"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "demographic_mix",
+      "channels": [],
+      "priority": 0.7,
+      "mustHitInTopK": false
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_modern_worship",
+      "kind": "cliche_substitution",
+      "description": "Modern worship concert cliches",
+      "matchHints": [
+        "led wristband",
+        "selfie stick",
+        "athleisure"
+      ]
+    },
+    {
+      "id": "anti_phone_sea",
+      "kind": "decade_drift",
+      "description": "Phone-sea festival defaults",
+      "matchHints": [
+        "smartphone",
+        "phone sea"
+      ]
+    },
+    {
+      "id": "anti_private_faces",
+      "kind": "living_person_id",
+      "description": "Identify private living attendees",
+      "matchHints": [
+        "identify living",
+        "private face"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "coverage fill",
+    "negatives",
+    "plateable sources",
+    "LOD families"
+  ],
+  "characteristicFailure": "Reducing the crowd to modern worship-concert cliches or generic 1990s festival wear without subculture",
+  "traits": [
+    {
+      "traitId": "trait_festival_tees",
+      "label": "Artist / ministry event T-shirts",
+      "targetSlots": [
+        "item_wardrobe",
+        "archetypes",
+        "lod_mid"
+      ],
+      "channels": [
+        {
+          "channel": "identity",
+          "status": "filled",
+          "summary": "Youth and fans; some parent volunteers in softer casuals",
+          "confidence": "medium"
+        },
+        {
+          "channel": "silhouette",
+          "status": "filled",
+          "summary": "Boxy mid-90s tee drape over denim or cargo shorts; not slim fashion cut",
+          "confidence": "medium"
+        },
+        {
+          "channel": "colorPattern",
+          "status": "thin",
+          "summary": "Solid dark or light tees with large front graphics; tour dates optional small back print",
+          "confidence": "low"
+        },
+        {
+          "channel": "coOccurrence",
+          "status": "filled",
+          "summary": "Tee + denim/cargo + sneakers or sandals + optional fanny pack",
+          "confidence": "medium"
+        },
+        {
+          "channel": "exclusion",
+          "status": "filled",
+          "summary": "No smartphone selfie pose kit; no 2010s festival crop-top/athleisure default",
+          "confidence": "high"
+        },
+        {
+          "channel": "frequency",
+          "status": "thin",
+          "summary": "Common among youth lawn crowd; not every adult",
+          "confidence": "medium"
+        },
+        {
+          "channel": "promptRegister",
+          "status": "filled",
+          "summary": "1990s boxy concert T-shirt, jeans or cargo shorts, festival lawn crowd, Christian music festival extras",
+          "confidence": "medium"
+        },
+        {
+          "channel": "evidenceBasis",
+          "status": "thin",
+          "summary": "Public event anchors (Concert Archives Creation 1990; festival histories); freeload 90s plates still rights-gated — see plate_register_1990s_ccm.md",
+          "confidence": "low"
+        }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium",
+      "notes": "Plate pass: public anchors only; no private-face scraping. Logos genericized."
+    },
+    {
+      "traitId": "trait_chaperone_casual",
+      "label": "Parent / chaperone casual daywear",
+      "targetSlots": [
+        "archetypes",
+        "item_wardrobe",
+        "demographic_mix"
+      ],
+      "channels": [
+        {
+          "channel": "identity",
+          "status": "filled",
+          "summary": "Adults with youth groups",
+          "confidence": "medium"
+        },
+        {
+          "channel": "silhouette",
+          "status": "thin",
+          "summary": "Polo or soft blouse, khaki or jean, visor optional",
+          "confidence": "low"
+        },
+        {
+          "channel": "coOccurrence",
+          "status": "thin",
+          "summary": "Water bottle, small bag, standing near teens",
+          "confidence": "low"
+        },
+        {
+          "channel": "exclusion",
+          "status": "filled",
+          "summary": "Not all adults in matching youth tour tees",
+          "confidence": "medium"
+        },
+        {
+          "channel": "promptRegister",
+          "status": "filled",
+          "summary": "1990s parent chaperone casual clothes at outdoor Christian music festival",
+          "confidence": "medium"
+        },
+        {
+          "channel": "evidenceBasis",
+          "status": "thin",
+          "summary": "Inferred from youth-event photo patterns",
+          "confidence": "low"
+        }
+      ],
+      "evidenceBasis": "inferred",
+      "confidence": "low"
+    },
+    {
+      "traitId": "trait_merch_and_foam",
+      "label": "Merch booth and foam seat props",
+      "targetSlots": [
+        "item_props_accessories",
+        "zones",
+        "behaviors"
+      ],
+      "channels": [
+        {
+          "channel": "spatialAttach",
+          "status": "filled",
+          "summary": "Merch row queues; foam pads on lawn",
+          "confidence": "medium"
+        },
+        {
+          "channel": "coOccurrence",
+          "status": "filled",
+          "summary": "Plastic bags, cassette/CD jewel cases era-appropriate, not streaming merch QR kits",
+          "confidence": "medium"
+        },
+        {
+          "channel": "exclusion",
+          "status": "filled",
+          "summary": "No LED merch walls, no card-reader phone taps as default",
+          "confidence": "high"
+        },
+        {
+          "channel": "promptRegister",
+          "status": "filled",
+          "summary": "1990s festival merch booth line, foam stadium seat pad on grass",
+          "confidence": "medium"
+        },
+        {
+          "channel": "evidenceBasis",
+          "status": "thin",
+          "summary": "Seed from period outdoor concert photos",
+          "confidence": "low"
+        }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium"
+    }
+  ],
+  "researchTasksSeed": [],
+  "k": 5,
+  "notes": "Lifted from community pilot crowd_1990s_christian_music_festival.json"
+}

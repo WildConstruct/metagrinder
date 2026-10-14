@@ -1,0 +1,175 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_11_1984_warsaw_queue",
+  "title": "1984 Warsaw state department-store queue in winter",
+  "split": "dev",
+  "situation": {
+    "who": "Urban shoppers, store staff, queue marshals",
+    "what": "Winter queue for scarce goods",
+    "where": "Department store entrance and interior queue lines",
+    "when": "1984 winter day",
+    "why": "Scarcity shopping",
+    "how": "Queue discipline, bags, coats, short conversations"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Source scarcity acknowledged",
+    "No generalized Soviet aesthetic",
+    "No military grayness default",
+    "Vernacular sources preferred"
+  ],
+  "productionRequirements": [
+    "winter wardrobe",
+    "scarcity behavior",
+    "bags",
+    "vernacular photography"
+  ],
+  "goldGaps": [
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette",
+        "material"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "behaviors",
+      "channels": [],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_props_accessories",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [
+        "exclusion"
+      ],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "environment_atmosphere",
+      "channels": [],
+      "priority": 0.75,
+      "mustHitInTopK": false
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_soviet_gray",
+      "kind": "political_flattening",
+      "description": "Military grayness propaganda only",
+      "matchHints": [
+        "propaganda only",
+        "military grayness",
+        "generalized soviet"
+      ]
+    },
+    {
+      "id": "anti_unfillable",
+      "kind": "unfillable_source",
+      "description": "Assume everything easily online",
+      "matchHints": [
+        "everything online",
+        "google everything"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Defaulting to military grayness, propaganda imagery, or a generalized Soviet aesthetic",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

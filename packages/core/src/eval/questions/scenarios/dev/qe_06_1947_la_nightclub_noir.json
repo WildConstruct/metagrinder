@@ -1,0 +1,175 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_06_1947_la_nightclub_noir",
+  "title": "1947 Los Angeles nightclub patrons and staff photographed in a film-noir mode",
+  "split": "dev",
+  "situation": {
+    "who": "Patrons, wait staff, band, door, photographers",
+    "what": "Evening club service and socializing",
+    "where": "Mid-century LA nightclub: tables, bar, bandstand, entrance",
+    "when": "1947 night, practical interior light",
+    "why": "Nightlife, status, entertainment",
+    "how": "Seated tables, service paths, dance floor edge"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Separate historical fact from noir stylization",
+    "No researching noir people as a type",
+    "Period clothing occupations class signals"
+  ],
+  "productionRequirements": [
+    "postwar clothing",
+    "staff vs patron",
+    "class signals",
+    "club behavior"
+  ],
+  "goldGaps": [
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette",
+        "material"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "archetypes",
+      "channels": [
+        "identity"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "behaviors",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [
+        "exclusion"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "zones",
+      "channels": [],
+      "priority": 0.8,
+      "mustHitInTopK": false
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_noir_people",
+      "kind": "narrative_not_visual",
+      "description": "Research noir people rather than clothing",
+      "matchHints": [
+        "noir people",
+        "film noir tropes only",
+        "symbolism"
+      ]
+    },
+    {
+      "id": "anti_costume_gangster",
+      "kind": "cliche_substitution",
+      "description": "Costume gangster cliche",
+      "matchHints": [
+        "costume gangster"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Researching noir people rather than real postwar clothing, occupations, class signals, and club behavior",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

@@ -1,0 +1,185 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_05_1981_les_punk_matinee",
+  "title": "1981 Lower East Side all-ages punk matinee",
+  "split": "dev",
+  "situation": {
+    "who": "Teen and young adult punks, door staff, band load-in helpers, a few older scenesters",
+    "what": "All-ages daytime matinee hardcore/punk show",
+    "where": "Small LES NYC venue: floor, stage lip, door, sidewalk overflow",
+    "when": "1981, afternoon matinee, indoor club light",
+    "why": "Music, scene membership, all-ages access",
+    "how": "Floor push-mosh light, jacket piles, door stamp lines, no bar service for minors"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "No costume-store punk uniform",
+    "No wholesale UK 77 import as default LES 81",
+    "No named venue branding as required plate",
+    "Avoid living private individual IDs"
+  ],
+  "productionRequirements": [
+    "DIY clothing patches",
+    "hairstyles",
+    "venue zones",
+    "behavior norms"
+  ],
+  "goldGaps": [
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette",
+        "material",
+        "coOccurrence"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_grooming_hair",
+      "channels": [
+        "silhouette"
+      ],
+      "priority": 0.8,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "zones",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [
+        "exclusion"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "behaviors",
+      "channels": [],
+      "priority": 0.8,
+      "mustHitInTopK": false
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_costume_punk",
+      "kind": "cliche_substitution",
+      "description": "Costume-store punk uniform",
+      "matchHints": [
+        "costume store",
+        "halloween punk"
+      ]
+    },
+    {
+      "id": "anti_uk_wholesale",
+      "kind": "cross_regional_conflation",
+      "description": "Import UK styles wholesale",
+      "matchHints": [
+        "uk 1977 only",
+        "london wholesale"
+      ]
+    },
+    {
+      "id": "anti_venue_brand",
+      "kind": "named_venue_or_ip",
+      "description": "Named venue branding required",
+      "matchHints": [
+        "named venue brand"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Producing a costume-store punk uniform, importing UK styles wholesale, or using named venue branding",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

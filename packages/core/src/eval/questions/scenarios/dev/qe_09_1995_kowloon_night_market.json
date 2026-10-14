@@ -1,0 +1,172 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_09_1995_kowloon_night_market",
+  "title": "1995 Kowloon night-market crowd",
+  "split": "dev",
+  "situation": {
+    "who": "Shoppers, stall holders, food workers, families",
+    "what": "Night market shopping and eating",
+    "where": "Dense Kowloon street market: stalls, aisles, seating stools",
+    "when": "1995 night",
+    "why": "Food, goods, social evening",
+    "how": "Shoulder density, bargaining, cooking at stalls"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Multilingual signage research",
+    "Do not mix incompatible HK districts/decades",
+    "Signage is readable content not texture only"
+  ],
+  "productionRequirements": [
+    "dense spatial layering",
+    "signage",
+    "merchandise",
+    "food prep",
+    "night lighting"
+  ],
+  "goldGaps": [
+    {
+      "slot": "zones",
+      "channels": [
+        "spatialAttach"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_props_accessories",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "environment_atmosphere",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette"
+      ],
+      "priority": 0.8,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [],
+      "priority": 0.8,
+      "mustHitInTopK": false
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_sign_texture",
+      "kind": "narrative_not_visual",
+      "description": "Signage as decorative texture only",
+      "matchHints": [
+        "decorative texture only"
+      ]
+    },
+    {
+      "id": "anti_district_mix",
+      "kind": "cross_regional_conflation",
+      "description": "Mix incompatible districts decades",
+      "matchHints": [
+        "wrong district",
+        "wrong decade hk"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Treating signage as decorative texture or combining incompatible Hong Kong districts and decades",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

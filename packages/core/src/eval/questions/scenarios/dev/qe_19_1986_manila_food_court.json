@@ -1,0 +1,176 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_19_1986_manila_food_court",
+  "title": "1986 Manila shopping-mall food court on a Sunday",
+  "split": "dev",
+  "situation": {
+    "who": "Family groups, teens, mall staff, food workers",
+    "what": "Sunday mall food court meal and hangout",
+    "where": "1980s Manila mall food court seating and counters",
+    "when": "1986 Sunday midday",
+    "why": "Family outing after church/school week",
+    "how": "Tray lines, family tables, stroller edges"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Not American mall population with tropical dressing",
+    "Avoid present-day Manila references as 1986 truth",
+    "Local and imported brand presence genericized"
+  ],
+  "productionRequirements": [
+    "family groups",
+    "school church clothing",
+    "food court zones",
+    "1986 retail modernity"
+  ],
+  "goldGaps": [
+    {
+      "slot": "archetypes",
+      "channels": [
+        "identity"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette",
+        "coOccurrence"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "zones",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "demographic_mix",
+      "channels": [
+        "frequency"
+      ],
+      "priority": 0.8,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [
+        "exclusion"
+      ],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_us_mall",
+      "kind": "cross_regional_conflation",
+      "description": "American mall population default",
+      "matchHints": [
+        "american mall default"
+      ]
+    },
+    {
+      "id": "anti_present_manila",
+      "kind": "decade_drift",
+      "description": "Present-day Manila references",
+      "matchHints": [
+        "2020 manila",
+        "present-day mall"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Assuming an American mall population with tropical dressing or using present-day Manila references",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

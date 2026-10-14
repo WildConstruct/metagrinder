@@ -1,0 +1,174 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_14_2002_delhi_baraat",
+  "title": "2002 Delhi Punjabi wedding baraat moving through a commercial district",
+  "split": "dev",
+  "situation": {
+    "who": "Groom party, musicians, family roles, street onlookers, drivers",
+    "what": "Baraat procession through commercial streets",
+    "where": "Delhi commercial district road and shopfronts",
+    "when": "2002 day or evening",
+    "why": "Wedding ritual",
+    "how": "Procession topology, music cluster, vehicle, stopping traffic"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Not universal Indian wedding",
+    "Regional Punjabi specifics",
+    "Ceremonial roles distinct"
+  ],
+  "productionRequirements": [
+    "processional topology",
+    "ceremonial roles",
+    "music vehicles",
+    "class regional dress"
+  ],
+  "goldGaps": [
+    {
+      "slot": "zones",
+      "channels": [
+        "spatialAttach"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "archetypes",
+      "channels": [
+        "identity"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette",
+        "colorPattern"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "behaviors",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_props_accessories",
+      "channels": [],
+      "priority": 0.75,
+      "mustHitInTopK": false
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_universal_wedding",
+      "kind": "cross_regional_conflation",
+      "description": "Universal Indian wedding category",
+      "matchHints": [
+        "universal indian wedding",
+        "unrelated regional"
+      ]
+    },
+    {
+      "id": "anti_cliche_bollywood",
+      "kind": "cliche_substitution",
+      "description": "Bollywood costume defaults",
+      "matchHints": [
+        "bollywood costume only"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Treating Indian wedding as one universal visual category or using unrelated regional clothing",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

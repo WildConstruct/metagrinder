@@ -1,0 +1,172 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_16_1935_shanghai_ballroom",
+  "title": "1935 Shanghai ballroom during an evening dance",
+  "split": "dev",
+  "situation": {
+    "who": "Dancers, band, service staff, hosts, colonial-era clientele mix",
+    "what": "Evening social dance",
+    "where": "Urban ballroom: floor, tables, bandstand, entrance",
+    "when": "1935 night",
+    "why": "Cosmopolitan nightlife",
+    "how": "Dance sets, service, seating hierarchy"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Class stratification and service roles",
+    "Do not produce undifferentiated old China",
+    "Political economic structure of venue matters for visible roles"
+  ],
+  "productionRequirements": [
+    "fashion",
+    "service roles",
+    "class signals",
+    "venue zones"
+  ],
+  "goldGaps": [
+    {
+      "slot": "archetypes",
+      "channels": [
+        "identity"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette",
+        "material"
+      ],
+      "priority": 0.95,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "zones",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "behaviors",
+      "channels": [],
+      "priority": 0.8,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [],
+      "priority": 0.8,
+      "mustHitInTopK": false
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_old_china",
+      "kind": "cliche_substitution",
+      "description": "Undifferentiated old China scene",
+      "matchHints": [
+        "old china",
+        "undifferentiated china"
+      ]
+    },
+    {
+      "id": "anti_ignore_structure",
+      "kind": "political_flattening",
+      "description": "Ignore venue political economic structure",
+      "matchHints": [
+        "ignore class structure"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Producing an undifferentiated old China scene or ignoring the political and economic structure of the venue",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

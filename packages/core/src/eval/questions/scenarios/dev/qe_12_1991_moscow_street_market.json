@@ -1,0 +1,170 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_12_1991_moscow_street_market",
+  "title": "1991 Moscow street market outside a transit station",
+  "split": "dev",
+  "situation": {
+    "who": "Sellers at tables, shoppers, transit passengers",
+    "what": "Improvised street retail of imported and used goods",
+    "where": "Outside metro/rail station plaza",
+    "when": "1991 day",
+    "why": "Transitional economy trade",
+    "how": "Tables, bags, clusters, quick deals"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Distinguish 1991 transition from later oligarch aesthetics",
+    "No pure Soviet austerity collapse"
+  ],
+  "productionRequirements": [
+    "improvised retail",
+    "imported goods",
+    "bags tables signage"
+  ],
+  "goldGaps": [
+    {
+      "slot": "zones",
+      "channels": [
+        "spatialAttach"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_props_accessories",
+      "channels": [],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette"
+      ],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "archetypes",
+      "channels": [
+        "identity"
+      ],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [],
+      "priority": 0.8,
+      "mustHitInTopK": true
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_oligarch",
+      "kind": "decade_drift",
+      "description": "Later oligarch-era cliches",
+      "matchHints": [
+        "oligarch era"
+      ]
+    },
+    {
+      "id": "anti_austerity_only",
+      "kind": "political_flattening",
+      "description": "Collapse to pure Soviet austerity",
+      "matchHints": [
+        "pure austerity only"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Collapsing the scene into either Soviet austerity or later oligarch-era visual cliches",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

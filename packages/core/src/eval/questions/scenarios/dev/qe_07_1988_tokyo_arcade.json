@@ -1,0 +1,183 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_07_1988_tokyo_arcade",
+  "title": "1988 Tokyo neighborhood arcade after school",
+  "split": "dev",
+  "situation": {
+    "who": "Students in uniforms, after-school youth, arcade staff",
+    "what": "Playing cabinets, waiting turns, small purchases",
+    "where": "Neighborhood game center: cabinet rows, change counter, entrance",
+    "when": "1988 late afternoon",
+    "why": "Leisure after school",
+    "how": "Standing at cabinets, coin exchange, bag piles"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Cross-lingual sources required",
+    "No unlicensed cabinet artwork as research spine",
+    "No contemporary streetwear defaults",
+    "No anime stereotype crowds"
+  ],
+  "productionRequirements": [
+    "school uniforms 1988",
+    "machine taxonomy genericized",
+    "signage",
+    "youth fashion"
+  ],
+  "goldGaps": [
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette",
+        "coOccurrence"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_props_accessories",
+      "channels": [],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "zones",
+      "channels": [
+        "spatialAttach"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [
+        "exclusion"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "environment_atmosphere",
+      "channels": [],
+      "priority": 0.75,
+      "mustHitInTopK": false
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_anime",
+      "kind": "cliche_substitution",
+      "description": "Anime stereotype crowd",
+      "matchHints": [
+        "anime stereotype"
+      ]
+    },
+    {
+      "id": "anti_cabinet_ip",
+      "kind": "named_venue_or_ip",
+      "description": "Unlicensed cabinet artwork spine",
+      "matchHints": [
+        "copyrighted cabinet",
+        "named game ip"
+      ]
+    },
+    {
+      "id": "anti_2020s_street",
+      "kind": "decade_drift",
+      "description": "Contemporary Japanese streetwear",
+      "matchHints": [
+        "2020 streetwear"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Using contemporary Japanese streetwear, anime stereotypes, or unlicensed cabinet artwork as the research spine",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

@@ -1,0 +1,172 @@
+{
+  "artifact": "research-question-scenario",
+  "schemaVersion": "0.1.0",
+  "scenarioId": "qe_10_1969_mexico_city_lucha",
+  "title": "1969 Mexico City lucha libre arena audience",
+  "split": "dev",
+  "situation": {
+    "who": "Families, vendors, adult fans, ushers",
+    "what": "Arena wrestling card attendance",
+    "where": "Arena seating, aisles, concourse vendors",
+    "when": "1969 evening",
+    "why": "Spectacle, family outing",
+    "how": "Seated rows, cheers, vendor climbs"
+  },
+  "coverageSeed": [
+    {
+      "slot": "archetypes",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "demographic_mix",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "zones",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_wardrobe",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_grooming_hair",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "item_props_accessories",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "behaviors",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "compatibility_rules",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "negatives",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_far",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_mid",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "lod_near",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    },
+    {
+      "slot": "environment_atmosphere",
+      "status": "empty",
+      "priority": 0.7,
+      "notes": "seed empty"
+    }
+  ],
+  "hardConstraints": [
+    "Not entire audience masked superfans",
+    "No contemporary lucha branding as historical default"
+  ],
+  "productionRequirements": [
+    "seating zones",
+    "vendors",
+    "family attendance",
+    "souvenirs"
+  ],
+  "goldGaps": [
+    {
+      "slot": "demographic_mix",
+      "channels": [
+        "frequency"
+      ],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "zones",
+      "channels": [],
+      "priority": 0.9,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_props_accessories",
+      "channels": [],
+      "priority": 0.8,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "item_wardrobe",
+      "channels": [
+        "silhouette"
+      ],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    },
+    {
+      "slot": "negatives",
+      "channels": [
+        "exclusion"
+      ],
+      "priority": 0.85,
+      "mustHitInTopK": true
+    }
+  ],
+  "antiQuestions": [
+    {
+      "id": "anti_all_masks",
+      "kind": "cliche_substitution",
+      "description": "Entire audience masked superfans",
+      "matchHints": [
+        "all masked",
+        "everyone in mask"
+      ]
+    },
+    {
+      "id": "anti_modern_lucha_brand",
+      "kind": "brand_dependence",
+      "description": "Contemporary lucha branding",
+      "matchHints": [
+        "modern lucha brand"
+      ]
+    }
+  ],
+  "expectedUnlocks": [
+    "wardrobe families",
+    "zones",
+    "negatives",
+    "source classes"
+  ],
+  "characteristicFailure": "Filling the entire audience with masked superfans or treating contemporary lucha branding as historical reference",
+  "traits": [],
+  "researchTasksSeed": [],
+  "k": 5
+}

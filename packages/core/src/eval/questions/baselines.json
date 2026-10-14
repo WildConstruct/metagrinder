@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "notes": "Dev baseline from deterministic L0 usefulness asker. Holdout requires human approval.",
+  "dev": {
+    "deterministic": {
+      "composite": 0.7373333333333333,
+      "recallAtK": 0.5733333333333334,
+      "precisionAtK": 0.5466666666666666,
+      "antiRate": 0,
+      "scenarioCount": 15,
+      "lockedAt": "2026-07-15T07:15:09.648Z"
+    }
+  }
+}
