@@ -55,6 +55,8 @@ The canonical verification command runs strict rebuilt TypeScript, rebuilt and l
 
 For targeted rebuilt checks, use `pnpm test:src` or `pnpm typecheck:src`. `pnpm test:metagrinder` runs legacy regressions only. Contract changes originate in `packages/core/src/schemas/`; regenerate with `pnpm --filter @promptscape/core codegen:json-schema`, then verify. Set `METAGRINDER_VERIFY_PYTHON` to a literal executable path if the verifier's default (`python` on Windows, `python3` elsewhere) is unavailable.
 
+Compile existing rebuilt run artifacts offline with `pnpm compile:run -- <existing-run-dir> [--rerun]`. It persists native PSG files and, when an accepted grammar is already recorded, a base/accepted structural diff. Compilation does not create accepted grammar, approve content, or prove generation constraint safety. See the rebuilt operating guide for bindings, reuse, and output-set rules.
+
 ### Environment notes
 
 The earlier Windows dependency failure was caused by the pnpm store living inside the synced project folder. Keep the store outside that tree:

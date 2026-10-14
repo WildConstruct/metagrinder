@@ -48,6 +48,18 @@ use `METAGRINDER_MAX_LLM_CALLS`, `METAGRINDER_MAX_JUDGE_CALLS`, and
 corresponding `METAGRINDER_CAMPAIGN_MAX_*` variables to charge a campaign ledger
 alongside each run ledger. Replay cache hits do not consume budget.
 
+## Stored native compilation (S2.2c)
+
+```text
+pnpm compile:run -- <existing-run-dir> [--rerun]
+```
+
+The command consumes the recorded `scene-grammar.json` and optional `accepted-scene-grammar.json` through RunStore. It verifies source hashes, run/input identities, and explicit targets; it never creates approvals or accepted grammar. Native flat files are stored under `psg/base/` and `psg/accepted/`, with run/target/compiler/source-hash bindings, review flags, and limitations in `metadata.metagrinder`. The canonical schemas live in `schemas/psg.ts`; the compiler module reexports them for compatibility.
+
+When both targets exist, `psg-compile-diff.json` compares actual emitted graph/node/edge/region content and binds the compared file hashes. Timestamps and binding-only metadata do not create structural differences. The report is not semantic quality or constraint-safety evidence. Existing text truncation, six-option caps, and legacy branch weighting remain unchanged; a source revision may therefore produce no emitted difference.
+
+The compile stage is source/compiler-signed. Reopen/reuse checks both native metadata and current bytes; `--rerun` explicitly rebuilds deterministic outputs without model calls. Use the compile stage's `outputArtifacts` or CLI `outputPaths` as the current output set: retained files outside that set belong to prior checkpoints, not the current compile. A base-only run reports that comparison is unavailable and emits no invented accepted diff. Package sealing can hash these registered native files for a handoff; no receipt or approval is conferred by compilation.
+
 ## Verification and evaluation limits (S-R3)
 
 From the repository root, run `pnpm verify:reimplementation` under Node 20.19.0 and pnpm 8.15.4. It runs strict source TypeScript, rebuilt and legacy Jest suites, nonmutating generated-contract parity, and stdlib Python contract consumption. The same command is configured in Linux/Windows CI; a local pass is not a remote CI result. Python defaults to `python` on Windows and `python3` elsewhere; `METAGRINDER_VERIFY_PYTHON` can name a literal executable. Regenerate contracts intentionally with `pnpm --filter @promptscape/core codegen:json-schema`; verification never repairs stale contracts for you.

@@ -1,4 +1,8 @@
-import { z } from 'zod';
+import { PsgFileSchema, type PsgFile, type PsgNode, type PsgEdge, type PsgOption } from '../schemas/psg';
+export {
+  PsgOptionSchema, PsgNodeSchema, PsgEdgeSchema, PsgRegionSchema, PsgFileSchema,
+  type PsgOption, type PsgNode, type PsgEdge, type PsgRegion, type PsgFile
+} from '../schemas/psg';
 
 /**
  * Flat Prompt Spaghetti fragment file — the compiler's output contract.
@@ -6,56 +10,6 @@ import { z } from 'zod';
  * key order to preserve byte-identity with captured golden output, so the
  * compiler serializes its hand-built objects rather than reparsed ones.
  */
-
-export const PsgOptionSchema = z.object({
-  text: z.string(),
-  weight: z.number()
-});
-export type PsgOption = z.infer<typeof PsgOptionSchema>;
-
-export const PsgNodeSchema = z.object({
-  id: z.string(),
-  type: z.enum(['TextBlock', 'WeightedChoice', 'Output']),
-  x: z.number(),
-  y: z.number(),
-  name: z.string(),
-  value: z.string().optional(),
-  options: z.array(PsgOptionSchema).optional(),
-  template: z.string().optional()
-});
-export type PsgNode = z.infer<typeof PsgNodeSchema>;
-
-export const PsgEdgeSchema = z.object({
-  id: z.string(),
-  source: z.string(),
-  target: z.string(),
-  sourceHandle: z.string().optional()
-});
-export type PsgEdge = z.infer<typeof PsgEdgeSchema>;
-
-export const PsgRegionSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  color: z.string(),
-  nodes: z.array(z.string()),
-  description: z.string().optional()
-});
-
-export const PsgFileSchema = z.object({
-  version: z.literal('1.0.0'),
-  name: z.string(),
-  description: z.string(),
-  metadata: z.object({
-    type: z.string(),
-    source: z.string(),
-    tags: z.array(z.string()),
-    createdAt: z.string()
-  }).passthrough(),
-  nodes: z.array(PsgNodeSchema),
-  edges: z.array(PsgEdgeSchema),
-  regions: z.array(PsgRegionSchema)
-});
-export type PsgFile = z.infer<typeof PsgFileSchema>;
 
 const MAX_OPTION_TEXT_LENGTH = 72;
 const MAX_TEXT_BLOCK_LENGTH = 240;

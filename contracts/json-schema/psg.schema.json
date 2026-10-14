@@ -1,0 +1,273 @@
+{
+  "$ref": "#/definitions/psg",
+  "definitions": {
+    "psg": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "metadata": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "const": "ASSET_FRAGMENT"
+            },
+            "source": {
+              "type": "string",
+              "const": "metagrinder"
+            },
+            "tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "createdAt": {
+              "type": "string"
+            },
+            "metagrinder": {
+              "type": "object",
+              "properties": {
+                "runId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "inputId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "grammarTarget": {
+                  "type": "string",
+                  "enum": [
+                    "base",
+                    "accepted"
+                  ]
+                },
+                "compilerVersion": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "sourceGrammar": {
+                  "type": "object",
+                  "properties": {
+                    "family": {
+                      "type": "string",
+                      "enum": [
+                        "scene-grammar",
+                        "accepted-scene-grammar"
+                      ]
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "\\S"
+                    },
+                    "contentSha256": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    }
+                  },
+                  "required": [
+                    "family",
+                    "path",
+                    "contentSha256"
+                  ],
+                  "additionalProperties": false
+                },
+                "reviewFlags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "limitations": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "runId",
+                "inputId",
+                "grammarTarget",
+                "compilerVersion",
+                "sourceGrammar",
+                "reviewFlags",
+                "limitations"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "type",
+            "source",
+            "tags",
+            "createdAt",
+            "metagrinder"
+          ],
+          "additionalProperties": true
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "TextBlock",
+                  "WeightedChoice",
+                  "Output"
+                ]
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    },
+                    "weight": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "weight"
+                  ],
+                  "additionalProperties": false
+                },
+                "minItems": 1
+              },
+              "template": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "x",
+              "y",
+              "name"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "source": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "target": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "sourceHandle": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "source",
+              "target"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "name": {
+                "type": "string"
+              },
+              "color": {
+                "type": "string"
+              },
+              "nodes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                }
+              },
+              "description": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "color",
+              "nodes"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "version",
+        "name",
+        "description",
+        "metadata",
+        "nodes",
+        "edges",
+        "regions"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

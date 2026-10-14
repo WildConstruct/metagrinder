@@ -22,5 +22,6 @@ export * from './package-manifest';
 export * from './utdg';
 export * from './receipts';
 export * from './eval';
+export * from './psg';
 export * from './reconciliation';
 export * from './community-job';

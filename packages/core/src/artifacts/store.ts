@@ -187,7 +187,7 @@ export class RunStore {
   setStageState(
     stage: string,
     state: StageState,
-    detail?: { gate?: string; error?: string; outputArtifacts?: string[]; inputSignature?: string },
+    detail?: { gate?: string; error?: string; outputArtifacts?: string[]; inputSignature?: string; replaceOutputArtifacts?: boolean },
     now?: () => string
   ): void {
     this.withManifestLock(() => {
@@ -208,7 +208,8 @@ export class RunStore {
       if (detail?.error !== undefined) record.error = detail.error;
       if (detail?.inputSignature !== undefined) record.inputSignature = detail.inputSignature;
       if (detail?.outputArtifacts) {
-        record.outputArtifacts = [...new Set([...record.outputArtifacts, ...detail.outputArtifacts])];
+        record.outputArtifacts = [...new Set(detail.replaceOutputArtifacts
+          ? detail.outputArtifacts : [...record.outputArtifacts, ...detail.outputArtifacts])];
       }
       this.touch(timestamp);
     });

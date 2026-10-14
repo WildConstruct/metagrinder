@@ -2,6 +2,7 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { emitJsonSchemas } from './emit-json-schema';
 
 const REPO_ROOT = path.resolve(__dirname, '../../../..');
 const CANONICAL_DIR = path.join(REPO_ROOT, 'contracts/json-schema');
@@ -90,4 +91,37 @@ describe('stdlib Python contract smoke', () => {
     expect(result.stderr).toContain('reference');
     expect(result.stderr).toContain('linked.json');
   });
+
+  test('consumes native PSG contracts without requiring a root artifact envelope', () => {
+    const dir = copiedContracts();
+    emitJsonSchemas({ outputDir: dir });
+    const result = runSmoke(dir);
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('OK psg:');
+    expect(result.stdout).toContain('OK psg-compile-diff:');
+  });
+
+  test.each(['version', 'native-type', 'native-source', 'metadata', 'binding', 'source-binding', 'hash-pattern'] as const)(
+    'rejects a broken native PSG %s contract',
+    (kind) => {
+      const dir = copiedContracts();
+      emitJsonSchemas({ outputDir: dir });
+      changeSchema(dir, 'psg', (schema) => {
+        const definition = schema.definitions.psg;
+        const metadata = definition.properties.metadata;
+        const binding = metadata.properties.metagrinder;
+        if (kind === 'version') definition.properties.version.const = '2.0.0';
+        if (kind === 'native-type') metadata.properties.type.const = 'WRONG';
+        if (kind === 'native-source') metadata.properties.source.const = 'WRONG';
+        if (kind === 'metadata') metadata.required = metadata.required.filter((field: string) => field !== 'metagrinder');
+        if (kind === 'binding') binding.required = binding.required.filter((field: string) => field !== 'compilerVersion');
+        if (kind === 'source-binding') binding.properties.sourceGrammar.required = ['family', 'path'];
+        if (kind === 'hash-pattern') delete binding.properties.sourceGrammar.properties.contentSha256.pattern;
+      });
+      const result = runSmoke(dir);
+      expect(result.status).not.toBe(0);
+      expect(result.stderr).toContain('psg');
+    }
+  );
 });

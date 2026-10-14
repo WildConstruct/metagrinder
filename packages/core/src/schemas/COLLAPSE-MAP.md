@@ -20,8 +20,8 @@ system reads it at a different time.
 | (query plan) | `gap-registry` (`recommendedSearches`) + `research-campaign` | campaign owns search planning |
 | `sample-prompts`, `psg-output-flight`, `psg-readability-review` | `content-plans` | plans canonical, realized prose derived, readability = faithfulness/QA fields |
 | `scene-grammar-evaluation`, `plausibility-review` | `eval-report` | harness output family (schema lands with S3.5) |
-| `scene-grammar-psg`, `branch-graph` | `psg` | flat Prompt Spaghetti fragment files, compiler-owned (S2.2) |
-| `psg-compile-diff` | `psg-compile-diff` | kept |
+| `scene-grammar-psg`, `branch-graph` | `psg` | native flat PSG fragments; canonical schemas/psg.ts + compiler run/source binding metadata (S2.2c) |
+| `psg-compile-diff` | `psg-compile-diff` | stored actual-emitted structural comparison; excludes timestamps/binding-only metadata (S2.2c) |
 | `grammar-revisions`, `accepted-grammar-revisions`, `rejected-grammar-revisions`, `revision-state`, `revision-state-applied`, `revision-review`, `accepted-grammar-deltas` | `revisions` | revisions + decisions + accepted deltas in one artifact |
 | `source-registry`, `source-evidence`, `source-claims`, `source-claim-review` | `source-lifecycle` | one chain, one artifact; integrity flags computed |
 | `source-intake-approval`, `approved-source-results` | operator-state file + `source-lifecycle.sources[]` | approval stays a human-written state file; approved results become registered sources |
@@ -48,4 +48,4 @@ v0.2 watchlist (garment-work pattern — judgment calls to revisit after real da
 - Does `extraction.categories[]` need to become a typed taxonomy artifact?
 - Should `source-lifecycle` split claims out once campaigns produce hundreds?
 - `eval-report` and `review-report` schemas land with their stories (S3.5, S4.1).
-- PSG file schema stays compiler-owned (S2.2); decide then whether it joins `schemas/`.
+- Native PSG and stored compile-diff schemas are canonical in `schemas/psg.ts`; cross-record graph and target/source-family refinements remain TypeScript-side (S2.2c).

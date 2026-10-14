@@ -38,6 +38,8 @@ export async function runResumableStage<T>(args: {
   forceRerun?: boolean;
   /** Explicit replay may revalidate a cached response without reserving spend. */
   replay?: boolean;
+  /** Explicit current-output set for stages whose graph/collection set can shrink. */
+  replaceOutputArtifacts?: boolean;
 }): Promise<T> {
   const inputSignature = stageInputSignature(args.inputs);
   const record = args.store.getManifest().stages.find((entry) => entry.stage === args.stage);
@@ -62,7 +64,8 @@ export async function runResumableStage<T>(args: {
   try {
     const result = await args.operation();
     args.store.setStageState(args.stage, 'complete', {
-      inputSignature, outputArtifacts: args.outputs.map((output) => output.path)
+      inputSignature, outputArtifacts: args.outputs.map((output) => output.path),
+      ...(args.replaceOutputArtifacts !== undefined ? { replaceOutputArtifacts: args.replaceOutputArtifacts } : {})
     }, args.now);
     return result;
   } catch (error) {

@@ -21,4 +21,6 @@ Regenerate: `pnpm --filter @promptscape/core codegen:json-schema`
 - eval-report.schema.json
 - community-job.schema.json
 - community-coverage-report.schema.json
+- psg.schema.json
+- psg-compile-diff.schema.json
 - provenance.schema.json

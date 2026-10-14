@@ -3,7 +3,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { RunStore } from './artifacts/store';
 import { ingestText } from './stages/ingest';
-import { buildBranchSceneGrammarPsgs, buildSceneGrammarPsg } from './compile/scene-grammar-psg';
+import { compileRunPsgs } from './compile/run';
 import { PsgFileSchema } from './compile/psg';
 import { historicalCrowdGrammar } from './compile/__fixtures__/historical-crowd-grammar';
 import { sampleContentPlans } from './stages/sample';
@@ -16,7 +16,7 @@ const NOW = () => '2026-06-10T12:00:00.000Z';
  * sampling — with the run manifest recording resumable stage state.
  */
 describe('Phase 2 deterministic spine end-to-end', () => {
-  test('ingest -> grammar -> compile -> sample through RunStore, resumable', () => {
+  test('ingest -> grammar -> compile -> sample through RunStore, resumable', async () => {
     const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-phase2-'));
     const runId = 'run_phase2';
     const store = RunStore.create({ baseDir, runId, inputId: 'broadway', parserVersion: '0.1.0', now: NOW });
@@ -29,16 +29,15 @@ describe('Phase 2 deterministic spine end-to-end', () => {
     store.setStageState('ingest', 'complete', { outputArtifacts: ['source-package.json'] }, NOW);
 
     // grammar (placeholder until S3.3 — coherent crowd grammar stands in)
-    const grammar = historicalCrowdGrammar(NOW());
+    const grammar = { ...historicalCrowdGrammar(NOW()), runId, inputId: 'broadway' };
     store.writeArtifact('scene-grammar', 'scene-grammar.json', grammar, NOW);
     store.setStageState('grammar', 'complete', { outputArtifacts: ['scene-grammar.json'] }, NOW);
 
-    // PSG compile (runs end-to-end; PSG family not yet a stored artifact, validated in-memory)
-    const basePsg = buildSceneGrammarPsg(grammar, NOW);
-    const branches = buildBranchSceneGrammarPsgs(grammar, NOW);
+    // Native PSG compilation is now a stored, input-signed stage (S2.2c).
+    const compiled = await compileRunPsgs({ store, now: NOW });
+    const basePsg = store.readArtifact('psg', 'psg/base/scene-global-baseline.psg');
     expect(() => PsgFileSchema.parse(basePsg)).not.toThrow();
-    expect(Object.keys(branches)).toHaveLength(7);
-    store.setStageState('compile', 'complete', undefined, NOW);
+    expect(compiled.outputPaths).toHaveLength(7);
 
     // content-plan sampling
     const plans = sampleContentPlans({ grammar, seed: 42, count: 12, runId, inputId: 'broadway', now: NOW() });
@@ -58,7 +57,8 @@ describe('Phase 2 deterministic spine end-to-end', () => {
     expect(readSource.chunks.length).toBeGreaterThan(0);
 
     const manifest = resumed.getManifest();
-    expect(manifest.artifacts.map((a) => a.path).sort()).toEqual(['content-plans.json', 'scene-grammar.json', 'source-package.json']);
+    expect(manifest.artifacts.map((a) => a.path).sort()).toEqual(
+      ['content-plans.json', 'scene-grammar.json', 'source-package.json', ...compiled.outputPaths].sort());
     expect(manifest.artifacts.every((a) => /^[0-9a-f]{64}$/.test(a.contentSha256))).toBe(true);
   });
 });

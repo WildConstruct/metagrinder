@@ -7,6 +7,7 @@
   "packageManager": "pnpm@8.15.4",
   "scripts": {
     "verify:reimplementation": "pnpm --filter @promptscape/core verify:reimplementation",
+    "compile:run": "pnpm --filter @promptscape/core compile:run",
     "validate:metagrinder": "pnpm --filter @promptscape/core validate:metagrinder",
     "validate:rainy-alley-prototype": "pnpm --filter @promptscape/core validate:rainy-alley-prototype",
     "validate:rainy-alley-shot-differences": "pnpm --filter @promptscape/core validate:rainy-alley-shot-differences",

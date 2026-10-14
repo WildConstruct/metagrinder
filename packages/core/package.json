@@ -5,6 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "verify:reimplementation": "tsx src/verification/cli.ts",
+    "compile:run": "tsx src/compile/cli.ts",
     "validate:metagrinder": "node scripts/validate-metagrinder-fixtures.js",
     "validate:rainy-alley-prototype": "node scripts/validate-rainy-alley-prototype.js",
     "validate:rainy-alley-shot-differences": "node scripts/validate-rainy-alley-shot-differences.js",

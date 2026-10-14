@@ -1,0 +1,219 @@
+{
+  "$ref": "#/definitions/psg-compile-diff",
+  "definitions": {
+    "psg-compile-diff": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "psg-compile-diff"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "compilerVersion": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "comparisonScope": {
+          "type": "string",
+          "const": "compiled-structure-only"
+        },
+        "sourceGrammars": {
+          "type": "object",
+          "properties": {
+            "base": {
+              "type": "object",
+              "properties": {
+                "family": {
+                  "type": "string",
+                  "const": "scene-grammar"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "contentSha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "family",
+                "path",
+                "contentSha256"
+              ],
+              "additionalProperties": false
+            },
+            "accepted": {
+              "type": "object",
+              "properties": {
+                "family": {
+                  "type": "string",
+                  "const": "accepted-scene-grammar"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "\\S"
+                },
+                "contentSha256": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "required": [
+                "family",
+                "path",
+                "contentSha256"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "base",
+            "accepted"
+          ],
+          "additionalProperties": false
+        },
+        "baseGraphs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "graphKey": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "contentSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "graphKey",
+              "path",
+              "contentSha256"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "acceptedGraphs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "graphKey": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "contentSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            },
+            "required": [
+              "graphKey",
+              "path",
+              "contentSha256"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "graphKey": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "section": {
+                "type": "string",
+                "enum": [
+                  "graph",
+                  "node",
+                  "edge",
+                  "region"
+                ]
+              },
+              "recordId": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "\\S"
+              },
+              "changeType": {
+                "type": "string",
+                "enum": [
+                  "added",
+                  "removed",
+                  "changed"
+                ]
+              },
+              "before": {},
+              "after": {}
+            },
+            "required": [
+              "graphKey",
+              "section",
+              "changeType"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "materialDifference": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "compilerVersion",
+        "comparisonScope",
+        "sourceGrammars",
+        "baseGraphs",
+        "acceptedGraphs",
+        "changes",
+        "materialDifference",
+        "notes"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

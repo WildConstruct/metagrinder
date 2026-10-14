@@ -10,6 +10,7 @@ import { ExtractionSchema } from './extraction';
 import { EvalReportSchema } from './eval';
 import { GapRegistrySchema } from './gap-registry';
 import { ResearchPackageManifestSchema } from './package-manifest';
+import { PsgArtifactSchema, PsgCompileDiffSchema } from './psg';
 import { ImportReceiptSchema } from './receipts';
 import { RetrievalSchema } from './retrieval';
 import { RevisionsSchema } from './revisions';
@@ -22,8 +23,8 @@ import { UtdgCandidatesSchema } from './utdg';
 /**
  * The one family -> schema map. Used by the artifact store (validation at the
  * write/read boundary) and the JSON Schema emitter. Families without a schema
- * yet (psg, psg-compile-diff, eval-report, review-report, accepted-scene-grammar
- * alias) are added by their owning stories.
+ * yet are added by their owning stories. PSG retains its native root; its
+ * required Metagrinder binding lives under metadata.metagrinder.
  */
 export const ARTIFACT_SCHEMAS = {
   'source-package': SourcePackageSchema,
@@ -43,7 +44,9 @@ export const ARTIFACT_SCHEMAS = {
   'import-receipt': ImportReceiptSchema,
   'eval-report': EvalReportSchema,
   'community-job': CommunityJobSchema,
-  'community-coverage-report': CommunityCoverageReportSchema
+  'community-coverage-report': CommunityCoverageReportSchema,
+  'psg': PsgArtifactSchema,
+  'psg-compile-diff': PsgCompileDiffSchema
 } satisfies Record<string, z.ZodTypeAny>;
 
 export type StoredArtifactFamily = keyof typeof ARTIFACT_SCHEMAS;
