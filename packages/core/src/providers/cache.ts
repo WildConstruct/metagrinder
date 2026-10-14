@@ -52,7 +52,20 @@ function cachePath(runDir: string, cacheKey: string): string {
 export function readCacheEntry(runDir: string, cacheKey: string): LlmCacheEntry | undefined {
   const p = cachePath(runDir, cacheKey);
   if (!fs.existsSync(p)) return undefined;
-  return LlmCacheEntrySchema.parse(JSON.parse(fs.readFileSync(p, 'utf8')));
+  const entry = LlmCacheEntrySchema.parse(JSON.parse(fs.readFileSync(p, 'utf8')));
+  const persistedKey = cacheKeyFor({
+    provider: entry.provider,
+    model: entry.model,
+    ...(entry.modelVersion !== undefined ? { modelVersion: entry.modelVersion } : {}),
+    stage: entry.stage,
+    ...(entry.system !== undefined ? { system: entry.system } : {}),
+    prompt: entry.prompt,
+    schemaName: entry.schemaName
+  });
+  if (entry.cacheKey !== cacheKey || persistedKey !== cacheKey) {
+    throw new Error(`llm cache identity mismatch for requested key ${cacheKey}`);
+  }
+  return entry;
 }
 
 export function writeCacheEntry(runDir: string, entry: LlmCacheEntry): void {

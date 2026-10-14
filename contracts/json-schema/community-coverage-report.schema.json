@@ -1,0 +1,364 @@
+{
+  "$ref": "#/definitions/community-coverage-report",
+  "definitions": {
+    "community-coverage-report": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "community-coverage-report"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "runId": {
+          "type": "string"
+        },
+        "inputId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "jobId": {
+          "type": "string"
+        },
+        "cellId": {
+          "type": "string"
+        },
+        "stance": {
+          "type": "string",
+          "enum": [
+            "grounded_realism",
+            "cultural_criticism"
+          ],
+          "default": "grounded_realism"
+        },
+        "trustLevel": {
+          "type": "string",
+          "enum": [
+            "L0_researcher",
+            "L1_proposer",
+            "L2_bounded_reviewer",
+            "L3_trusted_operator"
+          ],
+          "default": "L0_researcher"
+        },
+        "coverage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "slot": {
+                "type": "string",
+                "enum": [
+                  "archetypes",
+                  "demographic_mix",
+                  "zones",
+                  "item_wardrobe",
+                  "item_grooming_hair",
+                  "item_props_accessories",
+                  "behaviors",
+                  "compatibility_rules",
+                  "negatives",
+                  "lod_far",
+                  "lod_mid",
+                  "lod_near",
+                  "environment_atmosphere"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "empty",
+                  "thin",
+                  "adequate",
+                  "strong",
+                  "not_applicable"
+                ]
+              },
+              "priority": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "default": 0.5
+              },
+              "notes": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "slot",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "traits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "traitId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "targetSlots": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "archetypes",
+                    "demographic_mix",
+                    "zones",
+                    "item_wardrobe",
+                    "item_grooming_hair",
+                    "item_props_accessories",
+                    "behaviors",
+                    "compatibility_rules",
+                    "negatives",
+                    "lod_far",
+                    "lod_mid",
+                    "lod_near",
+                    "environment_atmosphere"
+                  ]
+                },
+                "default": []
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "channel": {
+                      "type": "string",
+                      "enum": [
+                        "identity",
+                        "silhouette",
+                        "material",
+                        "colorPattern",
+                        "spatialAttach",
+                        "coOccurrence",
+                        "exclusion",
+                        "frequency",
+                        "evidenceBasis",
+                        "promptRegister"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "empty",
+                        "thin",
+                        "filled",
+                        "blocked"
+                      ]
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "low",
+                        "medium",
+                        "high"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "channel",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
+              },
+              "evidenceBasis": {
+                "type": "string",
+                "enum": [
+                  "observed",
+                  "text_supported",
+                  "external_research",
+                  "proxy_analysis",
+                  "inferred",
+                  "generated",
+                  "unknown"
+                ],
+                "default": "unknown"
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "default": "low"
+              },
+              "notes": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "traitId",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "rankedResearchTasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "taskId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              },
+              "targetSlots": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "archetypes",
+                    "demographic_mix",
+                    "zones",
+                    "item_wardrobe",
+                    "item_grooming_hair",
+                    "item_props_accessories",
+                    "behaviors",
+                    "compatibility_rules",
+                    "negatives",
+                    "lod_far",
+                    "lod_mid",
+                    "lod_near",
+                    "environment_atmosphere"
+                  ]
+                },
+                "default": []
+              },
+              "targetChannels": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "identity",
+                    "silhouette",
+                    "material",
+                    "colorPattern",
+                    "spatialAttach",
+                    "coOccurrence",
+                    "exclusion",
+                    "frequency",
+                    "evidenceBasis",
+                    "promptRegister"
+                  ]
+                },
+                "default": []
+              },
+              "targetTraitIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "suggestedSources": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "expectedValue": {
+                "type": "number",
+                "minimum": 0
+              },
+              "estimatedCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "score": {
+                "type": "number"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "proposed",
+                  "active",
+                  "done",
+                  "deferred",
+                  "exhausted"
+                ],
+                "default": "proposed"
+              }
+            },
+            "required": [
+              "taskId",
+              "title",
+              "rationale"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "nextAction": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "research_task",
+                "ingest_more",
+                "draft_grammar",
+                "blocked_on_human",
+                "draft_complete"
+              ]
+            },
+            "detail": {
+              "type": "string"
+            },
+            "taskId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "detail"
+          ],
+          "additionalProperties": false
+        },
+        "productionTrusted": {
+          "type": "boolean",
+          "const": false,
+          "default": false
+        }
+      },
+      "required": [
+        "artifact",
+        "runId",
+        "inputId",
+        "createdAt",
+        "jobId",
+        "nextAction"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

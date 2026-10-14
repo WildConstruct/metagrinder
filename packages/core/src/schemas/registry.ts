@@ -1,6 +1,10 @@
 import type { z } from 'zod';
 import { CampaignSchema } from './campaign';
 import { ChoiceGraphSchema } from './choice-graph';
+import {
+  CommunityCoverageReportSchema,
+  CommunityJobSchema
+} from './community-job';
 import { ContentPlansSchema } from './content-plan';
 import { ExtractionSchema } from './extraction';
 import { EvalReportSchema } from './eval';
@@ -37,7 +41,9 @@ export const ARTIFACT_SCHEMAS = {
   'research-package': ResearchPackageManifestSchema,
   'utdg-candidates': UtdgCandidatesSchema,
   'import-receipt': ImportReceiptSchema,
-  'eval-report': EvalReportSchema
+  'eval-report': EvalReportSchema,
+  'community-job': CommunityJobSchema,
+  'community-coverage-report': CommunityCoverageReportSchema
 } satisfies Record<string, z.ZodTypeAny>;
 
 export type StoredArtifactFamily = keyof typeof ARTIFACT_SCHEMAS;

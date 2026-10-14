@@ -1,11 +1,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { RunStore } from '../artifacts/store';
-import { buildProvider, type ProviderMode } from '../providers';
+import { buildProviderForRun, type ProviderMode } from '../providers';
 import { HumanCalibrationRatingSchema, type JudgeMetaGateReport } from '../schemas';
 import { createLlmPairwiseJudge, runJudgeMetaGate } from './judge';
 import { DEFAULT_JUDGE_CRITERIA, DEFAULT_JUDGE_STRESS_CASES } from './judge-battery';
-import { budgetCapsFromEnv } from './run-corpus';
 
 type ProviderKind = 'anthropic' | 'codex-cli';
 
@@ -14,14 +13,14 @@ export async function runJudgeGate(
   env: NodeJS.ProcessEnv = process.env
 ): Promise<{ outputPath: string; report: JudgeMetaGateReport }> {
   const calibrationPathRaw = env.METAGRINDER_JUDGE_CALIBRATION;
-  const [modeRaw, providerRaw, runDirRaw] = argv;
+  const [modeRaw, providerRaw, runDirRaw] = argv[0] === '--' ? argv.slice(1) : argv;
   if (!calibrationPathRaw) {
     throw new Error('METAGRINDER_JUDGE_CALIBRATION is required; see src/eval/judge/README.md');
   }
   if (!modeRaw || !providerRaw || !runDirRaw
-    || !['record', 'replay'].includes(modeRaw)
+    || !['record', 'replay', 'auto'].includes(modeRaw)
     || !['anthropic', 'codex-cli'].includes(providerRaw)) {
-    throw new Error('Usage: tsx src/eval/run-judge-gate.ts <record|replay> <anthropic|codex-cli> <run-dir>');
+    throw new Error('Usage: tsx src/eval/run-judge-gate.ts <record|replay|auto> <anthropic|codex-cli> <run-dir>');
   }
 
   const mode = modeRaw as ProviderMode;
@@ -41,13 +40,12 @@ export async function runJudgeGate(
       inputId: 'judge-calibration',
       parserVersion: '0.1.0'
     });
-  store.configureBudget({
-    ledgerId: `run:${path.basename(runDir)}`,
-    scope: 'run',
-    scopeId: path.basename(runDir),
-    caps: budgetCapsFromEnv(env)
-  });
-  const provider = buildProvider({ runDir, kind: providerKind, mode, budgetStore: store });
+  const manifest = store.getManifest();
+  if (manifest.runId !== path.basename(runDir) || manifest.inputId !== 'judge-calibration') {
+    throw new Error('judge run identity mismatch');
+  }
+  const provider = buildProviderForRun({ store, kind: providerKind, mode, env });
+  store.recordModel('judge', provider.id, provider.model, provider.modelVersion);
   const report = await runJudgeMetaGate({
     judge: createLlmPairwiseJudge(provider),
     cases: DEFAULT_JUDGE_STRESS_CASES,

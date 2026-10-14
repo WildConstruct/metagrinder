@@ -46,3 +46,10 @@ use `METAGRINDER_MAX_LLM_CALLS`, `METAGRINDER_MAX_JUDGE_CALLS`, and
 `METAGRINDER_MAX_ESTIMATED_TOKENS`. Set `METAGRINDER_CAMPAIGN_ID` plus the
 corresponding `METAGRINDER_CAMPAIGN_MAX_*` variables to charge a campaign ledger
 alongside each run ledger. Replay cache hits do not consume budget.
+
+## Audit repair operations (S-R2)
+
+- Corpus and community runners resume completed stages only after input/request signatures and schema/content hashes match. Use `auto` to reuse response caches when upgrading old runs that have no stage signatures. Explicit `replay` still reads and validates caches; `--rerun` rebuilds stages (`record --rerun` incurs new spend).
+- All live commands use durable run budgets. `METAGRINDER_MAX_LLM_CALLS`, `METAGRINDER_MAX_JUDGE_CALLS`, and `METAGRINDER_MAX_ESTIMATED_TOKENS` update supplied limits; absent variables preserve prior limits. Token totals are estimates, not billing receipts.
+- `METAGRINDER_CAMPAIGN_ID` enables the shared ledger; use one `METAGRINDER_CAMPAIGN_BUDGET_DIR` across command roots and the corresponding `METAGRINDER_CAMPAIGN_MAX_*` caps. Ledger location is pinned. Pre-shared campaign snapshots with nonzero usage fail closed pending explicit migration. Failed transports keep conservative reservations.
+- Paid community jobs default to stable `run_<jobId>` folders. Use `--run-id` for an intentionally separate run. Workbench state stays in `operator-state/*`, merges by record ID, and is served only on `127.0.0.1` with localhost host/origin checks.

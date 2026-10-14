@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { buildProvider, type ProviderMode } from '../providers';
+import { buildProviderForRun, type ProviderMode } from '../providers';
 import { SceneGrammarSchema } from '../schemas';
 import { loadCorpus } from './corpus';
 import { evaluateRun } from './run';
@@ -13,14 +13,15 @@ export async function runHoldout(
   env: NodeJS.ProcessEnv = process.env
 ): Promise<string> {
   const holdoutDirRaw = env.METAGRINDER_HOLDOUT_DIR;
-  const [modeRaw, providerRaw, runDirRaw] = argv;
+  const normalized = argv[0] === '--' ? argv.slice(1) : argv;
+  const [modeRaw, providerRaw, runDirRaw] = normalized;
   if (!holdoutDirRaw) {
     throw new Error('METAGRINDER_HOLDOUT_DIR is required; see src/eval/holdout/README.md');
   }
   if (!modeRaw || !providerRaw || !runDirRaw
-    || !['record', 'replay'].includes(modeRaw)
+    || !['record', 'replay', 'auto'].includes(modeRaw)
     || !['anthropic', 'codex-cli'].includes(providerRaw)) {
-    throw new Error('Usage: tsx src/eval/run-holdout.ts <record|replay> <anthropic|codex-cli> <run-dir>');
+    throw new Error('Usage: tsx src/eval/run-holdout.ts <record|replay|auto> <anthropic|codex-cli> <run-dir> [--rerun]');
   }
 
   const mode = modeRaw as ProviderMode;
@@ -32,11 +33,12 @@ export async function runHoldout(
     corpus,
     baseDir: runDir,
     runBudgetCaps: budgetCapsFromEnv(env),
-    providerForRun: (briefRunDir, store) => buildProvider({
-      runDir: briefRunDir,
+    forceRerun: normalized.includes('--rerun'),
+    providerForRun: (_briefRunDir, store) => buildProviderForRun({
+      store,
       kind: providerKind,
       mode,
-      budgetStore: store
+      env
     })
   });
   const eraBrief = results[0];

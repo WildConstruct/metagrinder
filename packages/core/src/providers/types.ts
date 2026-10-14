@@ -32,6 +32,7 @@ export interface LlmResult<T> {
 }
 
 export interface LlmProvider {
+  readonly mode?: 'record' | 'replay' | 'auto';
   readonly id: string;
   readonly model: string;
   readonly modelVersion?: string;

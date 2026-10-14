@@ -19,4 +19,6 @@ Regenerate: `pnpm --filter @promptscape/core codegen:json-schema`
 - utdg-candidates.schema.json
 - import-receipt.schema.json
 - eval-report.schema.json
+- community-job.schema.json
+- community-coverage-report.schema.json
 - provenance.schema.json

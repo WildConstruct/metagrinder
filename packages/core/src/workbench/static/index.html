@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Metagrinder Workbench (thin)</title>
+  <link rel="stylesheet" href="/styles.css"/>
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>Metagrinder Workbench</h1>
+      <p class="sub">Thin v1 — operator-state writes only · parse reuse by default</p>
+    </div>
+    <div class="top-actions">
+      <label>Runs root <input id="runs-root" type="text" value="" placeholder="set via ?runs= or API"/></label>
+      <button type="button" id="btn-refresh">Refresh runs</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel">
+      <h2>Runs</h2>
+      <ul id="run-list" class="run-list"></ul>
+      <p id="run-empty" class="dim">No runs yet.</p>
+    </aside>
+
+    <section class="panel main-panel">
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="overview">Overview</button>
+        <button type="button" class="tab" data-tab="approvals">Intake approval</button>
+        <button type="button" class="tab" data-tab="revisions">Grammar revision + ERA</button>
+        <button type="button" class="tab" data-tab="parse">Parse reuse</button>
+      </div>
+
+      <div id="tab-overview" class="tab-body active">
+        <h2>Run overview</h2>
+        <p id="overview-meta" class="dim">Select a run.</p>
+        <pre id="manifest-pre" class="code"></pre>
+      </div>
+
+      <div id="tab-approvals" class="tab-body">
+        <h2>Source intake approval</h2>
+        <p class="dim">Writes only to <code>operator-state/source-intake-approval.json</code>.</p>
+        <label>Operator id <input id="approver-id" type="text" value="operator"/></label>
+        <label>Candidate id <input id="cand-id" type="text" placeholder="candidate id"/></label>
+        <label>Status
+          <select id="cand-status">
+            <option value="approved">approved</option>
+            <option value="rejected">rejected</option>
+            <option value="needs_review">needs_review</option>
+          </select>
+        </label>
+        <label>Note <input id="cand-note" type="text"/></label>
+        <button type="button" id="btn-save-approval">Save approval entry</button>
+        <pre id="approval-out" class="code"></pre>
+      </div>
+
+      <div id="tab-revisions" class="tab-body">
+        <h2>Grammar revision — generative shift</h2>
+        <p class="dim">Base vs accepted ERA (not delta JSON alone). SVG is computed server-side from grammars.</p>
+        <button type="button" id="btn-load-era">Load ERA shift</button>
+        <div id="era-explanations" class="explanations"></div>
+        <div id="era-svg" class="era-svg"></div>
+        <h3>Revision decision</h3>
+        <label>Revision id <input id="rev-id" type="text"/></label>
+        <label>State
+          <select id="rev-state">
+            <option value="accepted">accepted</option>
+            <option value="rejected">rejected</option>
+            <option value="pending">pending</option>
+          </select>
+        </label>
+        <label>Rationale <input id="rev-note" type="text"/></label>
+        <button type="button" id="btn-save-rev">Save revision decision</button>
+        <pre id="rev-out" class="code"></pre>
+      </div>
+
+      <div id="tab-parse" class="tab-body">
+        <h2>Parse reuse policy</h2>
+        <p class="dim">Costed parses are reused by default. Force rerun is an explicit action.</p>
+        <label><input id="has-parse" type="checkbox" checked/> Existing parse present</label>
+        <label><input id="force-rerun" type="checkbox"/> Force rerun (paid)</label>
+        <label><input id="parse-stale" type="checkbox"/> Parse stale vs model pin</label>
+        <button type="button" id="btn-parse-policy">Evaluate policy</button>
+        <pre id="parse-out" class="code"></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    Write boundary: <code>operator-state/*</code> only.
+    Generated artifacts (extraction, grammar, plans, utdg, …) cannot be written by this server.
+  </footer>
+  <script src="/app.js"></script>
+</body>
+</html>

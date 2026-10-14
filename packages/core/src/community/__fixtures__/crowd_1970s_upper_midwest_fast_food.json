@@ -1,0 +1,166 @@
+{
+  "artifact": "community-job",
+  "schemaVersion": "0.1.0",
+  "jobId": "crowd_1970s_upper_midwest_fast_food",
+  "title": "1970s Upper Midwestern Fast Food Restaurant Crowd",
+  "stance": "grounded_realism",
+  "trustLevel": "L0_researcher",
+  "researchKind": "historical-scene-research",
+  "situation": {
+    "who": "Customers (families, teens, workers on break), counter crew, shift manager",
+    "what": "Quick-service meal: order, wait, eat in booths or leave",
+    "where": "Upper Midwest freestanding or strip-center fast food: counter, queue, booths, parking lot edge",
+    "when": "1970s, meal peaks lunch/dinner; fluorescent interior, seasonal outerwear at doors",
+    "why": "Convenience food, family outing, after-school hangout, work break",
+    "how": "Queue at counter, tray service, short dwell, crew behind counter, manager oversight"
+  },
+  "hardConstraints": [
+    "Grounded realism — regional 1970s US Midwest, not coastal caricature",
+    "No modern smartphone ordering or LED menu boards",
+    "Brand marks only if rights-safe / genericized unless cleared",
+    "No touchscreen kiosks, delivery app bags, or modern open-kitchen theater"
+  ],
+  "goals": {
+    "researchPackage": true,
+    "sceneGrammar": true,
+    "contentPlans": true,
+    "reviewHtml": true,
+    "utdgCandidates": true,
+    "nestedPsg": true
+  },
+  "coverageSeed": [
+    { "slot": "archetypes", "status": "adequate", "priority": 0.95, "notes": "Customer adult, teen, child, crew, manager" },
+    { "slot": "zones", "status": "adequate", "priority": 0.9, "notes": "Queue, counter, booth/table, door vestibule, parking edge" },
+    { "slot": "item_wardrobe", "status": "thin", "priority": 0.95, "notes": "Polyester crew smock/uniform vs civilian polyester/knit customer dress" },
+    { "slot": "item_props_accessories", "status": "thin", "priority": 0.75, "notes": "Trays, paper hats, name tags, paper cups, napkin holders" },
+    { "slot": "item_grooming_hair", "status": "thin", "priority": 0.55, "notes": "Crew hair net/hat rules; customer side-parts and longer teen hair" },
+    { "slot": "behaviors", "status": "thin", "priority": 0.8, "notes": "Queue shuffle, point-at-menu, tray carry, booth sit" },
+    { "slot": "compatibility_rules", "status": "adequate", "priority": 0.85, "notes": "Crew only behind counter; paper hat + name tag with uniform" },
+    { "slot": "negatives", "status": "adequate", "priority": 0.9, "notes": "No LED menus, phones, athleisure, modern franchise theater" },
+    { "slot": "environment_atmosphere", "status": "thin", "priority": 0.7, "notes": "Formica, fluorescent, laminate, orange/brown period palette" },
+    { "slot": "demographic_mix", "status": "thin", "priority": 0.7, "notes": "Local Midwest mix — no invented equal casting" },
+    { "slot": "lod_near", "status": "thin", "priority": 0.65, "notes": "Name tag blanks, paper hat fold, tray texture" },
+    { "slot": "lod_mid", "status": "thin", "priority": 0.7 },
+    { "slot": "lod_far", "status": "thin", "priority": 0.45 }
+  ],
+  "traits": [
+    {
+      "traitId": "trait_crew_uniform",
+      "label": "Crew polyester uniform / smock + paper hat variant",
+      "targetSlots": ["item_wardrobe", "archetypes", "compatibility_rules", "lod_mid"],
+      "channels": [
+        { "channel": "identity", "status": "filled", "summary": "Counter crew and register staff", "confidence": "medium" },
+        { "channel": "material", "status": "filled", "summary": "Polyester blend smock or short-sleeve uniform shirt with slight sheen under fluorescents", "confidence": "medium" },
+        { "channel": "colorPattern", "status": "filled", "summary": "Brand-safe families: qsr70_earth_orange, qsr70_mustard_brown, qsr70_red_white_crew (no wordmarks) — plate_register_1970s_qsr.md", "confidence": "medium" },
+        { "channel": "coOccurrence", "status": "filled", "summary": "Paper hat or visor + name tag + optional apron; stays behind counter", "confidence": "medium" },
+        { "channel": "spatialAttach", "status": "filled", "summary": "Behind counter / service line only", "confidence": "high" },
+        { "channel": "exclusion", "status": "filled", "summary": "No modern black chef coats, no delivery-driver shell jackets as crew default", "confidence": "high" },
+        { "channel": "frequency", "status": "thin", "summary": "All on-duty crew; not customers", "confidence": "medium" },
+        { "channel": "promptRegister", "status": "filled", "summary": "1970s fast food crew polyester uniform, paper hat, name tag, behind counter", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "filled", "summary": "Brand-safe palette register + period catalog/interior photo class (no franchise lockups)", "confidence": "medium" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium",
+      "notes": "Plate/palette pass: qsr70_* families in plate_register_1970s_qsr.md"
+    },
+    {
+      "traitId": "trait_midwest_customer_casual",
+      "label": "1970s Upper Midwest customer casual",
+      "targetSlots": ["item_wardrobe", "archetypes", "demographic_mix"],
+      "channels": [
+        { "channel": "identity", "status": "filled", "summary": "Families, workers on break, teens after school", "confidence": "medium" },
+        { "channel": "silhouette", "status": "filled", "summary": "Polyester pants, knit tops, windbreakers at door, bell-bottom light touch for teens", "confidence": "medium" },
+        { "channel": "coOccurrence", "status": "filled", "summary": "Tray + paper cup; winter coats piled at booth edge in cold months", "confidence": "medium" },
+        { "channel": "exclusion", "status": "filled", "summary": "No athleisure, no logo-heavy modern streetwear, no smartphones", "confidence": "high" },
+        { "channel": "frequency", "status": "thin", "summary": "Majority of dining room heads", "confidence": "medium" },
+        { "channel": "promptRegister", "status": "filled", "summary": "1970s Midwest casual customer in fast food booth with tray, fluorescent interior", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "thin", "summary": "Sears/Penney Fall–Winter catalog class ~1970–1976 + Midwest interior photo class (see plate register)", "confidence": "low" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium",
+      "notes": "Attach specific Internet Archive catalog identifiers when operator picks a scan set."
+    },
+    {
+      "traitId": "trait_tray_and_hat_props",
+      "label": "Tray, paper hat, napkin hardware",
+      "targetSlots": ["item_props_accessories", "lod_near", "zones"],
+      "channels": [
+        { "channel": "material", "status": "thin", "summary": "Molded plastic tray, paper hat, metal napkin holder", "confidence": "medium" },
+        { "channel": "spatialAttach", "status": "filled", "summary": "Tray on counter edge or booth table; hats on crew heads", "confidence": "high" },
+        { "channel": "exclusion", "status": "filled", "summary": "No tablet POS poles, no branded delivery bags", "confidence": "high" },
+        { "channel": "promptRegister", "status": "filled", "summary": "1970s fast food plastic tray, paper crew hat, napkin dispenser", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "thin", "summary": "Interior photo seed", "confidence": "low" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium"
+    }
+  ],
+  "researchTasks": [
+    {
+      "taskId": "task_70s_ff_uniforms",
+      "title": "1970s Midwest fast-food crew uniforms and paper hats",
+      "rationale": "Role-bound wardrobe for crew archetypes; material/color channels for close LOD.",
+      "targetSlots": ["item_wardrobe", "compatibility_rules"],
+      "targetChannels": ["material", "colorPattern", "coOccurrence", "frequency"],
+      "targetTraitIds": ["trait_crew_uniform"],
+      "suggestedSources": [
+        "period franchise training materials if public",
+        "1970s newspaper ads",
+        "regional historical society photos of interiors"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_70s_ff_customer_dress",
+      "title": "1970s Upper Midwest civilian customer dress in QSR",
+      "rationale": "Customer variety without modern athleisure defaults.",
+      "targetSlots": ["item_wardrobe", "archetypes", "demographic_mix"],
+      "targetChannels": ["silhouette", "frequency", "coOccurrence"],
+      "targetTraitIds": ["trait_midwest_customer_casual"],
+      "suggestedSources": [
+        "1970s Sears/Penney catalogs",
+        "period candid photography Midwest"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_70s_ff_negatives_zones",
+      "title": "QSR negatives and counter/booth zone rules",
+      "rationale": "Block modern QSR tech and keep crew spatial rules hard.",
+      "targetSlots": ["negatives", "zones", "compatibility_rules"],
+      "targetChannels": ["exclusion", "spatialAttach"],
+      "suggestedSources": ["period interior photos", "modern QSR anachronism checklist"],
+      "status": "done"
+    },
+    {
+      "taskId": "task_70s_ff_brand_safe_color",
+      "title": "Brand-safe colorways without trademarked marks",
+      "rationale": "ColorPattern still thin; need generic palettes that read 1970s without IP risk.",
+      "targetSlots": ["item_wardrobe", "environment_atmosphere"],
+      "targetChannels": ["colorPattern", "exclusion"],
+      "suggestedSources": [
+        "community/__fixtures__/notes/plate_register_1970s_qsr.md",
+        "period design guides",
+        "Sears/Penney catalog class ~1970–1976 (library/IA holdings)"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_70s_ff_ia_catalog_ids",
+      "title": "Pin Internet Archive catalog identifiers for customer dress",
+      "rationale": "Civilian silhouette claims improve when a specific catalog scan set is attached.",
+      "targetSlots": ["item_wardrobe"],
+      "targetChannels": ["evidenceBasis", "silhouette"],
+      "targetTraitIds": ["trait_midwest_customer_casual"],
+      "suggestedSources": ["Internet Archive Sears/Penney Fall-Winter scans"],
+      "status": "deferred"
+    }
+  ],
+  "successCriteria": {
+    "imageryBar": "Believable 1970s Midwest QSR extras: clear crew vs customer, period materials, usable booth/counter staging.",
+    "minArchetypeFamilies": 3,
+    "requireNegatives": true,
+    "requireProvenanceOnHighWeightTraits": true
+  },
+  "notes": "2026-07-15 plate/palette pass: brand-safe qsr70_* families. IA catalog pin deferred. Not production-trusted."
+}

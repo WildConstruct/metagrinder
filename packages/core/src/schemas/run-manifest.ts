@@ -16,6 +16,8 @@ export const StageRecordSchema = z.object({
   gate: z.string().optional(),
   error: z.string().optional(),
   inputArtifacts: z.array(z.string()).default([]),
+  /** Identity of the stage inputs, configuration, and provider request used to produce outputs. */
+  inputSignature: z.string().regex(/^[a-f0-9]{64}$/).optional(),
   outputArtifacts: z.array(z.string()).default([])
 });
 export type StageRecord = z.infer<typeof StageRecordSchema>;
@@ -52,10 +54,23 @@ export const BudgetUsageSchema = z.object({
 });
 export type BudgetUsage = z.infer<typeof BudgetUsageSchema>;
 
+export const BudgetReservationRecordSchema = z.object({
+  reservationId: z.string(),
+  stage: z.string(),
+  kind: z.enum(['llm', 'judge']),
+  reservedOutputTokens: z.number().int().nonnegative(),
+  state: z.enum(['reserved', 'settled']),
+  createdAt: z.string().datetime(),
+  settledAt: z.string().datetime().optional()
+});
+
 export const BudgetLedgerSchema = z.object({
   ledgerId: z.string(),
   scope: z.enum(['run', 'campaign']),
   scopeId: z.string(),
+  /** Persistent shared campaign file. Run ledgers remain in the run manifest. */
+  sharedLedgerPath: z.string().optional(),
+  reservations: z.array(BudgetReservationRecordSchema).default([]),
   caps: BudgetCapsSchema.default({}),
   usage: BudgetUsageSchema.default({
     llmCalls: 0,

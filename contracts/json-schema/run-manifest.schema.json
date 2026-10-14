@@ -69,6 +69,10 @@
                 },
                 "default": []
               },
+              "inputSignature": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
               "outputArtifacts": {
                 "type": "array",
                 "items": {
@@ -161,6 +165,59 @@
               },
               "scopeId": {
                 "type": "string"
+              },
+              "sharedLedgerPath": {
+                "type": "string"
+              },
+              "reservations": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "reservationId": {
+                      "type": "string"
+                    },
+                    "stage": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "llm",
+                        "judge"
+                      ]
+                    },
+                    "reservedOutputTokens": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "reserved",
+                        "settled"
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "settledAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  },
+                  "required": [
+                    "reservationId",
+                    "stage",
+                    "kind",
+                    "reservedOutputTokens",
+                    "state",
+                    "createdAt"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
               },
               "caps": {
                 "type": "object",

@@ -67,6 +67,90 @@ function responseFor(req: Parameters<Transport>[0]): string {
 }
 
 describe('S3.5 rebuilt corpus record/replay runner', () => {
+  test('[S-R2b] a mid-run cap resumes grammar without paying for completed extraction', async () => {
+    const corpus = oneBriefCorpus();
+    const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-resume-cap-'));
+    let calls = 0;
+    const providerForRun = (runDir: string, store: RunStore) => createCachingProvider({
+      runDir, transport: async (req) => { calls++; return { rawText: responseFor(req) }; },
+      providerId: 'fake', model: 'm', mode: 'record', budgetStore: store, outputTokenReserve: 32
+    });
+    await expect(runCorpusPipeline({
+      corpus, baseDir, providerForRun, now: () => NOW, runBudgetCaps: { maxLlmCalls: 1 }
+    })).rejects.toBeInstanceOf(BudgetExceededError);
+    expect(calls).toBe(1);
+    await runCorpusPipeline({
+      corpus, baseDir, providerForRun, now: () => NOW, runBudgetCaps: { maxLlmCalls: 2 }
+    });
+    expect(calls).toBe(2);
+  });
+
+  test('[S-R2b] unchanged inputs resume for free while source/model changes invalidate semantic stages', async () => {
+    const corpus = oneBriefCorpus();
+    const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-resume-identity-'));
+    let calls = 0;
+    let model = 'model-a';
+    const providerForRun = (runDir: string, store: RunStore) => createCachingProvider({
+      runDir, transport: async (req) => { calls++; return { rawText: responseFor(req) }; },
+      providerId: 'fake', model, mode: 'record', budgetStore: store
+    });
+    const options = { corpus, baseDir, providerForRun, now: () => NOW, plansPerBrief: 4 };
+    await runCorpusPipeline(options);
+    expect(calls).toBe(2);
+    const resumed = await runCorpusPipeline(options);
+    expect(calls).toBe(2);
+    expect(resumed[0]!.realizedCount).toBe(4);
+    const resized = await runCorpusPipeline({ ...options, plansPerBrief: 6 });
+    expect(calls).toBe(2);
+    expect(resized[0]!.realizedCount).toBe(6);
+    model = 'model-b';
+    await runCorpusPipeline(options);
+    expect(calls).toBe(4);
+    const changed = { ...corpus, briefs: [{ ...corpus.briefs[0]!, text: `${TEXT} The venue has wooden benches.` }] };
+    await runCorpusPipeline({ ...options, corpus: changed });
+    expect(calls).toBe(6);
+  });
+
+  test('[S-R2b] resuming a tampered completed artifact fails before any live call', async () => {
+    const corpus = oneBriefCorpus();
+    const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-resume-integrity-'));
+    let calls = 0;
+    const providerForRun = (runDir: string, store: RunStore) => createCachingProvider({
+      runDir, transport: async (req) => { calls++; return { rawText: responseFor(req) }; },
+      providerId: 'fake', model: 'm', mode: 'record', budgetStore: store
+    });
+    const options = { corpus, baseDir, providerForRun, now: () => NOW };
+    await runCorpusPipeline(options);
+    const file = path.join(baseDir, corpus.briefs[0]!.id, 'source-package.json');
+    const stored = JSON.parse(fs.readFileSync(file, 'utf8'));
+    fs.writeFileSync(file, JSON.stringify({ ...stored, title: 'tampered' }), 'utf8');
+    await expect(runCorpusPipeline(options)).rejects.toThrow(/hash mismatch/i);
+    expect(calls).toBe(2);
+  });
+
+  test('[S-R2b] explicit rerun spends again and explicit replay revalidates cache identity', async () => {
+    const corpus = oneBriefCorpus();
+    const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-explicit-resume-'));
+    let calls = 0;
+    let mode: 'record' | 'replay' = 'record';
+    const providerForRun = (runDir: string, store: RunStore) => createCachingProvider({
+      runDir, transport: async (req) => { calls++; return { rawText: responseFor(req) }; },
+      providerId: 'fake', model: 'm', mode, budgetStore: store
+    });
+    const options = { corpus, baseDir, providerForRun, now: () => NOW };
+    await runCorpusPipeline(options);
+    await runCorpusPipeline({ ...options, forceRerun: true });
+    expect(calls).toBe(4);
+    const cacheDir = path.join(baseDir, corpus.briefs[0]!.id, 'llm-cache');
+    const cacheFile = fs.readdirSync(cacheDir).map((file) => path.join(cacheDir, file)).find((file) =>
+      JSON.parse(fs.readFileSync(file, 'utf8')).stage === 'extract')!;
+    const cached = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+    fs.writeFileSync(cacheFile, JSON.stringify({ ...cached, model: 'other-model' }), 'utf8');
+    mode = 'replay';
+    await expect(runCorpusPipeline(options)).rejects.toThrow(/cache identity mismatch/);
+    expect(calls).toBe(4);
+  });
+
   test('holdout runner refuses to start without the operator-owned fence path', async () => {
     await expect(runHoldout(
       ['record', 'codex-cli', path.join(os.tmpdir(), 'unused-holdout-run')],

@@ -1,11 +1,13 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { BudgetExceededError, RunStore } from '../artifacts/store';
-import { buildProvider, type LlmProvider, type ProviderMode } from '../providers';
-import { ContentPlansSchema, SceneGrammarSchema, type BudgetCaps } from '../schemas';
+import { RunStore } from '../artifacts/store';
+import { runResumableStage, semanticRequestIdentity } from '../artifacts/resume';
+import { budgetCapsFromEnv, buildProviderForRun, type LlmProvider, type ProviderMode } from '../providers';
+import { ContentPlansSchema, ExtractionPayloadSchema, SceneGrammarPayloadSchema, SceneGrammarSchema,
+  type BudgetCaps, type ContentPlans, type Extraction, type SceneGrammar, type SourcePackage } from '../schemas';
 import { deriveChoiceGraph } from '../stages/choices';
-import { extract } from '../stages/extract';
-import { draftGrammar } from '../stages/grammar';
+import { buildExtractPrompt, extract } from '../stages/extract';
+import { buildGrammarPrompt, draftGrammar } from '../stages/grammar';
 import { ingestText } from '../stages/ingest';
 import { realizeTemplate } from '../stages/realize';
 import { sampleContentPlans } from '../stages/sample';
@@ -32,27 +34,6 @@ function openOrCreateStore(baseDir: string, brief: CorpusBrief, now: () => strin
     });
 }
 
-async function stage<T>(
-  store: RunStore,
-  stageName: string,
-  now: () => string,
-  operation: () => Promise<T> | T,
-  outputArtifacts: string[] = []
-): Promise<T> {
-  store.setStageState(stageName, 'running', undefined, now);
-  try {
-    const result = await operation();
-    store.setStageState(stageName, 'complete', { outputArtifacts }, now);
-    return result;
-  } catch (error) {
-    if (!(error instanceof BudgetExceededError)) {
-      const message = error instanceof Error ? error.message : String(error);
-      store.setStageState(stageName, 'failed', { error: message }, now);
-    }
-    throw error;
-  }
-}
-
 async function runBrief(args: {
   brief: CorpusBrief;
   baseDir: string;
@@ -61,9 +42,14 @@ async function runBrief(args: {
   plansPerBrief: number;
   seed: number;
   runBudgetCaps?: BudgetCaps;
-  campaignBudget?: { campaignId: string; caps: BudgetCaps };
+  campaignBudget?: { campaignId: string; caps: BudgetCaps; baseDir?: string };
+  forceRerun?: boolean;
 }): Promise<CorpusRunResult> {
   const store = openOrCreateStore(args.baseDir, args.brief, args.now);
+  const manifest = store.getManifest();
+  if (manifest.runId !== args.brief.id || manifest.inputId !== args.brief.id) {
+    throw new Error('corpus run identity mismatch');
+  }
   if (args.runBudgetCaps !== undefined) {
     store.configureBudget({
       ledgerId: `run:${args.brief.id}`,
@@ -79,13 +65,22 @@ async function runBrief(args: {
       scope: 'campaign',
       scopeId: args.campaignBudget.campaignId,
       caps: args.campaignBudget.caps,
+      sharedBaseDir: args.campaignBudget.baseDir ?? args.baseDir,
       now: args.now
     });
   }
   const provider = args.providerForRun(store.runDir, store);
   const createdAt = args.now();
+  const resume = <T>(stage: string, inputs: unknown, family: string, file: string,
+    operation: () => Promise<T> | T, load: () => T, semantic = false) => runResumableStage({
+    store, stage, inputs, outputs: [{ family, path: file }], operation, load, now: args.now,
+    ...(args.forceRerun !== undefined ? { forceRerun: args.forceRerun } : {}),
+    replay: semantic && provider.mode === 'replay'
+  });
 
-  const sourcePackage = await stage(store, 'ingest', args.now, () => {
+  const sourcePackage = await resume<SourcePackage>('ingest', {
+    version: 'ingest-1', inputId: args.brief.id, text: args.brief.text
+  }, 'source-package', 'source-package.json', () => {
     const artifact = ingestText({
       runId: args.brief.id,
       inputId: args.brief.id,
@@ -95,10 +90,13 @@ async function runBrief(args: {
     });
     store.writeArtifact('source-package', 'source-package.json', artifact, args.now);
     return artifact;
-  }, ['source-package.json']);
+  }, () => store.readArtifact('source-package', 'source-package.json'));
 
-  store.recordModel('extract', provider.id, provider.model, provider.modelVersion);
-  await stage(store, 'extract', args.now, async () => {
+  await resume<Extraction>('extract', { version: 'extract-verifier-1', sourcePackage,
+    request: semanticRequestIdentity(provider, { stage: 'extract', prompt: buildExtractPrompt(sourcePackage),
+      schema: ExtractionPayloadSchema, schemaName: 'extraction' })
+  }, 'extraction', 'extraction.json', async () => {
+    store.recordModel('extract', provider.id, provider.model, provider.modelVersion);
     const result = await extract({
       provider,
       sourcePackage,
@@ -108,10 +106,13 @@ async function runBrief(args: {
     });
     store.writeArtifact('extraction', 'extraction.json', result.extraction, args.now);
     return result.extraction;
-  }, ['extraction.json']);
+  }, () => store.readArtifact('extraction', 'extraction.json'), true);
 
-  store.recordModel('grammar', provider.id, provider.model, provider.modelVersion);
-  const grammar = await stage(store, 'grammar', args.now, async () => {
+  const grammar = await resume<SceneGrammar>('grammar', { version: 'grammar-verifier-2', sourcePackage,
+    request: semanticRequestIdentity(provider, { stage: 'grammar', prompt: buildGrammarPrompt(sourcePackage),
+      schema: SceneGrammarPayloadSchema, schemaName: 'scene-grammar' })
+  }, 'scene-grammar', 'scene-grammar.json', async () => {
+    store.recordModel('grammar', provider.id, provider.model, provider.modelVersion);
     const result = await draftGrammar({
       provider,
       sourcePackage,
@@ -121,9 +122,9 @@ async function runBrief(args: {
     });
     store.writeArtifact('scene-grammar', 'scene-grammar.json', result.grammar, args.now);
     return result.grammar;
-  }, ['scene-grammar.json']);
+  }, () => store.readArtifact('scene-grammar', 'scene-grammar.json'), true);
 
-  await stage(store, 'choices', args.now, () => {
+  await resume('choices', { version: 'choices-1', grammar }, 'semantic-choice-graph', 'semantic-choice-graph.json', () => {
     const choices = deriveChoiceGraph({
       grammar,
       runId: args.brief.id,
@@ -131,9 +132,12 @@ async function runBrief(args: {
       createdAt
     });
     store.writeArtifact('semantic-choice-graph', 'semantic-choice-graph.json', choices, args.now);
-  }, ['semantic-choice-graph.json']);
+    return choices;
+  }, () => store.readArtifact('semantic-choice-graph', 'semantic-choice-graph.json'));
 
-  const plans = await stage(store, 'sample', args.now, () => {
+  const plans = await resume<ContentPlans>('sample', {
+    version: 'sample-1', grammar, seed: args.seed, count: args.plansPerBrief
+  }, 'content-plans', 'sampled-content-plans.json', () => {
     const artifact = sampleContentPlans({
       grammar,
       seed: args.seed,
@@ -142,18 +146,21 @@ async function runBrief(args: {
       inputId: args.brief.id,
       now: createdAt
     });
-    store.writeArtifact('content-plans', 'content-plans.json', artifact, args.now);
+    store.writeArtifact('content-plans', 'sampled-content-plans.json', artifact, args.now);
     return artifact;
-  }, ['content-plans.json']);
+  }, () => store.readArtifact('content-plans', 'sampled-content-plans.json'));
 
-  const realized = await stage(store, 'realize', args.now, () => {
+  const { realized: _previousRealized, ...planInputs } = plans;
+  const realized = await resume<ContentPlans>('realize', {
+    version: 'template-1', profile: 'caption-prose', plans: planInputs
+  }, 'content-plans', 'content-plans.json', () => {
     const artifact = ContentPlansSchema.parse({
       ...plans,
       realized: plans.plans.map((plan) => realizeTemplate(plan, 'caption-prose'))
     });
     store.writeArtifact('content-plans', 'content-plans.json', artifact, args.now);
     return artifact;
-  }, ['content-plans.json']);
+  }, () => store.readArtifact('content-plans', 'content-plans.json'));
 
   return { briefId: args.brief.id, runDir: store.runDir, realizedCount: realized.realized.length };
 }
@@ -166,7 +173,8 @@ export async function runCorpusPipeline(args: {
   plansPerBrief?: number;
   seed?: number;
   runBudgetCaps?: BudgetCaps;
-  campaignBudget?: { campaignId: string; caps: BudgetCaps };
+  campaignBudget?: { campaignId: string; caps: BudgetCaps; baseDir?: string };
+  forceRerun?: boolean;
 }): Promise<CorpusRunResult[]> {
   const now = args.now ?? (() => new Date().toISOString());
   const plansPerBrief = args.plansPerBrief ?? 32;
@@ -182,7 +190,8 @@ export async function runCorpusPipeline(args: {
       plansPerBrief,
       seed,
       ...(args.runBudgetCaps !== undefined ? { runBudgetCaps: args.runBudgetCaps } : {}),
-      ...(args.campaignBudget !== undefined ? { campaignBudget: args.campaignBudget } : {})
+      ...(args.campaignBudget !== undefined ? { campaignBudget: args.campaignBudget } : {}),
+      ...(args.forceRerun !== undefined ? { forceRerun: args.forceRerun } : {})
     }));
   }
   return results;
@@ -190,31 +199,15 @@ export async function runCorpusPipeline(args: {
 
 type ProviderKind = 'anthropic' | 'codex-cli';
 
-function optionalCap(env: NodeJS.ProcessEnv, name: string): number | undefined {
-  const raw = env[name];
-  if (raw === undefined || raw.trim() === '') return undefined;
-  const value = Number(raw);
-  if (!Number.isInteger(value) || value < 0) throw new Error(`${name} must be a nonnegative integer`);
-  return value;
-}
-
-export function budgetCapsFromEnv(env: NodeJS.ProcessEnv, prefix = 'METAGRINDER'): BudgetCaps {
-  const maxLlmCalls = optionalCap(env, `${prefix}_MAX_LLM_CALLS`);
-  const maxJudgeCalls = optionalCap(env, `${prefix}_MAX_JUDGE_CALLS`);
-  const maxEstimatedTokens = optionalCap(env, `${prefix}_MAX_ESTIMATED_TOKENS`);
-  return {
-    ...(maxLlmCalls !== undefined ? { maxLlmCalls } : {}),
-    ...(maxJudgeCalls !== undefined ? { maxJudgeCalls } : {}),
-    ...(maxEstimatedTokens !== undefined ? { maxEstimatedTokens } : {})
-  };
-}
+export { budgetCapsFromEnv } from '../providers/budget-policy';
 
 async function main(argv: string[]): Promise<void> {
-  const [modeRaw, providerRaw, baseDirRaw] = argv;
+  const normalized = argv[0] === '--' ? argv.slice(1) : argv;
+  const [modeRaw, providerRaw, baseDirRaw] = normalized;
   if (!modeRaw || !providerRaw || !baseDirRaw
-    || !['record', 'replay'].includes(modeRaw)
+    || !['record', 'replay', 'auto'].includes(modeRaw)
     || !['anthropic', 'codex-cli'].includes(providerRaw)) {
-    throw new Error('Usage: tsx src/eval/run-corpus.ts <record|replay> <anthropic|codex-cli> <run-dir>');
+    throw new Error('Usage: tsx src/eval/run-corpus.ts <record|replay|auto> <anthropic|codex-cli> <run-dir> [--rerun]');
   }
   const mode = modeRaw as ProviderMode;
   const providerKind = providerRaw as ProviderKind;
@@ -223,15 +216,17 @@ async function main(argv: string[]): Promise<void> {
   const runBudgetCaps = budgetCapsFromEnv(process.env);
   const campaignId = process.env.METAGRINDER_CAMPAIGN_ID;
   const campaignBudget = campaignId
-    ? { campaignId, caps: budgetCapsFromEnv(process.env, 'METAGRINDER_CAMPAIGN') }
+    ? { campaignId, caps: budgetCapsFromEnv(process.env, 'METAGRINDER_CAMPAIGN'),
+      baseDir: path.resolve(process.env.METAGRINDER_CAMPAIGN_BUDGET_DIR ?? baseDir) }
     : undefined;
   const results = await runCorpusPipeline({
     corpus,
     baseDir,
     runBudgetCaps,
     ...(campaignBudget !== undefined ? { campaignBudget } : {}),
-    providerForRun: (runDir, store) => buildProvider({
-      runDir, kind: providerKind, mode, budgetStore: store
+    forceRerun: normalized.includes('--rerun'),
+    providerForRun: (_runDir, store) => buildProviderForRun({
+      store, kind: providerKind, mode
     })
   });
 

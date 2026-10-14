@@ -3,12 +3,14 @@ export { createCachingProvider, extractJson, type ProviderMode } from './caching
 export { cacheKeyFor, readCacheEntry, writeCacheEntry, LlmCacheEntrySchema, type LlmCacheEntry } from './cache';
 export { anthropicTransport } from './anthropic';
 export { codexCliTransport } from './codex-cli';
+export { budgetCapsFromEnv, configureProviderBudgets, type ProviderBudgetPolicy } from './budget-policy';
 
 import { createCachingProvider, type ProviderMode } from './caching-provider';
 import { anthropicTransport } from './anthropic';
 import { codexCliTransport } from './codex-cli';
 import type { LlmProvider, Transport } from './types';
 import type { RunStore } from '../artifacts/store';
+import { configureProviderBudgets, type ProviderBudgetPolicy } from './budget-policy';
 
 /**
  * Builds a provider for a run folder. `kind` selects the transport; `mode`
@@ -65,4 +67,11 @@ export function buildProvider(opts: {
     ...(opts.outputTokenReserve !== undefined ? { outputTokenReserve: opts.outputTokenReserve } : {}),
     ...(opts.now !== undefined ? { now: opts.now } : {})
   });
+}
+
+/** Entry-point factory: one configured durable policy for every live command. */
+export function buildProviderForRun(opts: Omit<Parameters<typeof buildProvider>[0], 'runDir' | 'budgetStore'>
+  & ProviderBudgetPolicy & { store: RunStore }): LlmProvider {
+  configureProviderBudgets(opts.store, opts);
+  return buildProvider({ ...opts, runDir: opts.store.runDir, budgetStore: opts.store });
 }

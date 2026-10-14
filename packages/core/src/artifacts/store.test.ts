@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { spawn } from 'node:child_process';
 import { deriveChunkIds, deriveEvidenceId, deriveSourceInputId, normalizeForId } from './ids';
 import { ArtifactValidationError, RunStore } from './store';
 
@@ -164,4 +165,72 @@ describe('RunStore', () => {
     expect(models).toHaveLength(1);
     expect(models[0]!.providerId).toBe('anthropic');
   });
+
+  test('stale mutation instances preserve newer artifact, stage, and model records', () => {
+    const store = RunStore.create({
+      baseDir: tmpBase(), runId: 'run_stale', inputId: 'input_test', parserVersion: '0.1.0', now: NOW
+    });
+    const stale = RunStore.open(store.runDir);
+    store.writeArtifact('source-package', 'first.json', validSourcePackage('run_stale'), NOW);
+    store.setStageState('ingest', 'complete');
+    store.recordModel('extract', 'fake', 'first');
+    stale.setStageState('sample', 'complete');
+    stale.recordModel('grammar', 'fake', 'second');
+    stale.writeArtifact('source-package', 'second.json', validSourcePackage('run_stale'), NOW);
+    const manifest = RunStore.open(store.runDir).getManifest();
+    expect(manifest.artifacts.map((artifact) => artifact.path).sort()).toEqual(['first.json', 'second.json']);
+    expect(manifest.stages.map((stage) => stage.stage).sort()).toEqual(['ingest', 'sample']);
+    expect(manifest.models.map((model) => model.stage).sort()).toEqual(['extract', 'grammar']);
+  });
+
+  test('a stale reader refreshes current manifest hashes before artifact lookup', () => {
+    const store = RunStore.create({
+      baseDir: tmpBase(), runId: 'run_stale_reader', inputId: 'input_test', parserVersion: '0.1.0', now: NOW
+    });
+    const stale = RunStore.open(store.runDir);
+    store.writeArtifact('source-package', 'source-package.json', validSourcePackage('run_stale_reader'), NOW);
+    expect(stale.readArtifact<{ title: string }>('source-package', 'source-package.json').title).toBe('Rail spectators');
+    store.writeArtifact('source-package', 'source-package.json', {
+      ...validSourcePackage('run_stale_reader'), title: 'Updated source title'
+    }, NOW);
+    expect(stale.readArtifact<{ title: string }>('source-package', 'source-package.json').title).toBe('Updated source title');
+  });
+
+  test('simultaneous distinct artifact and stage writers preserve both manifest updates', async () => {
+    const store = RunStore.create({
+      baseDir: tmpBase(), runId: 'run_writers', inputId: 'input_test', parserVersion: '0.1.0', now: NOW
+    });
+    const script = [
+      "const {RunStore}=require('./src/artifacts/store.ts');",
+      'const store=RunStore.open(process.argv[1]); const name=process.argv[2];',
+      "process.on('message',()=> { try {",
+      "store.writeArtifact('content-plans',name+'.json',{artifact:'content-plans',runId:'run_writers',inputId:'input_test',createdAt:'2026-06-10T12:00:00.000Z',grammarTarget:'base',plans:[],realized:[]});",
+      "store.setStageState(name,'complete'); store.recordModel(name,'fake',name); process.disconnect();",
+      '} catch(error) { console.error(error); process.exit(1); } });',
+      "process.send('ready');"
+    ].join('\n');
+    const workers = ['first', 'second'].map((name) => {
+      const child = spawn(process.execPath, ['--require', 'tsx/cjs', '-e', script, store.runDir, name], {
+        cwd: path.resolve(__dirname, '../..'), stdio: ['ignore', 'pipe', 'pipe', 'ipc']
+      });
+      let stderr = '';
+      child.stderr.on('data', (data) => { stderr += String(data); });
+      const ready = new Promise<void>((resolve, reject) => {
+        child.once('message', () => resolve());
+        child.once('error', reject);
+      });
+      const complete = new Promise<void>((resolve, reject) => {
+        child.once('error', reject);
+        child.once('close', (code) => code === 0 ? resolve() : reject(new Error(stderr)));
+      });
+      return { child, ready, complete };
+    });
+    await Promise.all(workers.map((worker) => worker.ready));
+    for (const worker of workers) worker.child.send('go');
+    await Promise.all(workers.map((worker) => worker.complete));
+    const manifest = RunStore.open(store.runDir).getManifest();
+    expect(manifest.artifacts.map((artifact) => artifact.path).sort()).toEqual(['first.json', 'second.json']);
+    expect(manifest.stages.map((stage) => stage.stage).sort()).toEqual(['first', 'second']);
+    expect(manifest.models.map((model) => model.stage).sort()).toEqual(['first', 'second']);
+  }, 15_000);
 });

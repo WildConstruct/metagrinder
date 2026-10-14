@@ -1,0 +1,86 @@
+:root {
+  --bg: #0f1419;
+  --panel: #1a222c;
+  --border: #2c3845;
+  --text: #e7eef5;
+  --dim: #8b9aab;
+  --accent: #59c2ff;
+  --ok: #3dd68c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font: 14px/1.45 system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+.top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: #15202b;
+}
+.top h1 { margin: 0; font-size: 1.1rem; }
+.sub { margin: 0.2rem 0 0; color: var(--dim); font-size: 0.85rem; }
+.top-actions { display: flex; gap: 0.5rem; align-items: end; flex-wrap: wrap; }
+label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.8rem; color: var(--dim); }
+input, select, button {
+  font: inherit;
+  background: #243040;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.35rem 0.55rem;
+}
+button { cursor: pointer; }
+button:hover { border-color: var(--accent); }
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0;
+  min-height: calc(100vh - 110px);
+}
+.panel {
+  padding: 1rem;
+  border-right: 1px solid var(--border);
+}
+.main-panel { border-right: none; }
+.panel h2 { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--accent); }
+.run-list { list-style: none; margin: 0; padding: 0; }
+.run-list li button {
+  width: 100%;
+  text-align: left;
+  margin-bottom: 0.35rem;
+  background: var(--panel);
+}
+.run-list li button.active { border-color: var(--accent); }
+.dim { color: var(--dim); }
+.tabs { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.tab { opacity: 0.75; }
+.tab.active { opacity: 1; border-color: var(--accent); }
+.tab-body { display: none; }
+.tab-body.active { display: block; }
+.code {
+  background: #121920;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  overflow: auto;
+  max-height: 320px;
+  font-size: 0.78rem;
+}
+.era-svg { margin-top: 0.75rem; overflow-x: auto; }
+.explanations { margin: 0.5rem 0; color: var(--dim); font-size: 0.9rem; }
+.explanations li { margin: 0.25rem 0; }
+.foot {
+  padding: 0.65rem 1.25rem;
+  border-top: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 0.8rem;
+}
+code { color: var(--ok); }
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,256 @@
+{
+  "artifact": "community-job",
+  "schemaVersion": "0.1.0",
+  "jobId": "crowd_apollo_ksc_control_room",
+  "title": "Kennedy Space Center Control Room during the Apollo Missions",
+  "stance": "grounded_realism",
+  "trustLevel": "L0_researcher",
+  "researchKind": "historical-scene-research",
+  "situation": {
+    "who": "Flight controllers, support engineers, supervisors, occasional VIP/media at glass, runners",
+    "what": "Mission operations during Apollo launch/flight phases",
+    "where": "Mission Control-style console room (MOCR/KSC public imagery pattern): console rows facing large front displays, side aisles, raised or rear supervisor positions, glassed visitor gallery",
+    "when": "Apollo era (late 1960s–early 1970s), interior artificial light, long shifts",
+    "why": "Operational mission support — high focus, role specialization",
+    "how": "Seated at consoles with headsets, standing supervisors and floaters in aisles, quiet urgency, restricted gallery behind glass"
+  },
+  "hardConstraints": [
+    "Grounded realism for Apollo-era US spaceflight operations interiors",
+    "No sci-fi glass cockpits or modern multi-monitor gaming setups",
+    "Occupational portrayal respectful; no invented classified markings",
+    "Demographic composition must follow evidenced period norms with ethical care",
+    "No smartphones, flat-panel wall grids, open-plan glass coworking, or RGB gaming peripherals",
+    "No modern NASA meatball on casual tees; period badges/IDs only when sourced"
+  ],
+  "goals": {
+    "researchPackage": true,
+    "sceneGrammar": true,
+    "contentPlans": true,
+    "reviewHtml": true,
+    "utdgCandidates": true,
+    "nestedPsg": true
+  },
+  "coverageSeed": [
+    { "slot": "archetypes", "status": "adequate", "priority": 0.95, "notes": "Console operator, supervisor/floater, support/runner, gallery VIP-media" },
+    { "slot": "zones", "status": "adequate", "priority": 0.95, "notes": "Console row, aisle/float, front display wall, glass gallery" },
+    { "slot": "item_wardrobe", "status": "adequate", "priority": 0.95, "notes": "Plate-backed: S69-34555/39593/26107 white shirts+ties+headsets" },
+    { "slot": "item_props_accessories", "status": "adequate", "priority": 0.9, "notes": "Dual-cup headsets, coiled cords, binders, coffee; ashtrays era-dependent; plates S69-34555/39593" },
+    { "slot": "item_grooming_hair", "status": "thin", "priority": 0.55, "notes": "Short/side-part hair; thick-rim or metal frames; avoid theatrical caricature" },
+    { "slot": "behaviors", "status": "thin", "priority": 0.85, "notes": "Headset lean-in, note-taking, pointing at displays, aisle conference" },
+    { "slot": "compatibility_rules", "status": "adequate", "priority": 0.9, "notes": "Headset+console seated; gallery rarely wears ops headsets; VIP not at console" },
+    { "slot": "negatives", "status": "adequate", "priority": 0.95, "notes": "Modern ops anachronisms blocked in hardConstraints + trait exclusions" },
+    { "slot": "lod_far", "status": "thin", "priority": 0.5, "notes": "Dense seated rows + large front screens readable at distance" },
+    { "slot": "lod_mid", "status": "thin", "priority": 0.7, "notes": "Shirt/tie/headset silhouette; standing supervisors" },
+    { "slot": "lod_near", "status": "thin", "priority": 0.7, "notes": "Generic strip labels only; headset cups/coils; no invented classified text" },
+    { "slot": "demographic_mix", "status": "thin", "priority": 0.75, "notes": "Plate-backed qualitative only (S69-39593, GPN-2000-001141); no invented %; ethical underrep rules" },
+    { "slot": "environment_atmosphere", "status": "thin", "priority": 0.75, "notes": "Cool fluorescent/overhead practicals, CRT/projection glow on faces, low chatter" }
+  ],
+  "traits": [
+    {
+      "traitId": "trait_white_shirt_tie_headset",
+      "label": "Short-sleeve white shirt, dark tie, dual-cup headset at console",
+      "targetSlots": ["item_wardrobe", "item_props_accessories", "archetypes", "compatibility_rules", "lod_mid", "lod_near"],
+      "channels": [
+        { "channel": "identity", "status": "filled", "summary": "Primary console flight-controller / systems operator silhouette", "confidence": "medium" },
+        { "channel": "silhouette", "status": "filled", "summary": "Seated torso forward; headset over ears; tie vertical on light shirt; optional suspenders", "confidence": "medium" },
+        { "channel": "material", "status": "thin", "summary": "Cotton/poly dress shirt sheen under fluorescent light; fabric knit headset pads", "confidence": "low" },
+        { "channel": "colorPattern", "status": "thin", "summary": "White or pale solid shirts; dark solid or narrow-stripe ties; limited loud pattern", "confidence": "medium" },
+        { "channel": "spatialAttach", "status": "filled", "summary": "Seated at console row; headset cord often coiled toward console deck", "confidence": "medium" },
+        { "channel": "coOccurrence", "status": "filled", "summary": "Headset + shirt/tie + paper pads/binders + pens; coffee cups common in wide shots", "confidence": "medium" },
+        { "channel": "exclusion", "status": "filled", "summary": "No open-collar polo, no hoodie, no wireless Bluetooth buds, no multi-monitor gaming rig posture", "confidence": "high" },
+        { "channel": "frequency", "status": "thin", "summary": "Dominant among seated console staff in period MOCR photos; not universal for gallery", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "filled", "summary": "NASA S69-34555, S69-39593, S69-26107 (PD-USGov-NASA); see notes/plate_register_apollo.md", "confidence": "medium" },
+        { "channel": "promptRegister", "status": "filled", "summary": "short-sleeve white shirt, dark necktie, dual-cup headset, seated at mission-control console, Apollo-era", "confidence": "medium" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium",
+      "notes": "Plate pass: S69-34555 (Apollo 10 MCC 1969-05-19), S69-39593 (Apollo 11 EVA MOCR 1969-07-20), S69-26107 (Apollo 9 MOCR)."
+    },
+    {
+      "traitId": "trait_supervisor_aisle",
+      "label": "Standing supervisor or floater in aisle",
+      "targetSlots": ["archetypes", "zones", "behaviors", "item_wardrobe"],
+      "channels": [
+        { "channel": "identity", "status": "filled", "summary": "Shift lead / branch chief / standing coordinator", "confidence": "medium" },
+        { "channel": "silhouette", "status": "filled", "summary": "Standing or leaning into seated row; often shirt+tie without headset or headset around neck", "confidence": "medium" },
+        { "channel": "spatialAttach", "status": "filled", "summary": "Aisle / behind console row / raised rear positions", "confidence": "medium" },
+        { "channel": "coOccurrence", "status": "thin", "summary": "Clipboard or loose papers; pointing; clustered short conferences", "confidence": "low" },
+        { "channel": "exclusion", "status": "filled", "summary": "Not seated full-time at a console channel unless dual-hatted", "confidence": "medium" },
+        { "channel": "frequency", "status": "thin", "summary": "Minority of heads in wide shots; visually useful mid LOD anchors", "confidence": "medium" },
+        { "channel": "promptRegister", "status": "filled", "summary": "standing mission-control supervisor in shirt and tie in aisle behind console operators", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "filled", "summary": "NASA S69-34038 (standing leadership/aisle), S69-39593 wide with non-seated figures", "confidence": "medium" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium",
+      "notes": "Plate pass: S69-34038 (Apollo 10 MCC 1969-05-18)."
+    },
+    {
+      "traitId": "trait_gallery_glass",
+      "label": "Gallery observers behind glass",
+      "targetSlots": ["archetypes", "zones", "compatibility_rules", "lod_far"],
+      "channels": [
+        { "channel": "identity", "status": "thin", "summary": "VIP, press, guests — not console crew", "confidence": "medium" },
+        { "channel": "spatialAttach", "status": "filled", "summary": "Behind glass partition overlooking console floor", "confidence": "medium" },
+        { "channel": "silhouette", "status": "thin", "summary": "Standing or seated gallery attire; less uniform than operators", "confidence": "low" },
+        { "channel": "exclusion", "status": "filled", "summary": "No dual-cup ops headsets as default gallery kit; no walking free on console floor without escort framing", "confidence": "medium" },
+        { "channel": "coOccurrence", "status": "thin", "summary": "Glass reflections, subdued light vs floor", "confidence": "low" },
+        { "channel": "promptRegister", "status": "filled", "summary": "visitors and press behind glass overlooking Apollo-era mission control floor", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "thin", "summary": "Gallery glass is a recurring public-photo motif; exact occupancy varies", "confidence": "low" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "low"
+    },
+    {
+      "traitId": "trait_console_deck_props",
+      "label": "Console deck props: strips, binders, coffee",
+      "targetSlots": ["item_props_accessories", "lod_near", "environment_atmosphere"],
+      "channels": [
+        { "channel": "identity", "status": "filled", "summary": "Near-LOD set dressing for operational believability", "confidence": "medium" },
+        { "channel": "material", "status": "thin", "summary": "Plastic/metal strip modules, paper, ceramic or disposable cups (variant by year)", "confidence": "low" },
+        { "channel": "spatialAttach", "status": "filled", "summary": "On console surface in front of operator; cords drop to deck/side", "confidence": "medium" },
+        { "channel": "coOccurrence", "status": "filled", "summary": "Headset base + paper stack + pens; occasional ashtray in early-era rooms", "confidence": "medium" },
+        { "channel": "exclusion", "status": "filled", "summary": "No modern mechanical keyboards aesthetic dominance, no LED light bars, no readable classified strings", "confidence": "high" },
+        { "channel": "promptRegister", "status": "filled", "summary": "Apollo-era console with strip indicators, papers, headset cable, coffee cup, generic panel labels", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "filled", "summary": "NASA S69-34555 / S69-39593 console decks; label text remains generic (no invented classified strings)", "confidence": "medium" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium",
+      "notes": "Plate pass supports prop presence; not OCR of panel text."
+    },
+    {
+      "traitId": "trait_period_workforce_mix",
+      "label": "Period workforce mix framing (qualitative only)",
+      "targetSlots": ["demographic_mix", "archetypes"],
+      "channels": [
+        { "channel": "identity", "status": "thin", "summary": "Public MOCR imagery is male-majority technical floor; women and underrepresented staff appear but are not the default majority of console seats in many period wide shots", "confidence": "low" },
+        { "channel": "frequency", "status": "thin", "summary": "No invented percentages — sample from captioned archives per scene; avoid modern equal-cast default as 'accuracy'", "confidence": "low" },
+        { "channel": "exclusion", "status": "filled", "summary": "Do not reduce underrepresented people to messengers/cleaners only; do not invent tokenized modern casting as period truth", "confidence": "high" },
+        { "channel": "evidenceBasis", "status": "filled", "summary": "Qualitative from S69-39593, GPN-2000-001141; no invented percentages; ethical role variety rules", "confidence": "low" },
+        { "channel": "promptRegister", "status": "thin", "summary": "Apollo-era mission control staff composition guided by source photos for this shot, ethical role variety", "confidence": "low" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "low",
+      "notes": "Plate pass is qualitative only (S69-39593, GPN-2000-001141). Not a census."
+    },
+    {
+      "traitId": "trait_controller_grooming",
+      "label": "Controller hair and eyewear range",
+      "targetSlots": ["item_grooming_hair", "lod_near", "archetypes"],
+      "channels": [
+        { "channel": "silhouette", "status": "filled", "summary": "Mostly short or side-part hair; moderate sideburns ok; avoid cartoon 1960s bouffant defaults", "confidence": "medium" },
+        { "channel": "coOccurrence", "status": "thin", "summary": "Thick plastic or metal eyeglass frames common among technical staff", "confidence": "medium" },
+        { "channel": "exclusion", "status": "filled", "summary": "No modern thin titanium rimless defaults; no theatrical hippie long-hair majority on console floor", "confidence": "medium" },
+        { "channel": "frequency", "status": "thin", "summary": "Glasses frequent enough to be a mid/near LOD signal; not every head", "confidence": "low" },
+        { "channel": "promptRegister", "status": "filled", "summary": "short side-part hair, period thick-rim glasses optional, clean-shaven or light mustache variant", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "thin", "summary": "Pattern from public group photos; still needs plate-level sampling for a specific mission", "confidence": "low" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium"
+    }
+  ],
+  "researchTasks": [
+    {
+      "taskId": "task_apollo_console_dress",
+      "title": "Apollo-era mission control occupational dress and headsets",
+      "rationale": "High-identity wardrobe/props for near and mid LOD; role×zone rules.",
+      "targetSlots": ["item_wardrobe", "item_props_accessories", "compatibility_rules"],
+      "targetChannels": ["coOccurrence", "frequency", "material", "exclusion"],
+      "targetTraitIds": ["trait_white_shirt_tie_headset"],
+      "suggestedSources": [
+        "NASA public domain mission control photographs",
+        "Apollo-era NASA publications",
+        "NARA / NASA image catalogs"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_apollo_room_zones",
+      "title": "Control room spatial roles: console rows, aisles, gallery glass",
+      "rationale": "Zone axes for camera-useful staging without sci-fi clutter.",
+      "targetSlots": ["zones", "behaviors", "lod_far"],
+      "targetChannels": ["spatialAttach"],
+      "suggestedSources": [
+        "period wide shots of MOCR/KSC control rooms",
+        "facility diagrams in public histories"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_apollo_negatives",
+      "title": "Anachronism blocklist for Apollo control interiors",
+      "rationale": "Block modern multi-monitor and smartphone-era ops centers.",
+      "targetSlots": ["negatives"],
+      "targetChannels": ["exclusion"],
+      "suggestedSources": ["side-by-side period vs modern control room photo notes"],
+      "status": "done"
+    },
+    {
+      "taskId": "task_apollo_demographics_archive",
+      "title": "Archive-backed demographic mix for Apollo control rooms",
+      "rationale": "Avoid inventing modern casting balance; need evidenced period composition for ethical grounded realism.",
+      "targetSlots": ["demographic_mix", "archetypes"],
+      "targetChannels": ["frequency", "evidenceBasis", "identity"],
+      "targetTraitIds": ["trait_period_workforce_mix"],
+      "suggestedSources": [
+        "NASA historical staff photography with captions",
+        "secondary histories that cite personnel records carefully"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_apollo_near_lod_labels",
+      "title": "Near-LOD console strip label language and headset hardware variants",
+      "rationale": "Readable near extras without inventing classified markings.",
+      "targetSlots": ["lod_near", "item_props_accessories"],
+      "targetChannels": ["material", "promptRegister", "exclusion"],
+      "targetTraitIds": ["trait_console_deck_props"],
+      "suggestedSources": ["high-res public MOCR console close-ups", "museum headset specimens"],
+      "status": "done"
+    },
+    {
+      "taskId": "task_apollo_eyewear_hair",
+      "title": "Period eyewear frames and hair length range for controllers",
+      "rationale": "Grooming channel stops modern frames and theatrical 60s caricature.",
+      "targetSlots": ["item_grooming_hair", "lod_near"],
+      "targetChannels": ["silhouette", "exclusion", "frequency"],
+      "targetTraitIds": ["trait_controller_grooming"],
+      "suggestedSources": ["period group photos of controllers"],
+      "status": "done"
+    },
+    {
+      "taskId": "task_apollo_cited_plate_pass",
+      "title": "Cite public plate IDs for high-weight wardrobe and mix claims",
+      "rationale": "Promote thin evidenceBasis channels with specific NASA/NARA plate references before any production trust.",
+      "targetSlots": ["item_wardrobe", "demographic_mix", "lod_near"],
+      "targetChannels": ["evidenceBasis", "frequency"],
+      "targetTraitIds": ["trait_white_shirt_tie_headset", "trait_period_workforce_mix"],
+      "suggestedSources": [
+        "NASA S69-34555",
+        "NASA S69-39593",
+        "NASA S69-26107",
+        "NASA S69-34038",
+        "NASA GPN-2000-001141",
+        "LOC HAER JSC Mission Control (tx1134)",
+        "community/__fixtures__/notes/plate_register_apollo.md"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_apollo_quant_mix_from_captions",
+      "title": "Optional quantitative mix sampling from captioned staff plates",
+      "rationale": "Only if production needs numbers; requires multi-plate caption protocol — not required for L0 draft packages.",
+      "targetSlots": ["demographic_mix"],
+      "targetChannels": ["frequency", "evidenceBasis"],
+      "targetTraitIds": ["trait_period_workforce_mix"],
+      "suggestedSources": ["NASA captioned staff photography series", "secondary histories with personnel tables"],
+      "status": "deferred"
+    }
+  ],
+  "successCriteria": {
+    "imageryBar": "Believable Apollo-era control-room workers: occupational dress, headset props, console geometry, blocked modern ops centers.",
+    "minArchetypeFamilies": 3,
+    "requireNegatives": true,
+    "requireProvenanceOnHighWeightTraits": true
+  },
+  "notes": "2026-07-15 plate pass: NASA S69-34555/39593/26107/34038 + GPN-2000-001141 + LOC HAER. Still not production-trusted."
+}

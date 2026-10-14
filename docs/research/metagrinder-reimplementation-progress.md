@@ -15,6 +15,12 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-10-13 [S-R2] Budgets, resumability, transport, and workbench persistence — DONE
+- changed: mandatory durable run/shared-campaign accounting; once-only reservations; atomic locked manifest mutations; input/request-signed schema/hash-verified corpus/community reuse; native/JS Codex launch and owned process-tree cleanup; cache metadata identity; run-scoped keyed workbench saves + atomic writes + localhost boundaries
+- gates: Node 20.19.0; live src 364/364 (41 suites); isolated scoped src 295/295 (32 suites); legacy 134/134; strict tsc clean; bootstrap baseline locks 106/114 unchanged; unchanged dev question battery n=15 composite=0.7373, delta=0 passed; staged-source codegen/contract consumption and cached diff clean
+- notes: Red regressions preceded core repairs; independent review exposed and closed stale-writer checkpoint loss and cross-run budget charging. Eight concurrent workers respected shared/run caps. Browser synthetic approval reload + revision run-switch proof passed; no real operator decisions or paid model calls. Required existing community/question/workbench scaffolds enter this checkpoint; pre-existing dev question judgments were separately checkpointed unchanged in `fffb9fc` (`eval-corpus:`). Unrelated bridge/QA/campaign/research work remains unstaged.
+- compatibility: old unsigned stages rebuild through auto-cache reuse; sampled/realized artifacts are separate; community paid runs default to stable run IDs; missing cap variables preserve limits; pre-shared campaign spend requires explicit migration; failed transports retain conservative reservations. Existing provider/held-out/phase gates remain open. Narrow-screen horizontal overflow is an existing UI limitation outside this persistence repair.
+
 ## 2026-10-13 [S-R1] Governance, permissions, provenance, and handoff integrity — DONE
 - changed: citation completeness + consumed retraction flags; consent-preserving current-source export checks; content-bound human reconciliation; all-family grammar attribution/input identity; sealed package hashes + current-byte receipt lineage; source-derived contracts
 - gates: Node 20.19.0; live src 309/309 (34 suites); isolated repair src 205/205 (20 suites); legacy 134/134; strict tsc clean; bootstrap baseline locks 106/114 unchanged; contract consumption green; scoped cached diff clean

@@ -1,0 +1,164 @@
+{
+  "artifact": "community-job",
+  "schemaVersion": "0.1.0",
+  "jobId": "crowd_1965_ut_austin_football",
+  "title": "Crowd at a 1965 University of Texas Austin Football Game",
+  "stance": "grounded_realism",
+  "trustLevel": "L0_researcher",
+  "researchKind": "historical-scene-research",
+  "situation": {
+    "who": "Students, alumni, band-adjacent, vendors, stadium staff, families",
+    "what": "College football game in stadium stands",
+    "where": "Memorial Stadium, Austin TX — lower/upper stands, aisles, concessions approaches",
+    "when": "Autumn 1965, afternoon game light",
+    "why": "School identity, spectacle, social outing",
+    "how": "Seated rows, standing on big plays, aisle traffic, program/vendors, period gender norms in dress"
+  },
+  "hardConstraints": [
+    "Grounded realism for mid-1960s Texas college sports crowds",
+    "Treat school colors carefully; prefer genericized marks unless rights-cleared",
+    "No modern phones, LED boards, or 21st-century fan gear",
+    "No foam fingers, painted chests as majority default, or NFL-modern jersey sea"
+  ],
+  "goals": {
+    "researchPackage": true,
+    "sceneGrammar": true,
+    "contentPlans": true,
+    "reviewHtml": true,
+    "utdgCandidates": false,
+    "nestedPsg": true
+  },
+  "coverageSeed": [
+    { "slot": "archetypes", "status": "adequate", "priority": 0.95, "notes": "Student, alum couple, vendor, usher/staff, family with kids" },
+    { "slot": "zones", "status": "adequate", "priority": 0.95, "notes": "Lower bowl, upper stands, aisle stairs, concession approach" },
+    { "slot": "item_wardrobe", "status": "thin", "priority": 0.95, "notes": "Sweaters, jackets, skirts/dresses for women, shirts/ties for some men, school-color accents" },
+    { "slot": "item_props_accessories", "status": "thin", "priority": 0.75, "notes": "Programs, pennants, binoculars rare, paper cups" },
+    { "slot": "item_grooming_hair", "status": "thin", "priority": 0.55, "notes": "Short male hair; bouffant/flip light touch for women — avoid caricature" },
+    { "slot": "behaviors", "status": "thin", "priority": 0.8, "notes": "Seated rows, stand-and-cheer, aisle pass, program browse" },
+    { "slot": "compatibility_rules", "status": "thin", "priority": 0.75, "notes": "Vendors in aisles; staff vs spectators dress split" },
+    { "slot": "demographic_mix", "status": "thin", "priority": 0.8, "notes": "Period Texas campus crowd; ethical care; no invented modern mix" },
+    { "slot": "negatives", "status": "adequate", "priority": 0.9, "notes": "No phones, LED boards, modern jerseys, foam-finger majority" },
+    { "slot": "environment_atmosphere", "status": "thin", "priority": 0.7, "notes": "Hard autumn sun, concrete bowl, dust haze optional" },
+    { "slot": "lod_far", "status": "thin", "priority": 0.5, "notes": "Color blocks of school tones in stands" },
+    { "slot": "lod_mid", "status": "thin", "priority": 0.7 },
+    { "slot": "lod_near", "status": "thin", "priority": 0.6, "notes": "Program cover genericized; pin details" }
+  ],
+  "traits": [
+    {
+      "traitId": "trait_school_colors_casual",
+      "label": "School-color sweaters, skirts, jackets in stands",
+      "targetSlots": ["item_wardrobe", "archetypes", "demographic_mix", "lod_mid"],
+      "channels": [
+        { "channel": "identity", "status": "filled", "summary": "Students and alumni in stands", "confidence": "medium" },
+        { "channel": "colorPattern", "status": "thin", "summary": "Burnt-orange/white family accents genericized; mix with neutrals so not uniform costume", "confidence": "medium" },
+        { "channel": "silhouette", "status": "filled", "summary": "Mid-60s collegiate: sweaters, blazers, skirts/dresses, slacks; not athleisure", "confidence": "medium" },
+        { "channel": "coOccurrence", "status": "filled", "summary": "Program or pennant optional; coats in cooler games", "confidence": "medium" },
+        { "channel": "frequency", "status": "thin", "summary": "School-color accents common but not 100% of seats", "confidence": "medium" },
+        { "channel": "exclusion", "status": "filled", "summary": "No modern replica jerseys as majority, no smartphone, no LED wristbands", "confidence": "high" },
+        { "channel": "promptRegister", "status": "filled", "summary": "1965 college football stand crowd, mid-60s collegiate dress, school-color accents, afternoon stadium light", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "thin", "summary": "Finding-aid pass: UT Cactus yearbook series + 1965 sports pages (copyright typical); TSHA stadium timeline — plate_register_1965_ut_football.md", "confidence": "low" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium",
+      "notes": "Plate pass records archive paths; freeload yearbook pages not ingested."
+    },
+    {
+      "traitId": "trait_stadium_zones_1965",
+      "label": "Lower bowl / upper / aisle geometry",
+      "targetSlots": ["zones", "behaviors", "lod_far"],
+      "channels": [
+        { "channel": "spatialAttach", "status": "filled", "summary": "Dense seated rows; aisles as vertical circulation; concession at rear/under", "confidence": "medium" },
+        { "channel": "coOccurrence", "status": "thin", "summary": "Vendors climbing aisles; ushers at portals", "confidence": "low" },
+        { "channel": "exclusion", "status": "filled", "summary": "No giant modern video boards dominating frame as period truth", "confidence": "high" },
+        { "channel": "promptRegister", "status": "filled", "summary": "1960s concrete college stadium stands, lower bowl seating, aisle stairs", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "filled", "summary": "TSHA Handbook stadium timeline (1965 context; later decks postdate); avoid 1970s+ upper deck as 1965 default", "confidence": "medium" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium",
+      "notes": "Architectural timeline public; crowd dress still archive-gated."
+    },
+    {
+      "traitId": "trait_program_pennant",
+      "label": "Game program and pennant props",
+      "targetSlots": ["item_props_accessories", "lod_near", "behaviors"],
+      "channels": [
+        { "channel": "material", "status": "thin", "summary": "Printed paper program; felt or paper pennant", "confidence": "medium" },
+        { "channel": "spatialAttach", "status": "filled", "summary": "In hands or on lap in stands", "confidence": "medium" },
+        { "channel": "exclusion", "status": "filled", "summary": "No tablet roster apps; no giant modern foam fingers as default", "confidence": "high" },
+        { "channel": "promptRegister", "status": "filled", "summary": "1960s college football game program and small pennant in stands", "confidence": "medium" },
+        { "channel": "evidenceBasis", "status": "thin", "summary": "Period program ephemera seed; covers genericized", "confidence": "low" }
+      ],
+      "evidenceBasis": "external_research",
+      "confidence": "medium"
+    }
+  ],
+  "researchTasks": [
+    {
+      "taskId": "task_65_ut_stands_dress",
+      "title": "1965 college football stand dress in Texas / Southwest Conference",
+      "rationale": "Wardrobe + silhouette for mid-60s stadium extras; frequency of school colors.",
+      "targetSlots": ["item_wardrobe", "demographic_mix"],
+      "targetChannels": ["silhouette", "colorPattern", "frequency", "coOccurrence"],
+      "targetTraitIds": ["trait_school_colors_casual"],
+      "suggestedSources": [
+        "1965 university yearbooks",
+        "period newspaper sports photo pages",
+        "college football program photo inserts"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_65_stadium_zones",
+      "title": "Memorial Stadium seating zones and aisle behavior 1960s",
+      "rationale": "Zone axes for camera-useful variety without modern stadium clutter.",
+      "targetSlots": ["zones", "behaviors"],
+      "targetChannels": ["spatialAttach"],
+      "targetTraitIds": ["trait_stadium_zones_1965"],
+      "suggestedSources": [
+        "historic stadium photos",
+        "period game programs maps"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_65_negatives_props",
+      "title": "1960s stadium negatives and program/pennant props",
+      "rationale": "Block modern fan gear; seed near-LOD props.",
+      "targetSlots": ["negatives", "item_props_accessories"],
+      "targetChannels": ["exclusion", "material"],
+      "targetTraitIds": ["trait_program_pennant"],
+      "suggestedSources": ["period sports photography", "modern stadium anachronism checklist"],
+      "status": "done"
+    },
+    {
+      "taskId": "task_65_yearbook_plate_pass",
+      "title": "Yearbook plate IDs for dress frequency without living-person identification",
+      "rationale": "evidenceBasis thin; need plates for color frequency claims.",
+      "targetSlots": ["item_wardrobe", "demographic_mix"],
+      "targetChannels": ["evidenceBasis", "frequency"],
+      "suggestedSources": [
+        "community/__fixtures__/notes/plate_register_1965_ut_football.md",
+        "TSHA Handbook: Darrell K Royal–Texas Memorial Stadium",
+        "UT Cactus yearbook series ~1965 (Briscoe / Texas ScholarWorks finding aids)",
+        "1965 Texas newspaper sports microfilm"
+      ],
+      "status": "done"
+    },
+    {
+      "taskId": "task_65_cleared_yearbook_ingest",
+      "title": "Ingest operator-cleared 1964–1966 home-game plates",
+      "rationale": "Copyrighted yearbooks need clearance before frequency claims harden.",
+      "targetSlots": ["item_wardrobe", "demographic_mix"],
+      "targetChannels": ["frequency", "evidenceBasis"],
+      "suggestedSources": ["Briscoe Center", "Texas ScholarWorks", "licensed newspaper desks"],
+      "status": "deferred"
+    }
+  ],
+  "successCriteria": {
+    "imageryBar": "Believable 1965 college game extras with period dress, clear stand geometry, blocked modern fan gear.",
+    "minArchetypeFamilies": 4,
+    "requireNegatives": true,
+    "requireProvenanceOnHighWeightTraits": true
+  },
+  "notes": "2026-07-15 plate pass: finding aids + TSHA stadium timeline. Cleared yearbook ingest deferred. Not production-trusted."
+}

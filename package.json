@@ -13,6 +13,7 @@
     "run:metagrinder-mvp": "pnpm --filter @promptscape/core run:metagrinder-mvp",
     "run:historical-photo-observations": "pnpm --filter @promptscape/core run:historical-photo-observations",
     "run:metagrinder-workbench": "pnpm --filter @promptscape/core run:metagrinder-workbench",
+    "run:community-job": "pnpm --filter @promptscape/core run:community-job",
     "run:research-brief-lab": "pnpm --filter @promptscape/core run:research-brief-lab",
     "test:metagrinder": "pnpm --filter @promptscape/core test:metagrinder",
     "test:src": "pnpm --filter @promptscape/core test:src",
@@ -20,7 +21,8 @@
     "eval:src": "pnpm --filter @promptscape/core eval:src",
     "eval:corpus": "pnpm --filter @promptscape/core eval:corpus",
     "eval:holdout": "pnpm --filter @promptscape/core eval:holdout",
-    "eval:judge": "pnpm --filter @promptscape/core eval:judge"
+    "eval:judge": "pnpm --filter @promptscape/core eval:judge",
+    "eval:questions": "pnpm --filter @promptscape/core eval:questions"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

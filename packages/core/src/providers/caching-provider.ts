@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import {
   type LlmProvider,
   type LlmRequest,
@@ -9,8 +11,29 @@ import {
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { cacheKeyFor, readCacheEntry, writeCacheEntry } from './cache';
 import type { BudgetReservation, RunStore } from '../artifacts/store';
+import { openProviderBudgetStore } from './budget-policy';
 
 export type ProviderMode = 'replay' | 'record' | 'auto';
+
+function sameRunDirectory(providerRunDir: string, budgetRunDir: string): boolean {
+  try {
+    const providerPath = fs.realpathSync.native(path.resolve(providerRunDir));
+    const budgetPath = fs.realpathSync.native(path.resolve(budgetRunDir));
+    const providerStat = fs.statSync(providerPath, { bigint: true });
+    const budgetStat = fs.statSync(budgetPath, { bigint: true });
+    if (!providerStat.isDirectory() || !budgetStat.isDirectory()) return false;
+    // Physical identity handles relative paths, Windows casing, junctions and
+    // case-sensitive Windows directories without conflating distinct runs.
+    if (providerStat.ino !== 0n && budgetStat.ino !== 0n) {
+      return providerStat.dev === budgetStat.dev && providerStat.ino === budgetStat.ino;
+    }
+    return process.platform === 'win32'
+      ? providerPath.toLowerCase() === budgetPath.toLowerCase()
+      : providerPath === budgetPath;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Wraps any Transport with record/replay caching and schema validation.
@@ -33,11 +56,16 @@ export function createCachingProvider(opts: {
   outputTokenReserve?: number;
   now?: () => string;
 }): LlmProvider {
+  if (opts.budgetStore && !sameRunDirectory(opts.runDir, opts.budgetStore.runDir)) {
+    throw new Error('budget store run directory must match the provider run directory');
+  }
   const now = opts.now ?? (() => new Date().toISOString());
+  let budgetStore = opts.budgetStore;
 
   return {
     id: opts.providerId,
     model: opts.model,
+    mode: opts.mode,
     ...(opts.modelVersion !== undefined ? { modelVersion: opts.modelVersion } : {}),
 
     async complete<T>(req: LlmRequest<T>): Promise<LlmResult<T>> {
@@ -66,10 +94,13 @@ export function createCachingProvider(opts: {
         replayed = true;
       } else {
         if (opts.mode === 'replay') throw new ReplayMissError(cacheKey, req.stage);
+        // Logical runners may create their manifest after constructing a provider.
+        // Open lazily on the first live miss so their input identity wins.
+        budgetStore ??= openProviderBudgetStore(opts.runDir);
         let reservation: BudgetReservation | undefined;
-        if (opts.budgetStore) {
+        if (budgetStore) {
           const inputText = `${req.system ?? ''}\n${transportPrompt}`;
-          reservation = opts.budgetStore.reserveBudget({
+          reservation = budgetStore.reserveBudget({
             stage: req.stage,
             kind: req.stage === 'judge' ? 'judge' : 'llm',
             estimatedInputTokens: Math.ceil(inputText.length / 4),
@@ -82,7 +113,8 @@ export function createCachingProvider(opts: {
         try {
           out = await opts.transport({ stage: req.stage, ...(req.system !== undefined ? { system: req.system } : {}), prompt: transportPrompt, schemaName: req.schemaName });
         } catch (error) {
-          if (reservation && opts.budgetStore) opts.budgetStore.settleBudget(reservation, 0, now);
+          // Transport failures can arrive after upstream generation. Retain the
+          // durable reservation rather than assuming that no output was charged.
           throw error;
         }
         rawText = out.rawText;
@@ -99,8 +131,8 @@ export function createCachingProvider(opts: {
           rawText,
           createdAt: now()
         });
-        if (reservation && opts.budgetStore) {
-          opts.budgetStore.settleBudget(reservation, Math.ceil(rawText.length / 4), now);
+        if (reservation && budgetStore) {
+          budgetStore.settleBudget(reservation, Math.ceil(rawText.length / 4), now);
         }
       }
 

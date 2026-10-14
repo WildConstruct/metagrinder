@@ -69,7 +69,9 @@
                   "import-receipt",
                   "review-report",
                   "eval-report",
-                  "run-manifest"
+                  "run-manifest",
+                  "community-job",
+                  "community-coverage-report"
                 ]
               },
               "path": {

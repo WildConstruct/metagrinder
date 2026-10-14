@@ -163,6 +163,21 @@ Implementation order: add failing invariant tests, repair the five boundaries, r
 
 Compatibility: grammar requests now include each chunk's owning input ID, so older grammar response caches do not match the repaired request. A permission-eligible UTDG export requires current `sourceLifecycle` data and, where IDs differ, `sourceIdsByInputId`; eligibility is a permission check, not human content approval. Reconciliation proposal IDs are content hashes, so previous ordinal decisions must be reviewed against fresh proposals. Handoffs use `sealPackageManifest(store, manifest)` before hashing; `queryRunHandoffLineage` now receives that manifest and verifies current collection bytes.
 
+## Audit repair plan — S-R2
+
+Scope: the second audit repair slice, authorized 2026-10-13. One repair story covers budgets, resumability, transport, and workbench persistence; existing operator/phase gates remain unchanged.
+
+| ID | Acceptance criterion | Files | Status |
+|---|---|---|---|
+| S-R2a | Every live command charges a persistent run ledger and one shared campaign ledger when configured. Absent cap variables preserve existing caps. Reservations settle once, concurrent updates cannot overspend, replay is free, and cap failures remain blocked. | `artifacts/{store,shared-budget}.ts`, `providers/{budget-policy,caching-provider,index}.ts`, live entry points | done |
+| S-R2b | Completed stages resume from schema/hash-verified outputs only when input/configuration/request signatures match. Raising a cap resumes the interrupted stage without paying for completed stages. Changed source/model/sample settings invalidate appropriate outputs; explicit replay revalidates cache and explicit rerun is available. | `artifacts/resume.ts`, corpus/community runners, `schemas/run-manifest.ts` | done |
+| S-R2c | Windows native and JavaScript Codex entry points start without shell interpolation; timeout/startup errors clean up. Replay rejects cache entries whose persisted identity disagrees with the requested key. | `providers/{codex-cli,cache}.ts` | done |
+| S-R2d | Operator-state round trips survive reload and run switching; saves merge by record identity and cannot delete unrelated approvals/decisions. TSV reads bypass JSON parsing. Writes are atomic, stay within operator-state, and localhost write requests respect host/origin boundaries. | `workbench/` | done |
+
+Order: establish failing regression/invariant tests, repair independent boundaries, integrate all live entry points, regenerate contracts, then verify on Node 20.19.0 with rebuilt/legacy suites, strict TypeScript, bootstrap baseline locks, source-derived contract checks, scoped diff integrity, and an isolated staged checkpoint. No paid provider evaluation, held-out reads, or eval judgment edits are authorized by this repair.
+
+Compatibility: old stages without signatures rebuild through `auto` cache reuse, not assumed-complete artifacts. Corpus sampling now persists `sampled-content-plans.json` separately from realized `content-plans.json`. Community paid CLI runs reuse `run_<jobId>` unless `--run-id` is given; `--rerun` rebuilds completed stages, and `record --rerun` spends again. Set `METAGRINDER_CAMPAIGN_BUDGET_DIR` consistently across command roots; shared ledger location is pinned. Existing campaign snapshots with nonzero pre-shared usage require explicit migration rather than an invented aggregate. Missing cap variables never clear limits; transport errors retain conservative reservations. Workbench writes require localhost/same-origin access.
+
 ## C. Bootstrap Sequence (first session, in order)
 
 1. S0.1 (pnpm) — everything else is hostage to it. If it resists more than one session, escalate to the human with findings rather than architecting around it again.

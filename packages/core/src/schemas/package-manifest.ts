@@ -25,7 +25,9 @@ export const ArtifactFamilySchema = z.enum([
   'import-receipt',
   'review-report',
   'eval-report',
-  'run-manifest'
+  'run-manifest',
+  'community-job',
+  'community-coverage-report'
 ]);
 export type ArtifactFamily = z.infer<typeof ArtifactFamilySchema>;
 

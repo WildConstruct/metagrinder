@@ -1,0 +1,440 @@
+{
+  "$ref": "#/definitions/community-job",
+  "definitions": {
+    "community-job": {
+      "type": "object",
+      "properties": {
+        "artifact": {
+          "type": "string",
+          "const": "community-job"
+        },
+        "schemaVersion": {
+          "type": "string",
+          "default": "0.1.0"
+        },
+        "jobId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "stance": {
+          "type": "string",
+          "enum": [
+            "grounded_realism",
+            "cultural_criticism"
+          ],
+          "default": "grounded_realism"
+        },
+        "trustLevel": {
+          "type": "string",
+          "enum": [
+            "L0_researcher",
+            "L1_proposer",
+            "L2_bounded_reviewer",
+            "L3_trusted_operator"
+          ],
+          "default": "L0_researcher"
+        },
+        "researchKind": {
+          "type": "string",
+          "enum": [
+            "historical-scene-research",
+            "character-framework",
+            "material-reference",
+            "environment-observation",
+            "style-analysis",
+            "procedural-guide",
+            "mixed",
+            "unknown"
+          ],
+          "default": "historical-scene-research"
+        },
+        "situation": {
+          "type": "object",
+          "properties": {
+            "who": {
+              "type": "string",
+              "minLength": 1
+            },
+            "what": {
+              "type": "string",
+              "minLength": 1
+            },
+            "where": {
+              "type": "string",
+              "minLength": 1
+            },
+            "when": {
+              "type": "string",
+              "minLength": 1
+            },
+            "why": {
+              "type": "string",
+              "minLength": 1
+            },
+            "how": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "who",
+            "what",
+            "where",
+            "when",
+            "why",
+            "how"
+          ],
+          "additionalProperties": false
+        },
+        "hardConstraints": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "goals": {
+          "type": "object",
+          "properties": {
+            "researchPackage": {
+              "type": "boolean",
+              "default": true
+            },
+            "sceneGrammar": {
+              "type": "boolean",
+              "default": true
+            },
+            "contentPlans": {
+              "type": "boolean",
+              "default": true
+            },
+            "reviewHtml": {
+              "type": "boolean",
+              "default": true
+            },
+            "utdgCandidates": {
+              "type": "boolean",
+              "default": false
+            },
+            "nestedPsg": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          "additionalProperties": false,
+          "default": {}
+        },
+        "coverageSeed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "slot": {
+                "type": "string",
+                "enum": [
+                  "archetypes",
+                  "demographic_mix",
+                  "zones",
+                  "item_wardrobe",
+                  "item_grooming_hair",
+                  "item_props_accessories",
+                  "behaviors",
+                  "compatibility_rules",
+                  "negatives",
+                  "lod_far",
+                  "lod_mid",
+                  "lod_near",
+                  "environment_atmosphere"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "empty",
+                  "thin",
+                  "adequate",
+                  "strong",
+                  "not_applicable"
+                ]
+              },
+              "priority": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "default": 0.5
+              },
+              "notes": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "slot",
+              "status"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "traits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "traitId": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "targetSlots": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "archetypes",
+                    "demographic_mix",
+                    "zones",
+                    "item_wardrobe",
+                    "item_grooming_hair",
+                    "item_props_accessories",
+                    "behaviors",
+                    "compatibility_rules",
+                    "negatives",
+                    "lod_far",
+                    "lod_mid",
+                    "lod_near",
+                    "environment_atmosphere"
+                  ]
+                },
+                "default": []
+              },
+              "channels": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "channel": {
+                      "type": "string",
+                      "enum": [
+                        "identity",
+                        "silhouette",
+                        "material",
+                        "colorPattern",
+                        "spatialAttach",
+                        "coOccurrence",
+                        "exclusion",
+                        "frequency",
+                        "evidenceBasis",
+                        "promptRegister"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "empty",
+                        "thin",
+                        "filled",
+                        "blocked"
+                      ]
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "confidence": {
+                      "type": "string",
+                      "enum": [
+                        "low",
+                        "medium",
+                        "high"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "channel",
+                    "status"
+                  ],
+                  "additionalProperties": false
+                },
+                "default": []
+              },
+              "evidenceBasis": {
+                "type": "string",
+                "enum": [
+                  "observed",
+                  "text_supported",
+                  "external_research",
+                  "proxy_analysis",
+                  "inferred",
+                  "generated",
+                  "unknown"
+                ],
+                "default": "unknown"
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "default": "low"
+              },
+              "notes": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "traitId",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "researchTasks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "taskId": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rationale": {
+                "type": "string",
+                "minLength": 1
+              },
+              "targetSlots": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "archetypes",
+                    "demographic_mix",
+                    "zones",
+                    "item_wardrobe",
+                    "item_grooming_hair",
+                    "item_props_accessories",
+                    "behaviors",
+                    "compatibility_rules",
+                    "negatives",
+                    "lod_far",
+                    "lod_mid",
+                    "lod_near",
+                    "environment_atmosphere"
+                  ]
+                },
+                "default": []
+              },
+              "targetChannels": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "identity",
+                    "silhouette",
+                    "material",
+                    "colorPattern",
+                    "spatialAttach",
+                    "coOccurrence",
+                    "exclusion",
+                    "frequency",
+                    "evidenceBasis",
+                    "promptRegister"
+                  ]
+                },
+                "default": []
+              },
+              "targetTraitIds": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "suggestedSources": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
+              "expectedValue": {
+                "type": "number",
+                "minimum": 0
+              },
+              "estimatedCost": {
+                "type": "number",
+                "minimum": 0
+              },
+              "score": {
+                "type": "number"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "proposed",
+                  "active",
+                  "done",
+                  "deferred",
+                  "exhausted"
+                ],
+                "default": "proposed"
+              }
+            },
+            "required": [
+              "taskId",
+              "title",
+              "rationale"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "successCriteria": {
+          "type": "object",
+          "properties": {
+            "imageryBar": {
+              "type": "string",
+              "default": "Historically/situationally believable imagery that is production-useful (clear extras, authentic variety, clichés blocked)."
+            },
+            "minArchetypeFamilies": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 3
+            },
+            "requireNegatives": {
+              "type": "boolean",
+              "default": true
+            },
+            "requireProvenanceOnHighWeightTraits": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "additionalProperties": false,
+          "default": {}
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact",
+        "jobId",
+        "title",
+        "situation"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}
