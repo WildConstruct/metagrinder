@@ -67,13 +67,12 @@ describe('content-plan sampling (S2.4)', () => {
       for (const plan of out.plans) {
         const sel = selectionFromPlan(plan);
         expect(violatedRuleIds(g, sel)).toEqual([]);
+        if (sel.zoneId === 'rail') expect(plan.rulesApplied).toContain('rail_excludes_female');
+        else expect(plan.rulesApplied).not.toContain('rail_excludes_female');
         if (sel.zoneId === 'rail' && sel.archetypeId === 'female_middle_class_spectator') railFemalePairs++;
       }
     }
     expect(railFemalePairs).toBe(0);
-    // sanity: the rule id is recorded as applied
-    expect(sampleContentPlans({ grammar: g, seed: 1, count: 1, now: NOW }).plans[0]!.rulesApplied)
-      .toContain('rail_excludes_female');
   });
 
   test('emits nothing rather than a violating plan when a rule is unsatisfiable', () => {

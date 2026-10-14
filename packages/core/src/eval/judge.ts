@@ -73,6 +73,31 @@ export async function runJudgeMetaGate(args: {
   const humanRatings = args.humanRatings.map((entry) => HumanCalibrationRatingSchema.parse(entry));
   if (cases.length === 0) throw new Error('judge stress battery requires at least one case');
   if (criteria.length === 0) throw new Error('judge stress battery requires at least one analytic criterion');
+  const caseIds = new Set(cases.map((entry) => entry.caseId));
+  if (caseIds.size !== cases.length) throw new Error('duplicate judge stress case ids are not allowed');
+
+  const calibrationFailures: string[] = [];
+  const ratingsByCase = new Map<string, HumanCalibrationRating[]>();
+  for (const rating of humanRatings) {
+    ratingsByCase.set(rating.caseId, [...(ratingsByCase.get(rating.caseId) ?? []), rating]);
+  }
+  const uniqueMatchedRatings: HumanCalibrationRating[] = [];
+  for (const [caseId, ratings] of ratingsByCase) {
+    if (!caseIds.has(caseId)) {
+      calibrationFailures.push(`unknown human calibration case: ${caseId}`);
+      continue;
+    }
+    const first = ratings[0]!;
+    const conflicting = ratings.some((rating) => rating.preferred !== first.preferred
+      || rating.candidateScore !== first.candidateScore || rating.referenceScore !== first.referenceScore);
+    if (conflicting) {
+      calibrationFailures.push(`conflicting human calibration ratings for case: ${caseId}`);
+      continue;
+    }
+    if (ratings.length > 1) calibrationFailures.push(`duplicate human calibration ratings for case: ${caseId}`);
+    // Identical copies have no additional weight; conflicts contribute no chosen rating.
+    uniqueMatchedRatings.push(first);
+  }
 
   const stressResults: JudgeMetaGateReport['stressResults'] = [];
   for (const testCase of cases) {
@@ -121,7 +146,7 @@ export async function runJudgeMetaGate(args: {
   };
 
   const resultById = new Map(stressResults.map((result) => [result.caseId, result]));
-  const comparable = humanRatings.flatMap((rating) => {
+  const comparable = uniqueMatchedRatings.flatMap((rating) => {
     const result = resultById.get(rating.caseId);
     return result ? [{ rating, result }] : [];
   });
@@ -137,7 +162,8 @@ export async function runJudgeMetaGate(args: {
       ) / (comparable.length * 2);
       const passed = comparable.length >= thresholds.minCalibrationRatings
         && preferenceAgreement >= thresholds.minCalibrationAgreement
-        && meanAbsoluteError <= thresholds.maxCalibrationMae;
+        && meanAbsoluteError <= thresholds.maxCalibrationMae
+        && calibrationFailures.length === 0;
       return {
         status: passed ? 'pass' as const : 'fail' as const,
         ratingCount: comparable.length,
@@ -151,7 +177,12 @@ export async function runJudgeMetaGate(args: {
   if (positionConsistency < thresholds.minPositionConsistency) failures.push('pairwise position consistency below threshold');
   if (stressResults.some((result) => !result.analyticComplete)) failures.push('analytic criterion coverage incomplete');
   if (calibration.status === 'missing') failures.push('human calibration ratings missing');
-  if (calibration.status === 'fail') failures.push('judge-human calibration below threshold');
+  if (calibration.status === 'fail' && (calibration.ratingCount < thresholds.minCalibrationRatings
+    || (calibration.preferenceAgreement !== null && calibration.preferenceAgreement < thresholds.minCalibrationAgreement)
+    || (calibration.meanAbsoluteError !== null && calibration.meanAbsoluteError > thresholds.maxCalibrationMae))) {
+    failures.push('judge-human calibration below threshold');
+  }
+  failures.push(...calibrationFailures);
 
   return JudgeMetaGateReportSchema.parse({
     passed: failures.length === 0,

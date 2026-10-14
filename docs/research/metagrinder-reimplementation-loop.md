@@ -127,7 +127,7 @@ Exit gate: 1909 Speedway mini-cell regenerated from source anchors through the n
 | ID | Story | Status |
 |---|---|---|
 | S5.1 | **Photo-observation bridge.** Land the historical-photo intake (re-targeted uncommitted work) against new schemas. AC-5.1a: the Indy 500 observation fixtures flow to claims with `observed` evidence basis. | todo |
-| S5.2 | **UTDG export.** Staged `utdg-candidates.json` in application-profile shapes; PSG carries `utdgRefs[]`. AC-5.2a: Hypothesis B test — every prompt phrase traces to refs; a UTDG label change produces an explained prompt delta. AC-5.2b: regenerate the 1909 mini-cell record families from its source anchors; diff report against `utdg-mini-cell-v0.json`. | todo |
+| S5.2 | **UTDG export.** Staged `utdg-candidates.json` in application-profile shapes; PSG carries `utdgRefs[]`. AC-5.2a: Hypothesis B test — every prompt phrase traces to refs; a UTDG label change produces an explained prompt delta. AC-5.2b: regenerate the 1909 mini-cell record families from its source anchors; diff report against `utdg-mini-cell-v0.json`. **AC-5.2b remains outstanding:** the hand-authored mini-cell adapter and family-level label diff demonstrate projection, not regeneration from source anchors. No Phase 5 exit is claimed. | in_progress |
 | S5.3 | **Reconciliation step.** Pre-staging dedup: `same-as | variantOf | distinct` proposals (embedding-assisted, LLM-proposed, human-confirmed). AC-5.3a: re-running a campaign over overlapping sources does not double cell records. | todo |
 | S5.4 | **Campaign schema + gap registry.** Persistent cross-run gap registry; `research-campaign` artifact with typed source-family hypotheses, negative-result memory (checked-when + shelf life), gap-closure lineage. AC-5.4a: schema + validator + one fixture campaign. | todo |
 | S5.5 | **Source discovery (bounded).** Archive search adapters (Internet Archive / Chronicling America / LOC APIs), candidate-only, metadata-only, rights ladder applied, hypothesis-match verification. AC-5.5a: discovery output cannot enter the registry without the intake-approval gate (property test). | todo |
@@ -177,6 +177,21 @@ Scope: the second audit repair slice, authorized 2026-10-13. One repair story co
 Order: establish failing regression/invariant tests, repair independent boundaries, integrate all live entry points, regenerate contracts, then verify on Node 20.19.0 with rebuilt/legacy suites, strict TypeScript, bootstrap baseline locks, source-derived contract checks, scoped diff integrity, and an isolated staged checkpoint. No paid provider evaluation, held-out reads, or eval judgment edits are authorized by this repair.
 
 Compatibility: old stages without signatures rebuild through `auto` cache reuse, not assumed-complete artifacts. Corpus sampling now persists `sampled-content-plans.json` separately from realized `content-plans.json`. Community paid CLI runs reuse `run_<jobId>` unless `--run-id` is given; `--rerun` rebuilds completed stages, and `record --rerun` spends again. Set `METAGRINDER_CAMPAIGN_BUDGET_DIR` consistently across command roots; shared ledger location is pinned. Existing campaign snapshots with nonzero pre-shared usage require explicit migration rather than an invented aggregate. Missing cap variables never clear limits; transport errors retain conservative reservations. Workbench writes require localhost/same-origin access.
+
+## Audit repair plan — S-R3
+
+Scope: the third audit repair slice, authorized 2026-10-13: CI/contracts and semantic evaluation coverage. This includes the audit's outstanding generation-rule, faithfulness, calibration-integrity, and evidence-labeling defects. It does not authorize paid provider runs, held-out reads, judgment edits, phase promotion, or legacy deletion.
+
+| ID | Acceptance criterion | Files | Status |
+|---|---|---|---|
+| S-R3a | Supported requires/force/exclusion rules are enforced, unsupported syntax fails closed, and negative constraints survive planning and realization. | `stages/sample/`, `stages/realize/` | done |
+| S-R3b | Faithfulness gates reject lost attributes and negative-constraint loss, while explicitly remaining lexical checks rather than proof of entailment. | `stages/realize/`, `schemas/content-plan.ts` if required | done |
+| S-R3c | Judge calibration counts unique matched cases; duplicate/conflicting/unknown ratings cannot satisfy or bias the gate. | `eval/judge.ts` + invariant tests | done |
+| S-R3d | Rebuilt evaluation reads manifest/hash-verified artifacts, deduplicates scored labels, reports per-brief downstream diagnostics, and enforces the unchanged baseline. Extraction metadata scores and single-grammar ERA are never presented as downstream factual-accuracy proof. | `eval/{scorer,run,run-corpus,era}.ts`, `schemas/eval.ts` | done |
+| S-R3e | One canonical verification command runs strict typecheck, rebuilt + legacy tests, nonmutating source-contract parity, and strict Python contract consumption. CI uses it on Linux/Windows with pinned Node/pnpm; newline-only port equivalence remains cross-platform. | `src/verification/`, codegen/checker, package scripts, CI | done |
+| S-R3f | Documentation names the rebuilt command surface and open semantic gates accurately; the hand-authored mini-cell adapter is projection evidence, not source-to-cell regeneration. | README/AGENTS, loop + rolling progress | done |
+
+Order: add failing boundary/invariant tests, repair independent lanes, integrate the consumed evaluation/verification paths, regenerate contracts, run Node 20.19.0 iteration gates and a clean staged checkpoint, then make one conventional S-R3 commit. Existing operator run cards remain the only human-gate actions; no new readiness apparatus is added.
 
 ## C. Bootstrap Sequence (first session, in order)
 

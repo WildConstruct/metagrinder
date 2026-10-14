@@ -18,35 +18,42 @@ export type RealizationProfile = 'caption-prose' | 'keyword-stack' | 'tag-stream
 
 const SLOT_ORDER: Record<string, number> = { subject: 0, role: 1, zone: 2, condition: 3, modifier: 4 };
 
-function orderedSlots(plan: ContentPlan): PlanSlot[] {
-  return [...plan.slots].sort((a, b) => (SLOT_ORDER[a.slotKind] ?? 9) - (SLOT_ORDER[b.slotKind] ?? 9));
+function orderedSlots(slots: PlanSlot[]): PlanSlot[] {
+  return [...slots].sort((a, b) => (SLOT_ORDER[a.slotKind] ?? 9) - (SLOT_ORDER[b.slotKind] ?? 9));
 }
 
-function renderTemplate(plan: ContentPlan, profile: RealizationProfile): string {
-  const slots = orderedSlots(plan);
+function renderTemplate(inputSlots: PlanSlot[], profile: RealizationProfile): string {
+  const slots = orderedSlots(inputSlots);
   const values = slots.map((s) => s.value.trim()).filter(Boolean);
+  if (values.length === 0) return '';
   if (profile === 'keyword-stack') return values.join(', ');
-  if (profile === 'tag-stream') return values.map((v) => v.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')).join(' ');
+  if (profile === 'tag-stream') return values.map((v) => v.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '')).join(' ');
   // caption-prose: subject sentence, environment/zone as trailing clauses
   const [subject, ...rest] = values;
   return rest.length > 0 ? `${subject}, ${rest.join(', ')}.` : `${subject}.`;
 }
 
 function inheritedRefs(plan: ContentPlan): { utdgRefs: string[]; evidenceRefs: string[] } {
+  const slots = [...plan.slots, ...plan.negativeSlots];
   return {
-    utdgRefs: [...new Set(plan.slots.flatMap((s) => s.utdgRefs))],
-    evidenceRefs: [...new Set(plan.slots.flatMap((s) => s.evidenceRefs))]
+    utdgRefs: [...new Set(slots.flatMap((s) => s.utdgRefs))],
+    evidenceRefs: [...new Set(slots.flatMap((s) => s.evidenceRefs))]
   };
 }
 
 function assemble(plan: ContentPlan, profile: RealizationProfile, text: string, modelFamilyHint?: string): RealizedPrompt {
-  const gate = faithfulnessGate(plan, text);
+  const noteSlots = plan.negativeSlots.filter((slot) => slot.slotKind === 'constraint-note' || slot.slotKind === 'constraint-review');
+  const constraintNotes = noteSlots.map((slot) => slot.value);
+  const negativeText = renderTemplate(plan.negativeSlots.filter((slot) => !noteSlots.includes(slot)), profile);
+  const gate = faithfulnessGate(plan, text, negativeText, constraintNotes);
   const refs = inheritedRefs(plan);
   return {
     promptId: `${plan.planId}__${profile}`,
     planId: plan.planId,
     realizationProfile: profile,
     text,
+    ...(negativeText.length > 0 ? { negativeText } : {}),
+    constraintNotes,
     faithfulness: { slotCoverage: gate.slotCoverage, unsupportedContent: gate.unsupportedContent, notes: gate.notes },
     utdgRefs: refs.utdgRefs,
     evidenceRefs: refs.evidenceRefs,
@@ -54,9 +61,9 @@ function assemble(plan: ContentPlan, profile: RealizationProfile, text: string, 
   };
 }
 
-/** Deterministic template realization. Coverage is guaranteed by construction. */
+/** Deterministic literal slot realization; unstructured constraints still require review. */
 export function realizeTemplate(plan: ContentPlan, profile: RealizationProfile): RealizedPrompt {
-  return assemble(plan, profile, renderTemplate(plan, profile));
+  return assemble(plan, profile, renderTemplate(plan.slots, profile));
 }
 
 const CaptionSchema = z.object({ text: z.string().min(1) });
@@ -71,7 +78,7 @@ export async function realizeWithProvider(args: {
   plan: ContentPlan;
   modelFamilyHint?: string;
 }): Promise<RealizedPrompt> {
-  const slotLines = orderedSlots(args.plan).map((s) => `- ${s.slotKind}: ${s.value}`).join('\n');
+  const slotLines = orderedSlots(args.plan.slots).map((s) => `- ${s.slotKind}: ${s.value}`).join('\n');
   const prompt = [
     'Write one fluent, natural image caption that includes every element below and adds nothing not listed.',
     'Return JSON: {"text": "..."}.',

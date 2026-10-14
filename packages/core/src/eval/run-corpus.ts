@@ -136,7 +136,7 @@ async function runBrief(args: {
   }, () => store.readArtifact('semantic-choice-graph', 'semantic-choice-graph.json'));
 
   const plans = await resume<ContentPlans>('sample', {
-    version: 'sample-1', grammar, seed: args.seed, count: args.plansPerBrief
+    version: 'sample-2', grammar, seed: args.seed, count: args.plansPerBrief
   }, 'content-plans', 'sampled-content-plans.json', () => {
     const artifact = sampleContentPlans({
       grammar,
@@ -152,7 +152,7 @@ async function runBrief(args: {
 
   const { realized: _previousRealized, ...planInputs } = plans;
   const realized = await resume<ContentPlans>('realize', {
-    version: 'template-1', profile: 'caption-prose', plans: planInputs
+    version: 'template-2', profile: 'caption-prose', plans: planInputs
   }, 'content-plans', 'content-plans.json', () => {
     const artifact = ContentPlansSchema.parse({
       ...plans,
@@ -241,7 +241,8 @@ async function main(argv: string[]): Promise<void> {
       extractionRunDir: baseDir,
       baseGrammar: grammar,
       outputPath: path.join(baseDir, 'eval-report.json'),
-      now: new Date().toISOString()
+      now: new Date().toISOString(),
+      minimumScore: 106
     });
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   } else {

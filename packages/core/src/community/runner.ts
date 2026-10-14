@@ -261,7 +261,7 @@ export async function runCommunityJobL0(args: {
   let contentPlans: ContentPlans | undefined;
   if (job.goals.contentPlans || job.goals.sceneGrammar) {
     contentPlans = await resume<ContentPlans>('sample', {
-      version: 'community-sample-realize-1', grammar, seed: args.seed ?? 73,
+      version: 'community-sample-realize-2', grammar, seed: args.seed ?? 73,
       count: args.planCount ?? 12, profile: 'caption-prose'
     }, 'content-plans', 'content-plans.json', () => {
       const plans = sampleContentPlans({

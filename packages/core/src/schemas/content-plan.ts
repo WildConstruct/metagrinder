@@ -39,6 +39,8 @@ export const RealizedPromptSchema = z.object({
   realizationProfile: z.string(),
   text: z.string().min(1),
   negativeText: z.string().optional(),
+  /** Preserved instructions/review notes, never misinterpreted as negative prompt tokens. */
+  constraintNotes: z.array(z.string()).default([]),
   faithfulness: z.object({
     slotCoverage: GateStatusSchema.default('pending'),
     unsupportedContent: GateStatusSchema.default('pending'),

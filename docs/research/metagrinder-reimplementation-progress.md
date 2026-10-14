@@ -15,6 +15,12 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-10-14 [S-R3] CI/contracts and semantic evaluation boundaries — DONE
+- changed: supported hard rules + negative constraint carry-through; conservative full-attribute lexical faithfulness; unique matched judge calibration; single-snapshot manifest/hash-verified per-brief diagnostics + unchanged baseline enforcement; nonmutating source-contract parity + strict stdlib consumption; canonical verifier and pinned Linux/Windows CI; authoritative rebuilt docs + honest mini-cell scope
+- gates: Node 20.19.0 / pnpm 8.15.4 exact root verify:reimplementation passed; live src 437/437 (47 suites); isolated forced-LF checkpoint src 368/368 (38 suites); legacy 134/134 in both; strict tsc clean; 18 generated contracts fresh/consumable; bootstrap locks 106/114 unchanged; dev question baseline delta=0 passed; scoped cached diff clean
+- notes: Red regressions preceded repairs. Independent review closed score/hash snapshot races and dangling/ambiguous plan grammar references. Full verification exposed Windows recovery-lock and atomic-rename contention; bounded retries preserve original durable bytes, while persistent permission errors fail closed. Ten additional concurrency repetitions passed. Unrelated bridge/QA/campaign/research work and all eval judgments remain outside this checkpoint; no paid or held-out run occurred.
+- limits: Metadata scores, structural/lexical diagnostics, and single-grammar reference-presence ERA are not factual accuracy or semantic entailment. Unstructured constraints remain pending. Existing provider/held-out/calibration/phase gates stay open; mini-cell source-anchor regeneration (AC-5.2b) remains outstanding. Linux/Windows CI is configured, not remotely proven by this local run.
+
 ## 2026-10-13 [S-R2] Budgets, resumability, transport, and workbench persistence — DONE
 - changed: mandatory durable run/shared-campaign accounting; once-only reservations; atomic locked manifest mutations; input/request-signed schema/hash-verified corpus/community reuse; native/JS Codex launch and owned process-tree cleanup; cache metadata identity; run-scoped keyed workbench saves + atomic writes + localhost boundaries
 - gates: Node 20.19.0; live src 364/364 (41 suites); isolated scoped src 295/295 (32 suites); legacy 134/134; strict tsc clean; bootstrap baseline locks 106/114 unchanged; unchanged dev question battery n=15 composite=0.7373, delta=0 passed; staged-source codegen/contract consumption and cached diff clean

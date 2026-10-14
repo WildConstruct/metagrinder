@@ -6,26 +6,27 @@ This repo is being rebuilt per `docs/research/metagrinder-reimplementation-analy
 
 ## Project Structure & Module Organization
 
-This fork is a trimmed pnpm workspace focused on `packages/core`. Core TypeScript sources live in `packages/core/types`, `services`, `utils`, `fileFormats`, and `runtime/nodes/epic1`. Tests live beside the package in `packages/core/tests` and `packages/core/runtime/nodes/epic1/__tests__`. JSON fixtures used by schema and parser tests are stored under `packages/core/tests/fixtures`. Long-form specs and fork notes live in `docs/` and `docs/research/`.
+This fork is a trimmed pnpm workspace focused on `packages/core`. The rebuilt implementation lives in `packages/core/src/`, with schemas in `src/schemas/`, stages in `src/stages/`, and adjacent `*.test.ts` files. JSON Schema contracts are generated from those schemas into `contracts/json-schema/`; never hand-mirror them. Legacy `types`, `services`, `utils`, `fileFormats`, `runtime/nodes/epic1`, and tests under `packages/core/tests` remain regression/reference surfaces. Long-form specs and fork notes live in `docs/` and `docs/research/`.
 
 ## Build, Test, and Development Commands
 
-Use Node `20.19.0` (`.nvmrc`) and pnpm `8.15.4`.
+Use Node `20.19.0` (exact `.nvmrc` pin), pnpm `8.15.4`, and Python 3.9 or newer. CI uses the same verification command on Linux and Windows with Python 3.12.
 
 - `pnpm install` installs workspace dependencies.
-- `pnpm validate:metagrinder` validates Metagrinder fixtures through `@promptscape/core`.
-- `pnpm validate:rainy-alley-prototype` checks the rainy alley prototype data.
-- `pnpm validate:rainy-alley-shot-differences` validates shot-difference fixtures.
-- `pnpm run:rainy-alley-prototype` runs the prototype script locally.
-- `pnpm test:metagrinder` runs the canonical Jest suite (`packages/core/jest.metagrinder.config.cjs`, ts-jest, node env). Do not run bare `pnpm exec jest` from the root — `packages/core/jest.config.cjs` is a stale jsdom/babel config from the parent repo and fails on TypeScript. If `pnpm` is missing, see the Environment notes in README.md (corepack + external store-dir).
+- `pnpm verify:reimplementation` is the canonical gate: strict rebuilt typecheck, rebuilt and legacy Jest suites, nonmutating generated-contract parity, and Python contract consumption. The verifier rejects a mismatched Node version before running checks.
+- `pnpm test:src` and `pnpm typecheck:src` run targeted rebuilt checks.
+- `pnpm --filter @promptscape/core codegen:json-schema` regenerates contracts after schema edits; verification does not rewrite them.
+- `pnpm test:metagrinder` runs the legacy Jest suite (`packages/core/jest.metagrinder.config.cjs`), not the full rebuilt gate. The `validate:metagrinder` and rainy-alley commands are legacy fixture/prototype checks.
+
+Do not run bare `pnpm exec jest` from the root — `packages/core/jest.config.cjs` is a stale jsdom/babel config from the parent repo and fails on TypeScript. If `pnpm` is missing, see README.md for corepack and external-store guidance. Non-Windows hosts must override the Windows `.npmrc` store path with an external `npm_config_store_dir`; CI already does so. `METAGRINDER_VERIFY_PYTHON` can select a literal Python executable path.
 
 ## Coding Style & Naming Conventions
 
-The repo uses strict TypeScript with CommonJS in `packages/core`. Follow the existing style: 2-space indentation, semicolons, single quotes, and named exports for shared helpers. Use `PascalCase` for types/classes (`PromptParser.ts`), `camelCase` for functions and variables, and `*.test.ts` for tests. Keep fixtures descriptive and lowercase, for example `packages/core/tests/fixtures/metagrinder/prompt-graph.json`.
+The rebuilt code uses strict TypeScript (`packages/core/src/tsconfig.json`) in the CommonJS core package. Follow the existing style: 2-space indentation, semicolons, single quotes, and named exports for shared helpers. Use `PascalCase` for types/classes, `camelCase` for functions and variables, and `*.test.ts` for tests. Keep fixtures descriptive and lowercase.
 
 ## Testing Guidelines
 
-Jest is the active test runner. Add unit tests in `packages/core/tests` for package APIs and in `packages/core/runtime/nodes/epic1/__tests__` for runtime-node behavior. Prefer test names that describe behavior or map to acceptance criteria, such as `[AC-B2] Round-trip preserves data`. Run targeted tests with `pnpm exec jest packages/core/tests/psgCodec.test.ts`.
+Jest is the active test runner. Add rebuilt tests beside the code in `packages/core/src/`; use `pnpm --filter @promptscape/core exec jest --config jest.src.config.cjs --runInBand src/<test-path>` for a targeted test. Prefer names that describe behavior or map to acceptance criteria, such as `[AC-B2] Round-trip preserves data`. Deterministic boundaries use unit/property tests; semantic stages use rubric-scored replay evidence, never fixture-output equality. The locked bootstrap scores (106 heuristic, 114 semantic capture) measure extraction metadata, not factual accuracy or downstream semantic quality. Lexical faithfulness and per-brief diagnostics are boundary checks, not entailment proof. Real-provider, held-out, judge-calibration, and phase-exit gates remain open until their required operator evidence/sign-off exists.
 
 ## Commit & Pull Request Guidelines
 
@@ -33,4 +34,4 @@ Recent history mostly follows conventional prefixes: `feat:`, `fix:`, `test:`, a
 
 ## Security & Configuration Tips
 
-Do not commit `.env*`, coverage output, generated builds, or ad hoc runtime data; they are already ignored in `.gitignore`. Treat files under `docs/research/` and `packages/core/tests/fixtures/` as reference artifacts, and avoid editing them without updating the validating tests in the same change.
+Do not commit `.env*`, coverage output, generated builds, or ad hoc runtime data; they are already ignored in `.gitignore`. Preserve unrelated dirty work. Update the rolling progress log and story table under `docs/research/` as the loop requires. Never read held-out briefs or edit eval judgments in the same change as the stage they score; corpus/judgment changes require their own `eval-corpus:` commit. Existing human run cards are the gate actions, not invitations to build more readiness machinery.

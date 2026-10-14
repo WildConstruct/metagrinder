@@ -31,6 +31,8 @@ export const CorpusEvalReportSchema = z.object({
 export type CorpusEvalReport = z.infer<typeof CorpusEvalReportSchema>;
 
 export const ExpressiveRangeReportSchema = z.object({
+  /** This ratio records carried reference presence, not evidence validity or entailment. */
+  evidenceCoverageBasis: z.literal('reference-presence-only').default('reference-presence-only'),
   grammarTarget: z.enum(['base', 'accepted']),
   seed: z.number().int(),
   sampleCountRequested: z.number().int().nonnegative(),
@@ -123,7 +125,30 @@ export const JudgeMetaGateReportSchema = z.object({
 });
 export type JudgeMetaGateReport = z.infer<typeof JudgeMetaGateReportSchema>;
 
+export const PipelineDiagnosticSchema = z.object({
+  briefId: z.string(),
+  runId: z.string(),
+  inputId: z.string(),
+  artifactHashes: z.record(z.string().regex(/^[a-f0-9]{64}$/)),
+  planCount: z.number().int().nonnegative(),
+  realizedCount: z.number().int().nonnegative(),
+  failedRealizations: z.number().int().nonnegative(),
+  pendingRealizations: z.number().int().nonnegative(),
+  constraintViolations: z.number().int().nonnegative(),
+  issues: z.array(z.string())
+});
+export type PipelineDiagnostic = z.infer<typeof PipelineDiagnosticSchema>;
+
 export const EvalReportSchema = artifactEnvelope('eval-report').extend({
+  evaluationScope: z.object({
+    scoredSignals: z.literal('extraction-metadata'),
+    factualAccuracy: z.literal('not-evaluated'),
+    downstreamSemantics: z.literal('not-evaluated'),
+    downstreamDiagnostics: z.enum(['not-evaluated', 'deterministic-boundaries']).default('not-evaluated'),
+    eraInput: z.object({ scope: z.literal('single-grammar'), runId: z.string(), inputId: z.string() }).optional()
+  }).default({ scoredSignals: 'extraction-metadata', factualAccuracy: 'not-evaluated', downstreamSemantics: 'not-evaluated' }),
+  pipelineDiagnostics: z.array(PipelineDiagnosticSchema).default([]),
+  baseline: z.object({ minimumScore: z.number().nonnegative(), passed: z.boolean() }).optional(),
   corpus: CorpusEvalReportSchema,
   era: z.object({
     base: ExpressiveRangeReportSchema,

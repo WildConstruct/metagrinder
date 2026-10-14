@@ -182,6 +182,13 @@
               "negativeText": {
                 "type": "string"
               },
+              "constraintNotes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "default": []
+              },
               "faithfulness": {
                 "type": "object",
                 "properties": {

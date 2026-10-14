@@ -69,7 +69,7 @@ describe('LLM caption realization is gated (S3.4)', () => {
   function tmp(): string { return fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-realize-')); }
 
   test('a faithful model caption passes the gate', async () => {
-    const transport: Transport = async () => ({ rawText: '{"text":"An adult spectator in a wool overcoat stands at the crowded grandstand rail."}' });
+    const transport: Transport = async () => ({ rawText: '{"text":"An adult spectator in a wool overcoat at the crowded grandstand rail."}' });
     const provider = createCachingProvider({ runDir: tmp(), transport, providerId: 'fake', model: 'm', mode: 'record', now: NOW });
     const r = await realizeWithProvider({ provider, plan: plan() });
     expect(r.faithfulness.slotCoverage).toBe('pass');

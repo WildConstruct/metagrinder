@@ -53,7 +53,8 @@ export async function runHoldout(
     sourceKind: 'holdout-extraction',
     baseGrammar: grammar,
     outputPath,
-    now: new Date().toISOString()
+    now: new Date().toISOString(),
+    minimumScore: (106 / 120) * corpus.scoring.max_per_brief * corpus.briefs.length
   });
   return outputPath;
 }

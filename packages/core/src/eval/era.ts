@@ -19,7 +19,7 @@ function refIds(plan: ContentPlan, prefix: string): string[] {
     .map((value) => value.slice(prefix.length + 1));
 }
 
-function selectionFor(grammar: SceneGrammar, plan: ContentPlan): Selection | undefined {
+export function selectionFor(grammar: SceneGrammar, plan: ContentPlan): Selection | undefined {
   const archetypeId = refId(plan, 'archetypes');
   if (!archetypeId) return undefined;
   const archetype = grammar.archetypes.find((candidate) => candidate.archetypeId === archetypeId);

@@ -7,8 +7,8 @@ import { z } from 'zod';
  * evals run against it in CI. Held-out briefs live outside the repo (S0.3)
  * and are loaded by the holdout runner (S3.5) via METAGRINDER_HOLDOUT_DIR.
  *
- * judgments.json is the verbatim epic4 port — its byte identity with the
- * original is asserted by test. Judgment edits ship in their own
+ * judgments.json is the verbatim epic4 port — its content identity with the
+ * original is asserted by test (CRLF/LF equivalence only). Judgment edits ship in their own
  * `eval-corpus:` flagged commits (loop rule A4.2).
  *
  * Briefs are stored as briefs/<id>.<ext>; the loader joins by id and ignores

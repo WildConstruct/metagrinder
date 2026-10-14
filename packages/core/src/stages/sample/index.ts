@@ -8,7 +8,8 @@ import {
 } from '../../schemas';
 import { choiceWeightFromRange } from '../../compile/psg';
 import { mulberry32, weightedPick } from './rng';
-import { type Selection, appliedRuleIds, violatedRuleIds } from './rules';
+import { type Selection, applicableNegativeConstraints, appliedRuleIds,
+  assertSupportedGenerationRules, violatedRuleIds } from './rules';
 
 /**
  * Content-plan sampling (S2.4). Seed-deterministic: a (grammar, seed, count)
@@ -87,8 +88,23 @@ function samplePlan(grammar: SceneGrammar, seed: number, index: number): Content
         seed,
         grammarTarget: grammar.grammarTarget,
         slots: slotsFor(planId, archetype, grammar, sel),
-        negativeSlots: [],
-        rulesApplied: appliedRuleIds(grammar)
+        negativeSlots: applicableNegativeConstraints(grammar, sel).flatMap((constraint, constraintIndex) => {
+          const enforcement = constraint.enforcement;
+          const structured = enforcement !== undefined && [
+            ...enforcement.avoid, ...enforcement.exclude, ...enforcement.force, ...enforcement.allow
+          ].length > 0;
+          const refs = { grammarRefs: [`negativeConstraints.${constraint.constraintId}`],
+            utdgRefs: [], evidenceRefs: constraint.provenance.sourceChunkIds };
+          return [{
+            slotId: `${planId}_constraint_${constraintIndex}`,
+            slotKind: structured ? 'constraint-note' : 'constraint-review',
+            value: constraint.text, ...refs
+          }, ...[...new Set([...(enforcement?.avoid ?? []), ...(enforcement?.exclude ?? [])])].map((target, targetIndex) => ({
+            slotId: `${planId}_negative_${constraintIndex}_${targetIndex}`,
+            slotKind: 'negative', value: target, ...refs
+          }))];
+        }),
+        rulesApplied: appliedRuleIds(grammar, sel)
       };
     }
   }
@@ -103,8 +119,9 @@ export function sampleContentPlans(args: {
   inputId?: string;
   now: string;
 }): ContentPlans {
+  assertSupportedGenerationRules(args.grammar);
   const plans: ContentPlan[] = [];
-  for (let i = 0; i < args.count; i++) {
+  for (let i = 0; i < args.count && args.grammar.archetypes.length > 0; i++) {
     const plan = samplePlan(args.grammar, args.seed, i);
     if (plan) plans.push(plan);
   }

@@ -5,6 +5,8 @@ import { BudgetLedgerSchema, type BudgetLedger } from '../schemas/run-manifest';
 import { sha256Hex } from './ids';
 
 const LOCK_TIMEOUT_MS = 10_000;
+const RECOVERY_OPEN_EPERM_RETRIES = 4;
+const ATOMIC_RENAME_CONTENTION_RETRIES = 4;
 const waitWord = new Int32Array(new SharedArrayBuffer(4));
 
 /** Locks cover only local JSON mutations, never transport/network work. */
@@ -13,6 +15,7 @@ export function withBudgetFileLock<T>(filePath: string, operation: () => T): T {
   fs.mkdirSync(path.dirname(lockPath), { recursive: true });
   const started = Date.now();
   let acquired = false;
+  let recoveryOpenPermissionRetries = 0;
   while (!acquired) {
     try {
       const fd = fs.openSync(lockPath, 'wx');
@@ -32,6 +35,7 @@ export function withBudgetFileLock<T>(filePath: string, operation: () => T): T {
       let reclaimed = false;
       try {
         recoveryFd = fs.openSync(recoveryPath, 'wx');
+        recoveryOpenPermissionRetries = 0;
         const owner = JSON.parse(fs.readFileSync(lockPath, 'utf8')) as { pid?: unknown };
         if (typeof owner.pid === 'number' && Number.isInteger(owner.pid) && owner.pid > 0) {
           try {
@@ -44,8 +48,17 @@ export function withBudgetFileLock<T>(filePath: string, operation: () => T): T {
           }
         }
       } catch (readError) {
-        if ((readError as NodeJS.ErrnoException).code === 'ENOENT') continue;
-        if ((readError as NodeJS.ErrnoException).code !== 'EEXIST' && !(readError instanceof SyntaxError)) throw readError;
+        const code = (readError as NodeJS.ErrnoException).code;
+        // Windows can briefly deny an exclusive open while another process's
+        // recovery-lock handle is closing/deleting. Retry only that open seam;
+        // persistent denial and read/unlink permission failures still escape.
+        if (recoveryFd === undefined && process.platform === 'win32' && code === 'EPERM') {
+          if (++recoveryOpenPermissionRetries > RECOVERY_OPEN_EPERM_RETRIES) throw readError;
+        } else {
+          recoveryOpenPermissionRetries = 0;
+          if (code === 'ENOENT') continue;
+          if (code !== 'EEXIST' && !(readError instanceof SyntaxError)) throw readError;
+        }
       } finally {
         if (recoveryFd !== undefined) {
           fs.closeSync(recoveryFd);
@@ -85,7 +98,20 @@ export function writeBudgetJsonAtomic(filePath: string, data: unknown): void {
     fs.fsyncSync(fd);
     fs.closeSync(fd);
     fd = undefined;
-    fs.renameSync(temporary, destination);
+    for (let attempt = 0; ; attempt++) {
+      try {
+        fs.renameSync(temporary, destination);
+        break;
+      } catch (error) {
+        const code = (error as NodeJS.ErrnoException).code;
+        // A short-lived Windows read handle can deny replacement. Keep the
+        // complete fsynced temporary file and old destination untouched while
+        // retrying; never unlink the durable destination as a fallback.
+        if (process.platform !== 'win32' || !['EPERM', 'EACCES', 'EBUSY'].includes(code ?? '')
+          || attempt >= ATOMIC_RENAME_CONTENTION_RETRIES) throw error;
+        Atomics.wait(waitWord, 0, 0, 15);
+      }
+    }
   } finally {
     if (fd !== undefined) fs.closeSync(fd);
     if (fs.existsSync(temporary)) fs.unlinkSync(temporary);

@@ -16,8 +16,14 @@ permissions:
 
 jobs:
   metagrinder-tests:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
+    env:
+      npm_config_store_dir: ${{ runner.temp }}/pnpm-store
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,8 +36,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: pnpm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - name: Show tool versions
         run: |
@@ -41,5 +52,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Metagrinder tests
-        run: pnpm test:metagrinder
+      - name: Verify rebuilt implementation and legacy regressions
+        run: pnpm verify:reimplementation

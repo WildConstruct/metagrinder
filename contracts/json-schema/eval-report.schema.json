@@ -22,6 +22,144 @@
           "type": "string",
           "format": "date-time"
         },
+        "evaluationScope": {
+          "type": "object",
+          "properties": {
+            "scoredSignals": {
+              "type": "string",
+              "const": "extraction-metadata"
+            },
+            "factualAccuracy": {
+              "type": "string",
+              "const": "not-evaluated"
+            },
+            "downstreamSemantics": {
+              "type": "string",
+              "const": "not-evaluated"
+            },
+            "downstreamDiagnostics": {
+              "type": "string",
+              "enum": [
+                "not-evaluated",
+                "deterministic-boundaries"
+              ],
+              "default": "not-evaluated"
+            },
+            "eraInput": {
+              "type": "object",
+              "properties": {
+                "scope": {
+                  "type": "string",
+                  "const": "single-grammar"
+                },
+                "runId": {
+                  "type": "string"
+                },
+                "inputId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scope",
+                "runId",
+                "inputId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "scoredSignals",
+            "factualAccuracy",
+            "downstreamSemantics"
+          ],
+          "additionalProperties": false,
+          "default": {
+            "scoredSignals": "extraction-metadata",
+            "factualAccuracy": "not-evaluated",
+            "downstreamSemantics": "not-evaluated"
+          }
+        },
+        "pipelineDiagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "briefId": {
+                "type": "string"
+              },
+              "runId": {
+                "type": "string"
+              },
+              "inputId": {
+                "type": "string"
+              },
+              "artifactHashes": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "pattern": "^[a-f0-9]{64}$"
+                }
+              },
+              "planCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "realizedCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "failedRealizations": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "pendingRealizations": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "constraintViolations": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "issues": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "briefId",
+              "runId",
+              "inputId",
+              "artifactHashes",
+              "planCount",
+              "realizedCount",
+              "failedRealizations",
+              "pendingRealizations",
+              "constraintViolations",
+              "issues"
+            ],
+            "additionalProperties": false
+          },
+          "default": []
+        },
+        "baseline": {
+          "type": "object",
+          "properties": {
+            "minimumScore": {
+              "type": "number",
+              "minimum": 0
+            },
+            "passed": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "minimumScore",
+            "passed"
+          ],
+          "additionalProperties": false
+        },
         "corpus": {
           "type": "object",
           "properties": {
@@ -136,6 +274,11 @@
             "base": {
               "type": "object",
               "properties": {
+                "evidenceCoverageBasis": {
+                  "type": "string",
+                  "const": "reference-presence-only",
+                  "default": "reference-presence-only"
+                },
                 "grammarTarget": {
                   "type": "string",
                   "enum": [
@@ -208,6 +351,11 @@
             "accepted": {
               "type": "object",
               "properties": {
+                "evidenceCoverageBasis": {
+                  "type": "string",
+                  "const": "reference-presence-only",
+                  "default": "reference-presence-only"
+                },
                 "grammarTarget": {
                   "type": "string",
                   "enum": [

@@ -1,7 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { z } from 'zod';
-import { ExtractionSchema, type Extraction } from '../schemas';
+import { RunStore } from '../artifacts/store';
+import { type Extraction } from '../schemas';
 import {
   CorpusEvalReportSchema,
   type CorpusEvalReport,
@@ -107,7 +108,7 @@ export function scoreObservation(brief: CorpusBrief, observation: EvalObservatio
   }
 
   const expectedFocus = new Set(brief.judgment.expected_focus_any);
-  const focusHits = observation.focus.filter((label) => expectedFocus.has(label)).length;
+  const focusHits = new Set(observation.focus.filter((label) => expectedFocus.has(label))).size;
   const focusScore = Math.min(focusHits, scoring.focus_hit_cap);
   score += focusScore;
   breakdown.focus += focusScore;
@@ -197,11 +198,29 @@ export function scoreExtractionRun(
   sourceKind: 'replayed-extraction' | 'holdout-extraction' = 'replayed-extraction'
 ): CorpusEvalReport {
   return scoreCorpus(corpus, sourceKind, (brief) => {
-    const extractionPath = path.join(runDir, brief.id, 'extraction.json');
-    const extraction = ExtractionSchema.parse(JSON.parse(fs.readFileSync(extractionPath, 'utf8')));
+    const store = openEvaluationRun(runDir, brief.id);
+    const extraction = store.readArtifact<Extraction>('extraction', 'extraction.json');
+    if (extraction.runId !== brief.id || extraction.inputId !== brief.id) {
+      throw new Error(`evaluation extraction identity mismatch: ${brief.id}`);
+    }
     if (sourceKind === 'replayed-extraction' && extraction.analysisMode !== 'replayed-llm-semantic') {
       throw new Error(`committed corpus extraction is not replay-stamped: ${brief.id}`);
     }
     return observationFromExtraction(extraction);
   });
+}
+
+export function openEvaluationRun(baseDir: string, briefId: string): RunStore {
+  const root = path.resolve(baseDir);
+  const directory = path.resolve(root, briefId);
+  const relative = path.relative(root, directory);
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) {
+    throw new Error(`evaluation run path must stay within its root: ${briefId}`);
+  }
+  const store = RunStore.open(directory);
+  const manifest = store.getManifest();
+  if (manifest.runId !== briefId || manifest.inputId !== briefId) {
+    throw new Error(`evaluation run identity mismatch: ${briefId}`);
+  }
+  return store;
 }

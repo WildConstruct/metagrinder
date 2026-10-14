@@ -6,6 +6,8 @@ import { createCachingProvider, type Transport } from '../providers';
 import type { Corpus } from './corpus';
 import { loadCorpus } from './corpus';
 import { runCorpusPipeline } from './run-corpus';
+import { evaluateRun } from './run';
+import type { ContentPlans, SceneGrammar } from '../schemas';
 import { runHoldout } from './run-holdout';
 import { scoreExtractionRun } from './scorer';
 
@@ -67,6 +69,41 @@ function responseFor(req: Parameters<Transport>[0]): string {
 }
 
 describe('S3.5 rebuilt corpus record/replay runner', () => {
+  test('[S-R3d] downstream diagnostics inspect every run and recheck stored realization gates', async () => {
+    const base = oneBriefCorpus();
+    const first = base.briefs[0]!;
+    const corpus = { ...base, briefs: [first, { ...first, id: 'second-brief',
+      judgment: { ...first.judgment, id: 'second-brief' } }] };
+    const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mg-pipeline-diagnostics-'));
+    let mode: 'record' | 'replay' = 'record';
+    const options = { corpus, baseDir, now: () => NOW, plansPerBrief: 3,
+      providerForRun: (runDir: string, store: RunStore) => createCachingProvider({
+        runDir, providerId: 'fake', model: 'm', mode, budgetStore: store,
+        transport: async (request) => ({ rawText: responseFor(request) })
+      }) };
+    await runCorpusPipeline(options);
+    mode = 'replay';
+    await runCorpusPipeline(options);
+    const store = RunStore.open(path.join(baseDir, corpus.briefs[0]!.id));
+    const grammar = store.readArtifact<SceneGrammar>('scene-grammar', 'scene-grammar.json');
+    const evaluation = { corpus, extractionRunDir: baseDir, baseGrammar: grammar,
+      outputPath: path.join(baseDir, 'eval-report.json'), now: NOW, minimumScore: 8 };
+    const report = evaluateRun(evaluation);
+    expect(report.evaluationScope.downstreamSemantics).toBe('not-evaluated');
+    expect(report.pipelineDiagnostics).toHaveLength(2);
+    expect(Object.keys(report.pipelineDiagnostics[0]!.artifactHashes)).toHaveLength(5);
+    expect(report.pipelineDiagnostics[0]).toMatchObject({
+      planCount: 3, realizedCount: 3, failedRealizations: 0, pendingRealizations: 0, issues: []
+    });
+    const content = store.readArtifact<ContentPlans>('content-plans', 'content-plans.json');
+    content.realized[0]!.text = 'An unsupported astronaut';
+    // Schema/hash-valid data and a forged pass stamp do not bypass gate recomputation.
+    store.writeArtifact('content-plans', 'content-plans.json', content);
+    expect(() => evaluateRun(evaluation)).toThrow(/downstream diagnostic gates/);
+    const failed = JSON.parse(fs.readFileSync(evaluation.outputPath, 'utf8'));
+    expect(failed.pipelineDiagnostics[0].failedRealizations).toBe(1);
+    expect(failed.pipelineDiagnostics[1].failedRealizations).toBe(0);
+  });
   test('[S-R2b] a mid-run cap resumes grammar without paying for completed extraction', async () => {
     const corpus = oneBriefCorpus();
     const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'metagrinder-resume-cap-'));
