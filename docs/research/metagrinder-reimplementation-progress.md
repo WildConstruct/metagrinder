@@ -15,6 +15,12 @@ Eval baselines are recorded here as `## BASELINE — <corpus|holdout> <score> @ 
 
 ---
 
+## 2026-10-13 [S-R1] Governance, permissions, provenance, and handoff integrity — DONE
+- changed: citation completeness + consumed retraction flags; consent-preserving current-source export checks; content-bound human reconciliation; all-family grammar attribution/input identity; sealed package hashes + current-byte receipt lineage; source-derived contracts
+- gates: Node 20.19.0; live src 309/309 (34 suites); isolated repair src 205/205 (20 suites); legacy 134/134; strict tsc clean; bootstrap baseline locks 106/114 unchanged; contract consumption green; scoped cached diff clean
+- notes: Red regressions preceded fixes. Missing lifecycle/dependency mappings fail closed; interpreted grammar remains low-confidence for review. Existing phase-exit/real-provider/held-out gates remain open. This checkpoint includes only repaired modules and their required schema/helper seams from the mixed tree. The existing corpus byte-identity test is line-ending-sensitive under a forced-LF checkout; normal Windows checkout passes (carry to the CI repair slice).
+- compatibility: grammar cache requests now include source-input IDs; ordinal reconciliation approvals need fresh content-bound review; handoff manifests must be sealed against RunStore bytes.
+
 ## 2026-07-12 [S3.7] Persistent run/campaign budget ledger — DONE
 - changed: schemas/run-manifest.ts budgets; RunStore configure/reserve/settle + budget-cap transition; caching provider live-only charging; corpus/holdout/judge command integration
 - gates: tsc clean; src 119/119 (16 suites); legacy 134/134; contract consumption green

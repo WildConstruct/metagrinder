@@ -23,8 +23,12 @@ function oneBriefCorpus(): Corpus {
 function responseFor(req: Parameters<Transport>[0]): string {
   const chunkId = req.prompt.match(/^\[([^\]]+)\]/m)?.[1];
   if (!chunkId) throw new Error(`prompt did not contain a chunk id for ${req.stage}`);
+  const sourceInputId = req.stage === 'grammar'
+    ? req.prompt.match(/sourceInputId: ([^\s)]+)/)?.[1]
+    : 'input_broadway';
+  if (!sourceInputId) throw new Error(`prompt did not contain the chunk's source input for ${req.stage}`);
   const provenance = {
-    sourceInputIds: ['input_broadway'],
+    sourceInputIds: [sourceInputId],
     sourceChunkIds: [chunkId],
     spans: [],
     attributionMode: 'quoted',

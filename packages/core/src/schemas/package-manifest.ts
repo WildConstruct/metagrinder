@@ -32,7 +32,9 @@ export type ArtifactFamily = z.infer<typeof ArtifactFamilySchema>;
 export const PackageCollectionSchema = z.object({
   id: z.string(),
   family: ArtifactFamilySchema,
-  path: z.string()
+  path: z.string(),
+  /** Required by handoff sealing; optional only to read older draft manifests. */
+  contentSha256: z.string().regex(/^[a-f0-9]{64}$/).optional()
 });
 
 export const ResearchPackageManifestSchema = z.object({

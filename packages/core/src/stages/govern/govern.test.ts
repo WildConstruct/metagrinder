@@ -118,6 +118,50 @@ describe('governance: citation-gated revision application (S2.3)', () => {
     }
   });
 
+  test('[AC-2.3a] property: every cited claim must resolve to an approved review before mutation', () => {
+    const statuses = ['approved', 'rejected', 'needs_review', undefined] as const;
+    for (const firstStatus of statuses) {
+      for (const secondStatus of statuses) {
+        for (let claimMask = 0; claimMask < 4; claimMask++) {
+          const claims = [claim('c1', ['s1']), claim('c2', ['s1'])]
+            .filter((_, i) => (claimMask & (1 << i)) !== 0);
+          const citationReviews: CitationReview[] = [];
+          if (firstStatus) citationReviews.push(review('c1', firstStatus));
+          if (secondStatus) citationReviews.push(review('c2', secondStatus));
+          const { acceptedGrammar, deltas } = applyAcceptedRevisions({
+            baseGrammar: base,
+            revisions: [revision({ sourceClaimIds: ['c1', 'c2'] })],
+            decisions: [decide('rev_1', 'accepted')],
+            claims,
+            citationReviews,
+            sources: [source('s1')],
+            now: NOW
+          });
+          const fullyApproved = claimMask === 3 && firstStatus === 'approved' && secondStatus === 'approved';
+          expect(deltas[0]!.deltaKind).toBe(fullyApproved ? 'material' : 'confirmation');
+          if (!fullyApproved) {
+            expect(acceptedGrammar.archetypes.find((a) => a.archetypeId === 'middle_class_spectator')!.weightRange)
+              .toEqual(baseRange);
+          }
+        }
+      }
+    }
+  });
+
+  test('mixed citations remain mixed and a review cannot approve an absent claim', () => {
+    const cited = revision({ sourceClaimIds: ['c1', 'c2'] });
+    expect(citationStatusForRevision({
+      revision: cited,
+      claimsById: new Map([['c1', claim('c1', ['s1'])], ['c2', claim('c2', ['s1'])]]),
+      reviewsById: new Map([['c1', review('c1', 'approved')], ['c2', review('c2', 'rejected')]])
+    })).toBe('mixed');
+    expect(citationStatusForRevision({
+      revision: revision(),
+      claimsById: new Map(),
+      reviewsById: new Map([['c1', review('c1', 'approved')]])
+    })).toBe('needs_review');
+  });
+
   test('[AC-2.3a] property: non-accepted revision decisions never apply', () => {
     for (const state of ['rejected', 'pending'] as const) {
       const { acceptedGrammar, deltas } = applyAcceptedRevisions({
@@ -140,6 +184,25 @@ describe('governance: citation-gated revision application (S2.3)', () => {
     expect(deltas[0]!.warnings.some((w) => /override/i.test(w))).toBe(true);
     expect(acceptedGrammar.archetypes.find((a) => a.archetypeId === 'middle_class_spectator')!.weightRange)
       .toMatchObject({ min: 40, max: 50 });
+  });
+
+  test('an explicit citationOverride can apply unresolved citations with visible warnings', () => {
+    const { deltas } = applyAcceptedRevisions({
+      baseGrammar: base,
+      revisions: [revision({ sourceClaimIds: ['c1', 'missing'] })],
+      decisions: [decide('rev_1', 'accepted', true)],
+      claims: [claim('c1', ['s1'])],
+      citationReviews: [],
+      sources: [source('s1')],
+      now: NOW
+    });
+    expect(deltas[0]!.deltaKind).toBe('material');
+    expect(deltas[0]!.citationStatus).toBe('override');
+    expect(deltas[0]!.warnings).toEqual(expect.arrayContaining([
+      expect.stringMatching(/missing claim.*missing/i),
+      expect.stringMatching(/missing citation review.*c1/i),
+      expect.stringMatching(/override/i)
+    ]));
   });
 
   test('[AC-2.3a] low-quality source cannot carry high-confidence silently', () => {
@@ -197,6 +260,67 @@ describe('governance: retraction cascade (S2.3, hole 2)', () => {
     expect(codes).toContain('accepted-delta-depends-on-retracted-source');
     // never rewrites: the source/claim records are untouched
     expect(lc.claims[0]!.claimId).toBe('c1');
+  });
+
+  test('[AC-2.3b] direct evidence dependencies flag deltas even without a cited claim', () => {
+    const lc = lifecycle(true);
+    const deltas = [{
+      deltaId: 'delta_direct', revisionId: 'rev_direct', targetRef: 'archetypes.x.weightRange', deltaKind: 'material' as const,
+      before: 1, after: 2, sourceClaimIds: [], evidenceIds: ['e1'], citationStatus: 'approved' as const, warnings: [], appliedAt: NOW
+    }];
+    const before = JSON.stringify({ lc, deltas });
+    const flags = computeIntegrityFlags({ lifecycle: lc, deltas });
+    expect(flags.find((f) => f.code === 'accepted-delta-depends-on-retracted-source')?.recordIds)
+      .toEqual(['delta_direct']);
+    expect(JSON.stringify({ lc, deltas })).toBe(before);
+  });
+
+  test('[AC-2.3b] accepted grammar exposes retraction flags for its applied claim-backed deltas', () => {
+    const lc = lifecycle(true);
+    const baseGrammar = { ...historicalCrowdGrammar(), reviewFlags: ['existing review note'] };
+    const args = {
+      baseGrammar,
+      revisions: [revision()],
+      decisions: [decide('rev_1', 'accepted')],
+      claims: lc.claims,
+      citationReviews: [review('c1', 'approved')],
+      sources: lc.sources,
+      now: NOW
+    };
+    const before = JSON.stringify(args);
+    const { acceptedGrammar, deltas } = applyAcceptedRevisions(args);
+    expect(deltas[0]!.deltaKind).toBe('material');
+    expect(acceptedGrammar.reviewFlags).toEqual(expect.arrayContaining([
+      'existing review note',
+      expect.stringMatching(/accepted-delta-depends-on-retracted-source.*delta_001/)
+    ]));
+    expect(acceptedGrammar.archetypes.find((a) => a.archetypeId === 'middle_class_spectator')!.weightRange)
+      .toMatchObject({ min: 40, max: 50 });
+    expect(JSON.stringify(args)).toBe(before);
+  });
+
+  test('[AC-2.3b] accepted grammar flags direct retracted evidence but ignores unrelated retractions', () => {
+    const lc = lifecycle(true);
+    const sources = [...lc.sources, source('safe')];
+    for (const directlyCited of [false, true]) {
+      const args = {
+        baseGrammar: historicalCrowdGrammar(),
+        revisions: [revision({ evidenceIds: directlyCited ? ['e1'] : [] })],
+        decisions: [decide('rev_1', 'accepted')],
+        claims: [claim('c1', ['safe'])],
+        citationReviews: [review('c1', 'approved')],
+        sources,
+        evidence: lc.evidence,
+        now: NOW
+      };
+      const before = JSON.stringify(args);
+      const { acceptedGrammar, deltas } = applyAcceptedRevisions(args);
+      const retractionFlags = acceptedGrammar.reviewFlags.filter((f) => f.includes('accepted-delta-depends-on-retracted-source'));
+      expect(deltas[0]!.deltaKind).toBe('material');
+      expect(retractionFlags).toHaveLength(directlyCited ? 1 : 0);
+      if (directlyCited) expect(retractionFlags[0]).toContain('delta_001');
+      expect(JSON.stringify(args)).toBe(before);
+    }
   });
 
   test('no flags when nothing is retracted', () => {

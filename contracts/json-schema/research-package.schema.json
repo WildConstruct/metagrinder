@@ -74,6 +74,10 @@
               },
               "path": {
                 "type": "string"
+              },
+              "contentSha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
               }
             },
             "required": [

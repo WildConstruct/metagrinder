@@ -8,6 +8,7 @@ import type {
   RevisionDecision,
   SceneGrammar,
   SourceClaim,
+  SourceEvidence,
   SourceLifecycle
 } from '../../schemas';
 import { SceneGrammarSchema } from '../../schemas';
@@ -82,18 +83,19 @@ export function citationStatusForRevision(args: {
   claimsById: Map<string, SourceClaim>;
   reviewsById: Map<string, CitationReview>;
 }): CitationStatus {
-  const reviews = args.revision.sourceClaimIds
-    .map((id) => args.reviewsById.get(id))
-    .filter((r): r is CitationReview => Boolean(r));
-  const statuses = reviews.length > 0
-    ? reviews.map((r) => r.citationStatus)
-    : args.revision.sourceClaimIds.map(() => 'needs_review' as const);
+  const statuses = args.revision.sourceClaimIds.map((id) => {
+    const claim = args.claimsById.get(id);
+    const review = args.reviewsById.get(id);
+    // An approved review cannot stand in for an absent or incorrectly joined claim.
+    if (claim?.claimId !== id || review?.claimId !== id) return 'needs_review' as const;
+    return review.citationStatus;
+  });
 
-  if (statuses.includes('approved')) return 'accepted';
-  if (statuses.length > 0 && statuses.every((s) => s === 'rejected')) return 'rejected';
-  if (statuses.length > 0 && statuses.every((s) => s === 'needs_review')) return 'needs_review';
-  if (statuses.length > 1) return 'mixed';
-  return 'none';
+  if (statuses.length === 0) return 'none';
+  if (statuses.every((s) => s === 'approved')) return 'accepted';
+  if (statuses.every((s) => s === 'rejected')) return 'rejected';
+  if (statuses.every((s) => s === 'needs_review')) return 'needs_review';
+  return 'mixed';
 }
 
 const LOW_QUALITY_RIGHTS = new Set(['unknown', 'reference-only', 'restricted']);
@@ -123,6 +125,8 @@ export function applyAcceptedRevisions(args: {
   claims: SourceClaim[];
   citationReviews: CitationReview[];
   sources: RegisteredSource[];
+  /** Current evidence records enable retraction checks on direct evidence refs. */
+  evidence?: SourceEvidence[];
   now: string;
 }): ApplyResult {
   const decisionById = new Map(args.decisions.map((d) => [d.revisionId, d]));
@@ -143,6 +147,15 @@ export function applyAcceptedRevisions(args: {
     const citationStatus = citationStatusForRevision({ revision, claimsById, reviewsById });
     const override = decision.citationOverride === true;
     const warnings: string[] = [];
+
+    for (const claimId of revision.sourceClaimIds) {
+      if (claimsById.get(claimId)?.claimId !== claimId) {
+        warnings.push(`revision ${revision.revisionId} references missing claim: ${claimId}`);
+      }
+      if (reviewsById.get(claimId)?.claimId !== claimId) {
+        warnings.push(`revision ${revision.revisionId} references missing citation review: ${claimId}`);
+      }
+    }
 
     // low-quality source guard
     const citesLowQuality = revision.sourceClaimIds.some((claimId) => {
@@ -184,6 +197,19 @@ export function applyAcceptedRevisions(args: {
       deltas.push(makeDelta(++deltaSeq, revision, 'confirmation', undefined, undefined, citationField, warnings, args.now));
     }
   }
+
+  const retractionFlags = computeIntegrityFlags({
+    lifecycle: {
+      sources: args.sources,
+      claims: args.claims,
+      evidence: args.evidence ?? []
+    },
+    deltas
+  }).filter((flag) => flag.code === 'accepted-delta-depends-on-retracted-source');
+  grammar.reviewFlags = [...new Set([
+    ...grammar.reviewFlags,
+    ...retractionFlags.map((flag) => `${flag.code}: ${flag.recordIds.join(', ')} — ${flag.message}`)
+  ])];
 
   return { acceptedGrammar: SceneGrammarSchema.parse(grammar), deltas };
 }
@@ -228,7 +254,7 @@ export interface IntegrityFlag {
  * source; this makes such dependencies visible.
  */
 export function computeIntegrityFlags(args: {
-  lifecycle: SourceLifecycle;
+  lifecycle: Pick<SourceLifecycle, 'sources' | 'evidence' | 'claims'>;
   deltas?: AcceptedDelta[];
 }): IntegrityFlag[] {
   const flags: IntegrityFlag[] = [];
@@ -251,6 +277,7 @@ export function computeIntegrityFlags(args: {
   const compromisedClaimSet = new Set(compromisedClaims);
   const compromisedDeltas = (args.deltas ?? []).filter(
     (d) => d.sourceClaimIds.some((c) => compromisedClaimSet.has(c))
+      || d.evidenceIds.some((e) => compromisedEvidenceSet.has(e))
   ).map((d) => d.deltaId);
   if (compromisedDeltas.length > 0) {
     flags.push({ code: 'accepted-delta-depends-on-retracted-source', message: 'accepted grammar delta depends on a retracted source', recordIds: compromisedDeltas });

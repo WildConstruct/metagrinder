@@ -16,12 +16,12 @@ import { verifyGrammarPayload, type GrammarReport } from './verify';
 
 export function buildGrammarPrompt(sourcePackage: SourcePackage): string {
   const chunks = sourcePackage.chunks
-    .map((c) => `[${c.chunkId}]${c.sectionLabel ? ` (${c.sectionLabel})` : ''} ${c.text}`)
+    .map((c) => `[${c.chunkId}] (sourceInputId: ${c.sourceInputId})${c.sectionLabel ? ` (${c.sectionLabel})` : ''} ${c.text}`)
     .join('\n\n');
   return [
     'Draft a scene grammar from the source chunks: archetypes (with weightRange, role, promptText),',
     'location zones, environmental modifiers, compatibility rules, and negative constraints.',
-    'Every record must carry provenance citing chunk ids from this document. Use generic labels from',
+    'Every record must carry provenance citing chunk ids and their owning sourceInputIds from this document. Use generic labels from',
     'the source — do not import archetypes from any other scene. Return a single JSON object.',
     '',
     'SOURCE CHUNKS:',

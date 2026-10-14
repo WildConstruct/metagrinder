@@ -169,6 +169,68 @@
                 ],
                 "default": "unknown"
               },
+              "sourceRights": {
+                "type": "string",
+                "default": "Unknown"
+              },
+              "contributionTerms": {
+                "type": "string",
+                "enum": [
+                  "platform-community-commons",
+                  "platform-attribution",
+                  "private-only"
+                ],
+                "default": "private-only"
+              },
+              "rightsConfidence": {
+                "type": "string",
+                "enum": [
+                  "low",
+                  "medium",
+                  "high"
+                ],
+                "default": "low"
+              },
+              "commercialAllowed": {
+                "type": "boolean",
+                "default": false
+              },
+              "exportEligibility": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "eligible",
+                      "blocked",
+                      "unverified"
+                    ]
+                  },
+                  "checkedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "sourceIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "reasons": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "status",
+                  "checkedAt",
+                  "sourceIds",
+                  "reasons"
+                ],
+                "additionalProperties": false
+              },
               "reviewStatus": {
                 "type": "string",
                 "enum": [

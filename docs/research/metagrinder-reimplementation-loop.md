@@ -147,6 +147,22 @@ Exit gate: `packages/core` contains only `src/`, tests, fixtures-as-corpus, and 
 
 ---
 
+## Audit repair plan — S-R1
+
+Scope: the first audit repair slice, authorized 2026-10-13. This is one trust-boundary repair story; existing phase exits and operator run cards remain in effect.
+
+| ID | Acceptance criterion | Files | Status |
+|---|---|---|---|
+| S-R1a | Every cited claim and review must resolve, and all citations must be approved before a material revision applies without an explicit override. Retraction flags include direct evidence dependencies and appear on returned accepted grammar. | `stages/govern/` | done |
+| S-R1b | Contributor terms never widen automatically. Export recomputes permission eligibility from current contributing sources; missing lifecycle is visibly unverified and retracted/restricted sources block permission. Reconciled lineage invalidates prior permission checks. | `stages/utdg/{rights,project}.ts`, `schemas/utdg.ts` | done |
+| S-R1c | Every grammar family receives attribution checks and validates input/chunk ownership. Real chunk IDs alone never certify unsupported grammar content; inference and lexical proxies retain uncertainty and synchronized confidence. | `stages/grammar/` | done |
+| S-R1d | Label/external-ID matches require human reconciliation bound to current proposal content. Automatic idempotency requires identical stable identity and content; Unicode labels are preserved. | `stages/reconcile/` | done |
+| S-R1e | Handoff hashes cover nested manifest values and collection content hashes. Sealing and lineage checks validate current RunStore bytes; stale or incomplete packages cannot confirm a handoff. | `stages/handoff/`, `schemas/package-manifest.ts` | done |
+
+Implementation order: add failing invariant tests, repair the five boundaries, regenerate affected JSON Schema contracts, then run strict TypeScript, the complete rebuilt and legacy suites, bootstrap baseline regressions, contract consumption, and diff checks. No extraction prompt or eval judgment changes are part of this story. Real-provider and held-out evidence remain the existing operator gates.
+
+Compatibility: grammar requests now include each chunk's owning input ID, so older grammar response caches do not match the repaired request. A permission-eligible UTDG export requires current `sourceLifecycle` data and, where IDs differ, `sourceIdsByInputId`; eligibility is a permission check, not human content approval. Reconciliation proposal IDs are content hashes, so previous ordinal decisions must be reviewed against fresh proposals. Handoffs use `sealPackageManifest(store, manifest)` before hashing; `queryRunHandoffLineage` now receives that manifest and verifies current collection bytes.
+
 ## C. Bootstrap Sequence (first session, in order)
 
 1. S0.1 (pnpm) — everything else is hostage to it. If it resists more than one session, escalate to the human with findings rather than architecting around it again.
